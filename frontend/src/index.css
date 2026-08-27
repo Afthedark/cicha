@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  --color-helenic-50: #eff8ff;
+  --color-helenic-100: #dbeafe;
+  --color-helenic-200: #bfdbfe;
+  --color-helenic-300: #93c5fd;
+  --color-helenic-400: #60a5fa;
+  --color-helenic-500: #3b82f6;
+  --color-helenic-600: #0d5eaf; /* Official Greek Aegean Blue */
+  --color-helenic-700: #0a4988;
+  --color-helenic-800: #073562;
+  --color-helenic-900: #0b2545; /* Official Deep Diplomatic Navy */
+  --color-helenic-950: #051427;
+
+  --color-gold-50: #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #d4af37; /* Metallic Gold Accent */
+  --color-gold-600: #b8860b;
+  --color-gold-700: #926b08;
+  --color-gold-800: #78350f;
+  --color-gold-900: #451a03;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Cinzel', 'Merriweather', Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    color: #1e293b;
+    background-color: #f8fafc;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #0d5eaf;
+    color: #ffffff;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Glassmorphism helpers */
+.glass-nav {
+  background: rgba(11, 37, 69, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card-dark {
+  background: rgba(11, 37, 69, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Greek Key / Meander Pattern Subtle Background */
+.bg-greek-pattern {
+  background-image: radial-gradient(rgba(13, 94, 175, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fcd34d 0%, #d4af37 50%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================================================
+   Google Translate Clean UI Overrides
+   ========================================================= */
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.skiptranslate:not(.allow-skiptranslate) {
+  display: none !important;
+}
+

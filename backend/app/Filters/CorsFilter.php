@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Filters;
+
+use CodeIgniter\Filters\FilterInterface;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class CorsFilter implements FilterInterface
+{
+    public function before(RequestInterface $request, $arguments = null)
+    {
+        // Handle preflight OPTIONS request
+        if ($request->getMethod() === 'options') {
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE');
+            header('HTTP/1.1 200 OK');
+            exit();
+        }
+
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE');
+    }
+
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
+    {
+        $response->setHeader('Access-Control-Allow-Origin', '*');
+        $response->setHeader('Access-Control-Allow-Headers', 'X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+        $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, PUT, DELETE');
+        return $response;
+    }
+}
