@@ -11,32 +11,35 @@ import {
   ExternalLink,
   ChevronRight,
 } from 'lucide-react';
+import cichaLogo from '../../assets/images/logo.png';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#071E38] text-slate-300 pt-16 pb-8 border-t-4 border-amber-500">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-blue-900/60">
+    <footer className="bg-gradient-to-b from-[#0066CC] to-[#0A4988] text-white pt-16 pb-8 border-t-4 border-[#00AEEF] shadow-2xl relative overflow-hidden">
+      {/* Decorative Glow */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#00AEEF]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#D4EEFC]/15 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/20">
           {/* Column 1: Institutional */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0D5EAF] to-[#0B2545] border-2 border-amber-400 flex items-center justify-center text-white font-serif font-bold text-lg text-amber-300">
-                C
-              </div>
-              <div>
-                <h3 className="font-serif font-bold text-lg text-white tracking-wide">CICHA</h3>
-                <p className="text-xs text-slate-400">Cámara Heleno Argentina</p>
-              </div>
+            <div className="bg-white p-2.5 rounded-2xl shadow-lg border border-[#D4EEFC] inline-flex items-center justify-center">
+              <img
+                src={cichaLogo}
+                alt="CICHA - Cámara de Industria y Comercio Heleno Argentina"
+                className="h-12 sm:h-14 w-auto object-contain"
+              />
             </div>
-            <p className="text-xs leading-relaxed text-slate-300">
+            <p className="text-xs leading-relaxed text-white/90 font-light">
               Fuerza creadora de negocios sustentables, inversiones y comercio bilateral entre la República Argentina y la República Helénica.
             </p>
-            <div className="p-3 rounded-lg bg-blue-950/60 border border-blue-900 text-xs space-y-1">
-              <p className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                <ShieldCheck className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-black/15 border border-white/25 text-xs space-y-1 backdrop-blur-sm">
+              <p className="flex items-center gap-1.5 text-[#F5A623] font-bold">
+                <ShieldCheck className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 Reconocimientos Oficiales
               </p>
-              <p className="text-slate-300 text-[11px]">
+              <p className="text-white/90 text-[11px] font-medium leading-tight">
                 • Gobierno Argentino: 1 de Noviembre 1989<br />
                 • Gobierno Griego: 18 de Septiembre 1998
               </p>
@@ -45,49 +48,49 @@ export const Footer: React.FC = () => {
 
           {/* Column 2: Quick Links */}
           <div className="space-y-3">
-            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b border-blue-800/60 pb-2">
+            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2">
               Secciones
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link to="/institucional" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/institucional" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Misión, Objeto e Historia
                 </Link>
               </li>
               <li>
-                <Link to="/institucional#autoridades" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/institucional#autoridades" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Comisión Directiva y Autoridades
                 </Link>
               </li>
               <li>
-                <Link to="/comercio-bilateral" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/comercio-bilateral" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Comercio Bilateral & Red EEN
                 </Link>
               </li>
               <li>
-                <Link to="/socios" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/socios" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Directorio de Empresas Socias
                 </Link>
               </li>
               <li>
-                <Link to="/noticias" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/noticias" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Noticias & Comunicados
                 </Link>
               </li>
               <li>
-                <Link to="/eventos" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/eventos" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Agenda de Eventos y Rondas
                 </Link>
               </li>
               <li>
-                <Link to="/asociarse" className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-bold text-amber-400">
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-500" />
+                <Link to="/asociarse" className="hover:text-white transition-colors flex items-center gap-1.5 font-bold text-[#F5A623]">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Solicitud de Afiliación
                 </Link>
               </li>
@@ -96,56 +99,56 @@ export const Footer: React.FC = () => {
 
           {/* Column 3: Alliances & Networks */}
           <div className="space-y-3">
-            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b border-blue-800/60 pb-2">
+            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2">
               Redes & Alianzas
             </h4>
             <div className="space-y-2.5 text-xs">
-              <div className="p-2.5 rounded-lg bg-blue-950/40 border border-blue-900/80">
+              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
                 <p className="font-bold text-white flex items-center justify-between">
                   EUROCAMARA Argentina
-                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[#00AEEF]" />
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Miembro Activo desde Mayo 2017</p>
+                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Miembro Activo desde Mayo 2017</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-blue-950/40 border border-blue-900/80">
+              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
                 <p className="font-bold text-white flex items-center justify-between">
                   Enterprise Europe Network
-                  <Globe2 className="w-3.5 h-3.5 text-blue-400" />
+                  <Globe2 className="w-3.5 h-3.5 text-[#00AEEF]" />
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Nodo Oficial en Argentina (Unión Europea)</p>
+                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Nodo Oficial en Argentina (Unión Europea)</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-blue-950/40 border border-blue-900/80">
+              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
                 <p className="font-bold text-white flex items-center justify-between">
                   UCCEB (32 Cámaras)
-                  <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                  <Building2 className="w-3.5 h-3.5 text-[#F5A623]" />
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Unión de Cámaras Binacionales</p>
+                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Unión de Cámaras Binacionales</p>
               </div>
             </div>
           </div>
 
           {/* Column 4: Contact info */}
           <div className="space-y-3">
-            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b border-blue-800/60 pb-2">
+            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2">
               Sede & Contacto
             </h4>
-            <div className="space-y-2.5 text-xs text-slate-300">
-              <p className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-2.5 text-xs text-white/90 font-light">
+              <p className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
                 <span>Av. Leandro N. Alem 1074, Piso 7, Ciudad Autónoma de Buenos Aires, Argentina</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+              <p className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <span>+54 11 4328-9898 / 9899</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+              <p className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <span>info@cicha.com.ar • comercio@cicha.com.ar</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+              <p className="flex items-center gap-2.5">
+                <Clock className="w-4 h-4 text-[#00AEEF] shrink-0" />
                 <span>Lun a Vie 09:00 a 18:00 hs</span>
               </p>
             </div>
@@ -153,11 +156,11 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/80">
           <p>© {new Date().getFullYear()} Cámara de Industria y Comercio Heleno Argentina (CICHA). Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
-            <Link to="/contacto" className="hover:text-amber-400 transition-colors">Privacidad & Términos</Link>
-            <Link to="/admin/login" className="hover:text-amber-400 transition-colors text-slate-500">Panel CMS</Link>
+            <Link to="/contacto" className="hover:text-white transition-colors font-medium">Privacidad & Términos</Link>
+            <Link to="/admin/login" className="hover:text-white transition-colors text-white/60 font-medium">Panel CMS</Link>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ $routes->get('/', 'Home::index');
 $routes->options('(:any)', static function () {
     $response = service('response');
     $response->setHeader('Access-Control-Allow-Origin', '*');
-    $response->setHeader('Access-Control-Allow-Headers', 'X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+    $response->setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authorization, X-API-KEY, Access-Control-Request-Method');
     $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, PUT, DELETE');
     return $response->setStatusCode(200);
 });
@@ -82,15 +82,6 @@ $routes->group('api', static function ($routes) {
         $routes->put('messages/(:num)', 'Admin\MessagesController::update/$1');
         $routes->delete('messages/(:num)', 'Admin\MessagesController::delete/$1');
 
-        // Uploads
-        $routes->post('upload', 'Admin\UploadController::uploadImage');
-    });
-
-    // Admin-Only System Management (Role: admin only)
-    $routes->group('admin', ['filter' => ['jwt', 'role:admin']], static function ($routes) {
-        // User & Role Management
-        $routes->resource('users', ['controller' => 'Admin\UsersController']);
-
         // Authorities / Board
         $routes->resource('authorities', ['controller' => 'Admin\AuthoritiesController']);
 
@@ -105,5 +96,14 @@ $routes->group('api', static function ($routes) {
         // Settings
         $routes->get('settings', 'Admin\SettingsController::index');
         $routes->post('settings', 'Admin\SettingsController::updateAll');
+
+        // Uploads
+        $routes->post('upload', 'Admin\UploadController::uploadImage');
+    });
+
+    // Admin-Only System Management (Role: admin only - Strict User Management)
+    $routes->group('admin', ['filter' => ['jwt', 'role:admin']], static function ($routes) {
+        // User & Role Management (Strict Admin only)
+        $routes->resource('users', ['controller' => 'Admin\UsersController']);
     });
 });

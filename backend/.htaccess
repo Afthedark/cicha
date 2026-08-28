@@ -1,0 +1,32 @@
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php82” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Ensure Authorization header is passed to PHP
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Si la petición no entra ya a /public/, redirigir internamente a /public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
+
+# Ensure CORS headers are enabled at Apache level
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authorization, x-authorization, X-API-KEY, Access-Control-Request-Method"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+</IfModule>
+
+# Proteger archivos sensibles
+<FilesMatch "^\.env|composer\.(json|lock)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

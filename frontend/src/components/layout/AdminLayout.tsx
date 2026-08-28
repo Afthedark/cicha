@@ -36,7 +36,7 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  // Menu items filtered by role
+  // Streamlined 5 Essential Modules
   const allNavItems = [
     {
       name: 'Panel Principal',
@@ -45,77 +45,28 @@ export const AdminLayout: React.FC = () => {
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Noticias & Prensa',
+      name: 'Prensa & Agenda',
       path: '/admin/noticias',
       icon: Newspaper,
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Agenda de Eventos',
-      path: '/admin/eventos',
-      icon: Calendar,
-      roles: ['admin', 'secretario'],
-    },
-    {
-      name: 'Directorio de Socios',
+      name: 'Socios & Negocios',
       path: '/admin/socios',
       icon: Building,
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Oportunidades Comerciales',
-      path: '/admin/oportunidades',
-      icon: TrendingUp,
-      roles: ['admin', 'secretario'],
-    },
-    {
-      name: 'Recursos & Beneficios Socios',
-      path: '/admin/recursos-socios',
-      icon: FileDown,
-      roles: ['admin', 'secretario'],
-    },
-    {
-      name: 'Solicitudes de Afiliación',
-      path: '/admin/solicitudes',
+      name: 'Bandeja de Entrada',
+      path: '/admin/mensajes',
       icon: Inbox,
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Mensajes de Contacto',
-      path: '/admin/mensajes',
-      icon: MessageSquare,
-      roles: ['admin', 'secretario'],
-    },
-    // Admin-Only Modules
-    {
-      name: 'Usuarios & Roles',
-      path: '/admin/usuarios',
-      icon: Shield,
-      roles: ['admin'],
-    },
-    {
-      name: 'Comisión Directiva',
-      path: '/admin/autoridades',
-      icon: Users,
-      roles: ['admin'],
-    },
-    {
-      name: 'Contenido Institucional',
-      path: '/admin/institucional',
-      icon: FileText,
-      roles: ['admin'],
-    },
-    {
-      name: 'Alianzas & Redes',
-      path: '/admin/alianzas',
-      icon: Globe,
-      roles: ['admin'],
-    },
-    {
-      name: 'Configuración General',
+      name: 'Configuración & Gestión',
       path: '/admin/configuracion',
       icon: Settings,
-      roles: ['admin'],
+      roles: ['admin', 'secretario'],
     },
   ];
 
@@ -132,7 +83,7 @@ export const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
       {/* Top Bar */}
-      <header className="bg-[#0B2545] text-white border-b border-blue-900 sticky top-0 z-40">
+      <header className="bg-cicha-navy text-white border-b border-blue-900 sticky top-0 z-40">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -246,7 +197,7 @@ export const AdminLayout: React.FC = () => {
           <div className="lg:hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex">
             <div className="w-72 bg-white h-full p-4 space-y-2 overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                <span className="font-serif font-bold text-sm text-[#0B2545]">Navegación CMS</span>
+                <span className="font-serif font-bold text-sm text-cicha-navy">Navegación CMS</span>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-1 rounded-lg text-slate-400 hover:text-slate-700"

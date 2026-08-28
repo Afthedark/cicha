@@ -34,7 +34,7 @@ export const PartnerOpportunitiesPage: React.FC = () => {
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Badge variant="gold">Trato Directo Exclusivo</Badge>
-          <h1 className="font-serif font-bold text-2xl text-[#0B2545] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-cicha-navy mt-1">
             Oportunidades Comerciales Bilaterales VIP
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -57,7 +57,7 @@ export const PartnerOpportunitiesPage: React.FC = () => {
             onClick={() => setType(t.value)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               type === t.value
-                ? 'bg-[#0B2545] text-white shadow-xs'
+                ? 'bg-cicha-navy text-white shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -86,7 +86,7 @@ export const PartnerOpportunitiesPage: React.FC = () => {
                   </span>
                 </div>
 
-                <h3 className="font-serif font-bold text-base text-[#0B2545] group-hover:text-blue-700 transition-colors">
+                <h3 className="font-serif font-bold text-base text-cicha-navy group-hover:text-blue-700 transition-colors">
                   {opp.title}
                 </h3>
 

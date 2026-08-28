@@ -26,6 +26,8 @@ class AuthoritiesController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
         $rules = [
             'name'       => 'required|min_length[3]',
             'role_title' => 'required',
@@ -36,15 +38,15 @@ class AuthoritiesController extends ResourceController
         }
 
         $data = [
-            'name'         => $this->request->getVar('name'),
-            'role_title'   => $this->request->getVar('role_title'),
-            'category'     => $this->request->getVar('category') ?: 'directiva',
-            'company'      => $this->request->getVar('company') ?: '',
-            'bio'          => $this->request->getVar('bio') ?: '',
-            'photo_url'    => $this->request->getVar('photo_url') ?: '',
-            'linkedin_url' => $this->request->getVar('linkedin_url') ?: '',
-            'order_num'    => (int) ($this->request->getVar('order_num') ?: 0),
-            'is_active'    => $this->request->getVar('is_active') ? 1 : 0,
+            'name'         => $input['name'] ?? '',
+            'role_title'   => $input['role_title'] ?? '',
+            'category'     => $input['category'] ?? 'directiva',
+            'company'      => $input['company'] ?? '',
+            'bio'          => $input['bio'] ?? '',
+            'photo_url'    => $input['photo_url'] ?? '',
+            'linkedin_url' => $input['linkedin_url'] ?? '',
+            'order_num'    => (int) ($input['order_num'] ?? 0),
+            'is_active'    => !empty($input['is_active']) ? 1 : 0,
         ];
 
         $model = new AuthorityModel();
@@ -58,8 +60,7 @@ class AuthoritiesController extends ResourceController
         $model = new AuthorityModel();
         if (!$model->find($id)) return $this->failNotFound('Autoridad no encontrada');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
         if (isset($input['name'])) $data['name'] = $input['name'];
@@ -70,9 +71,12 @@ class AuthoritiesController extends ResourceController
         if (isset($input['photo_url'])) $data['photo_url'] = $input['photo_url'];
         if (isset($input['linkedin_url'])) $data['linkedin_url'] = $input['linkedin_url'];
         if (isset($input['order_num'])) $data['order_num'] = (int) $input['order_num'];
-        if (isset($input['is_active'])) $data['is_active'] = $input['is_active'] ? 1 : 0;
+        if (isset($input['is_active'])) $data['is_active'] = !empty($input['is_active']) ? 1 : 0;
 
-        $model->update($id, $data);
+        if (!empty($data)) {
+            $model->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Autoridad actualizada con éxito']);
     }
 

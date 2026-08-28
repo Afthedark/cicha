@@ -1,0 +1,231 @@
+<?php
+
+namespace App\Database\Seeds;
+
+use CodeIgniter\Database\Seeder;
+
+class AuthoritiesSeeder extends Seeder
+{
+    public function run()
+    {
+        $now = date('Y-m-d H:i:s');
+
+        // Limpiar tabla de autoridades
+        $this->db->table('authorities')->emptyTable();
+
+        $authorities = [
+            // Presidente Honorario
+            [
+                'name'         => 'Alexandros Zymnis',
+                'role_title'   => 'Presidente Honorario',
+                'category'     => 'honorario',
+                'company'      => 'EGEO SACI & A',
+                'bio'          => 'Presidente Honorario y referente histórico de la comunidad y el comercio bilateral heleno argentino.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 1,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Comisión Directiva - Presidente
+            [
+                'name'         => 'Georgios Souvatzis',
+                'role_title'   => 'Presidente',
+                'category'     => 'directiva',
+                'company'      => 'IAS GROUP / ECOINNOVA',
+                'bio'          => 'Presidente de CICHA. Líder empresarial en innovación, desarrollo sustentable y comercio bilateral greco-argentino.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 2,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Vice-Presidente 1º
+            [
+                'name'         => 'Catalina Alejandra Gounaridis',
+                'role_title'   => 'Vicepresidenta 1ª',
+                'category'     => 'directiva',
+                'company'      => 'GEORGALOS HNOS S.A.I.C.A.',
+                'bio'          => 'Vicepresidenta 1ª de CICHA y directiva destacada en la industria alimenticia y de consumo masivo con tradición helénica.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 3,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Vice-Presidente 2º
+            [
+                'name'         => 'Jorge Kalogiannidis',
+                'role_title'   => 'Vicepresidente 2º',
+                'category'     => 'directiva',
+                'company'      => 'KALOP - ACROPOLIS CABLES S.A.',
+                'bio'          => 'Vicepresidente 2º de CICHA, empresario industrial del sector eléctrico, energía y manufactura avanzada.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 4,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Secretario General
+            [
+                'name'         => 'Alejandro Patricio Kasimis',
+                'role_title'   => 'Secretario General',
+                'category'     => 'directiva',
+                'company'      => 'PRODUCTOS PILAR S.A.',
+                'bio'          => 'Secretario General de CICHA, articulador de vinculaciones institucionales y desarrollo de mercados.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 5,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Tesorero
+            [
+                'name'         => 'Gerardo Esteban Bursky',
+                'role_title'   => 'Tesorero',
+                'category'     => 'directiva',
+                'company'      => 'ESTUDIO SMIRNIOUDIS S.R.L.',
+                'bio'          => 'Tesorero de CICHA y consultor en gestión financiera y contable corporativa.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 6,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Vocales Titulares
+            [
+                'name'         => 'Jorge Néstor Cotsiopoulos',
+                'role_title'   => 'Vocal Titular',
+                'category'     => 'directiva',
+                'company'      => 'ARTEMISION SRL',
+                'bio'          => 'Vocal Titular de la Comisión Directiva de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 7,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'name'         => 'Basilio Esteban Davonis',
+                'role_title'   => 'Vocal Titular',
+                'category'     => 'directiva',
+                'company'      => 'DAVONIS S.A.',
+                'bio'          => 'Vocal Titular de la Comisión Directiva de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 8,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'name'         => 'Alejandro Tomás Macipe',
+                'role_title'   => 'Vocal Titular',
+                'category'     => 'directiva',
+                'company'      => 'BODEGAS KRONTIRAS S.A.',
+                'bio'          => 'Vocal Titular de CICHA y representante de la vitivinicultura biodinámica de raíces greco-argentinas.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 9,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'name'         => 'Mauricio Frumento',
+                'role_title'   => 'Vocal Titular',
+                'category'     => 'directiva',
+                'company'      => 'BANCO ICBC',
+                'bio'          => 'Vocal Titular de CICHA y ejecutivo en banca corporativa y comercio exterior.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 10,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Vocal Suplente
+            [
+                'name'         => 'Themistocles Valaouris',
+                'role_title'   => 'Vocal Suplente',
+                'category'     => 'directiva',
+                'company'      => 'HELLASMAR S.A.',
+                'bio'          => 'Vocal Suplente de la Comisión Directiva de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 11,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Comisión Revisora de Cuentas - Presidente
+            [
+                'name'         => 'Basilio Nicolás Polijronopoulos',
+                'role_title'   => 'Presidente Comisión Revisora de Cuentas',
+                'category'     => 'revisora',
+                'company'      => 'TEGA S.A.',
+                'bio'          => 'Presidente de la Comisión Revisora de Cuentas de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 12,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Miembros Titulares Revisores
+            [
+                'name'         => 'George Xanthopoulos',
+                'role_title'   => 'Miembro Titular Revisor de Cuentas',
+                'category'     => 'revisora',
+                'company'      => 'COLEGIO SAINT MARY OF THE HILLS S.A.',
+                'bio'          => 'Miembro Titular de la Comisión Revisora de Cuentas de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 13,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'name'         => 'Beatriz Sofía Caravias Nazar',
+                'role_title'   => 'Miembro Titular Revisora de Cuentas',
+                'category'     => 'revisora',
+                'company'      => 'ESTUDIO CONTABLE',
+                'bio'          => 'Miembro Titular de la Comisión Revisora de Cuentas de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 14,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            // Miembro Suplente Revisor
+            [
+                'name'         => 'Alejandro Aurelio Valaouris',
+                'role_title'   => 'Miembro Suplente Revisor de Cuentas',
+                'category'     => 'revisora',
+                'company'      => 'HELLASMAR S.A.',
+                'bio'          => 'Miembro Suplente de la Comisión Revisora de Cuentas de CICHA.',
+                'photo_url'    => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                'linkedin_url' => '',
+                'order_num'    => 15,
+                'is_active'    => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+        ];
+
+        foreach ($authorities as $auth) {
+            $this->db->table('authorities')->insert($auth);
+        }
+
+        echo "Seeded " . count($authorities) . " authorities.\n";
+    }
+}

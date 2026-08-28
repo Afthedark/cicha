@@ -102,7 +102,7 @@ export const AdminAlliancesPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Alianzas y Redes Estratégicas</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Alianzas y Redes Estratégicas</h1>
           <p className="text-xs text-slate-500 mt-0.5">Gestión de convenios, EUROCAMARA, nodo EEN y UCCEB.</p>
         </div>
         <button

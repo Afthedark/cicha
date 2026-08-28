@@ -31,7 +31,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         className={`bg-white rounded-2xl shadow-2xl border border-slate-200 w-full ${maxWidths[maxWidth]} overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200`}
       >
-        <div className="px-6 py-4 bg-[#0B2545] text-white flex items-center justify-between border-b border-blue-900">
+        <div className="px-6 py-4 bg-cicha-navy text-white flex items-center justify-between border-b border-blue-900">
           <h3 className="font-serif font-bold text-base text-amber-300">{title}</h3>
           <button
             onClick={onClose}

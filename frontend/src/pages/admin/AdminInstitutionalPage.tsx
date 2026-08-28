@@ -61,7 +61,7 @@ export const AdminInstitutionalPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <h1 className="font-serif font-bold text-xl text-[#0B2545]">Contenidos Institucionales</h1>
+        <h1 className="font-serif font-bold text-xl text-cicha-navy">Contenidos Institucionales</h1>
         <p className="text-xs text-slate-500 mt-0.5">
           Edición de la Misión, Objeto, Historia y Redes estratégicas de CICHA.
         </p>
@@ -90,7 +90,7 @@ export const AdminInstitutionalPage: React.FC = () => {
                   </button>
                 </div>
 
-                <h2 className="font-serif font-bold text-lg text-[#0B2545]">{sec.title}</h2>
+                <h2 className="font-serif font-bold text-lg text-cicha-navy">{sec.title}</h2>
                 {sec.subtitle && (
                   <p className="text-xs font-semibold text-amber-600">{sec.subtitle}</p>
                 )}

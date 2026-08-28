@@ -1,216 +1,1048 @@
 import React, { useEffect, useState } from 'react';
-import { Settings as SettingsIcon, Save, CheckCircle, Globe, Phone, Mail, MapPin } from 'lucide-react';
+import {
+  Settings as SettingsIcon,
+  Shield,
+  Users,
+  FileText,
+  Globe,
+  Save,
+  CheckCircle,
+  Plus,
+  Edit2,
+  Trash2,
+  Lock,
+  Mail,
+  Phone,
+} from 'lucide-react';
 import { adminApi } from '../../services/api';
-import type { Settings } from '../../types';
+import type { Settings, User, Authority, InstitutionalSection, Alliance, Member } from '../../types';
 import { Loader } from '../../components/common/Loader';
+import { Badge } from '../../components/common/Badge';
+import { Modal } from '../../components/common/Modal';
+import { useAuth } from '../../context/AuthContext';
+import { ImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminSettingsPage: React.FC = () => {
-  const [settings, setSettings] = useState<Settings>({});
+  const { user, isAdmin } = useAuth();
+  const [activeTab, setActiveTab] = useState<'settings' | 'users' | 'institutional' | 'authorities' | 'alliances'>('settings');
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+
+  // Settings state
+  const [settings, setSettings] = useState<Settings>({});
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // Users state
+  const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'secretario' as 'admin' | 'secretario' | 'socio',
+    member_id: '' as string | number,
+    status: 'active' as 'active' | 'inactive',
+  });
+
+  // Institutional state
+  const [sections, setSections] = useState<InstitutionalSection[]>([]);
+  const [editingSection, setEditingSection] = useState<InstitutionalSection | null>(null);
+  const [sectionForm, setSectionForm] = useState({ title: '', subtitle: '', content: '' });
+
+  // Authorities state
+  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [editingAuth, setEditingAuth] = useState<Authority | null>(null);
+  const [authForm, setAuthForm] = useState({
+    name: '',
+    role_title: '',
+    category: 'directiva' as any,
+    company: '',
+    bio: '',
+    photo_url: '',
+    order_num: 1,
+  });
+
+  // Alliances state
+  const [alliances, setAlliances] = useState<Alliance[]>([]);
+  const [isAllianceModalOpen, setIsAllianceModalOpen] = useState(false);
+  const [editingAlliance, setEditingAlliance] = useState<Alliance | null>(null);
+  const [allianceForm, setAllianceForm] = useState({
+    name: '',
+    slug: '',
+    category: 'institucional',
+    description: '',
+    website_url: '',
+    logo_url: '',
+    highlight_text: '',
+    order_num: 1,
+    is_active: 1,
+  });
+
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    adminApi
-      .getSettings()
-      .then((res) => {
-        setSettings(res || {});
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    setLoading(true);
+    const promises: Promise<any>[] = [
+      adminApi.getSettings(),
+      isAdmin ? adminApi.getUsers().catch(() => []) : Promise.resolve([]),
+      adminApi.getMembers().catch(() => []),
+      adminApi.getInstitutional().catch(() => []),
+      adminApi.getAuthorities().catch(() => []),
+      adminApi.getAlliances().catch(() => []),
+    ];
+
+    Promise.all(promises)
+      .then(([set, usrs, mems, secs, auths, allis]) => {
+        setSettings(set || {});
+        setUsers(usrs || []);
+        setMembers(mems || []);
+        setSections(secs || []);
+        setAuthorities(auths || []);
+        setAlliances(allis || []);
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
       });
-  }, []);
-
-  const handleChange = (key: string, value: string) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Settings Save
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
-    setSaved(false);
-
+    setSavingSettings(true);
     try {
       await adminApi.updateSettings(settings);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      alert('Error al guardar las configuraciones.');
+      setSettingsSaved(true);
+      setTimeout(() => setSettingsSaved(false), 3000);
+    } catch {
+      alert('Error al guardar configuraciones.');
     } finally {
-      setSaving(false);
+      setSavingSettings(false);
     }
   };
 
-  if (loading) {
-    return <Loader text="Cargando configuraciones..." />;
-  }
+  // User Handlers
+  const handleOpenCreateUser = () => {
+    setEditingUser(null);
+    setUserForm({
+      name: '',
+      email: '',
+      password: '',
+      role: 'secretario',
+      member_id: '',
+      status: 'active',
+    });
+    setIsUserModalOpen(true);
+  };
+
+  const handleOpenEditUser = (u: User) => {
+    setEditingUser(u);
+    setUserForm({
+      name: u.name,
+      email: u.email,
+      password: '',
+      role: u.role,
+      member_id: u.member_id || '',
+      status: u.status,
+    });
+    setIsUserModalOpen(true);
+  };
+
+  const handleSubmitUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        ...userForm,
+        member_id: userForm.member_id ? Number(userForm.member_id) : null,
+      };
+      if (!payload.password) delete payload.password;
+
+      if (editingUser) {
+        await adminApi.updateUser(editingUser.id, payload);
+      } else {
+        await adminApi.createUser(payload);
+      }
+      setIsUserModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al guardar usuario.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteUser = async (id: string | number) => {
+    if (!window.confirm('¿Desea eliminar este usuario?')) return;
+    try {
+      await adminApi.deleteUser(id);
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar');
+    }
+  };
+
+  // Institutional Handlers
+  const handleOpenEditSection = (sec: InstitutionalSection) => {
+    setEditingSection(sec);
+    setSectionForm({
+      title: sec.title,
+      subtitle: sec.subtitle || '',
+      content: sec.content,
+    });
+  };
+
+  const handleSubmitSection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSection) return;
+    setSubmitting(true);
+    try {
+      await adminApi.updateInstitutional(editingSection.id, sectionForm);
+      setEditingSection(null);
+      fetchData();
+    } catch {
+      alert('Error al guardar sección.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Authority Handlers
+  const handleOpenCreateAuth = () => {
+    setEditingAuth(null);
+    setAuthForm({
+      name: '',
+      role_title: '',
+      category: 'directiva',
+      company: '',
+      bio: '',
+      photo_url: '',
+      order_num: authorities.length + 1,
+    });
+    setIsAuthModalOpen(true);
+  };
+
+  const handleOpenEditAuth = (auth: Authority) => {
+    setEditingAuth(auth);
+    setAuthForm({
+      name: auth.name,
+      role_title: auth.role_title,
+      category: auth.category,
+      company: auth.company || '',
+      bio: auth.bio || '',
+      photo_url: auth.photo_url || '',
+      order_num: auth.order_num || 1,
+    });
+    setIsAuthModalOpen(true);
+  };
+
+  const handleSubmitAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      if (editingAuth) {
+        await adminApi.updateAuthority(editingAuth.id, authForm);
+      } else {
+        await adminApi.createAuthority(authForm);
+      }
+      setIsAuthModalOpen(false);
+      fetchData();
+    } catch {
+      alert('Error al guardar autoridad.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteAuth = async (id: number) => {
+    if (!window.confirm('¿Desea eliminar esta autoridad?')) return;
+    try {
+      await adminApi.deleteAuthority(id);
+      fetchData();
+    } catch {
+      alert('Error al eliminar');
+    }
+  };
+
+  // Alliance Handlers
+  const handleOpenCreateAlliance = () => {
+    setEditingAlliance(null);
+    setAllianceForm({
+      name: '',
+      slug: '',
+      category: 'institucional',
+      description: '',
+      website_url: '',
+      logo_url: '',
+      highlight_text: '',
+      order_num: alliances.length + 1,
+      is_active: 1,
+    });
+    setIsAllianceModalOpen(true);
+  };
+
+  const handleOpenEditAlliance = (all: Alliance) => {
+    setEditingAlliance(all);
+    setAllianceForm({
+      name: all.name,
+      slug: all.slug,
+      category: all.category,
+      description: all.description || '',
+      website_url: all.website_url || '',
+      logo_url: all.logo_url || '',
+      highlight_text: all.highlight_text || '',
+      order_num: all.order_num || 1,
+      is_active: typeof all.is_active === 'number' ? all.is_active : all.is_active ? 1 : 0,
+    });
+    setIsAllianceModalOpen(true);
+  };
+
+  const handleSubmitAlliance = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      if (editingAlliance) {
+        await adminApi.updateAlliance(editingAlliance.id, allianceForm);
+      } else {
+        await adminApi.createAlliance(allianceForm);
+      }
+      setIsAllianceModalOpen(false);
+      fetchData();
+    } catch {
+      alert('Error al guardar alianza.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteAlliance = async (id: number) => {
+    if (!window.confirm('¿Desea eliminar esta alianza?')) return;
+    try {
+      await adminApi.deleteAlliance(id);
+      fetchData();
+    } catch {
+      alert('Error al eliminar');
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Configuración General del Portal</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Configuración Global & Gestión Institucional</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Información de contacto, redes sociales y metadatos SEO del sitio.
+            Módulo exclusivo de administración para usuarios, estatutos, autoridades y ajustes del portal.
           </p>
         </div>
 
-        {saved && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold animate-in fade-in">
-            <CheckCircle className="w-4 h-4" /> Cambios guardados
-          </span>
-        )}
+        {activeTab === 'users' ? (
+          <button
+            onClick={handleOpenCreateUser}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Nuevo Usuario
+          </button>
+        ) : activeTab === 'authorities' ? (
+          <button
+            onClick={handleOpenCreateAuth}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Nueva Autoridad
+          </button>
+        ) : activeTab === 'alliances' ? (
+          <button
+            onClick={handleOpenCreateAlliance}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Nueva Alianza
+          </button>
+        ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Institutional & Contact Info */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="font-serif font-bold text-base text-[#0B2545] border-b border-slate-100 pb-3 flex items-center gap-2">
-            <Mail className="w-4 h-4 text-blue-600" />
-            Datos Institucionales y de Contacto
-          </h2>
+      {/* Tabs */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'settings'
+              ? 'border-blue-600 text-blue-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <SettingsIcon className="w-4 h-4" />
+          Ajustes Generales
+        </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Nombre del Sitio</label>
-              <input
-                type="text"
-                value={settings.site_name || ''}
-                onChange={(e) => handleChange('site_name', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Sigla / Acrónimo</label>
-              <input
-                type="text"
-                value={settings.site_acronym || ''}
-                onChange={(e) => handleChange('site_acronym', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Email Institucional</label>
-              <input
-                type="email"
-                value={settings.contact_email || ''}
-                onChange={(e) => handleChange('contact_email', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Email Comercio Exterior / EEN</label>
-              <input
-                type="email"
-                value={settings.trade_email || ''}
-                onChange={(e) => handleChange('trade_email', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Teléfono Principal</label>
-              <input
-                type="text"
-                value={settings.phone_primary || ''}
-                onChange={(e) => handleChange('phone_primary', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Teléfono Secundario</label>
-              <input
-                type="text"
-                value={settings.phone_secondary || ''}
-                onChange={(e) => handleChange('phone_secondary', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5 sm:col-span-2">
-              <label className="font-bold text-slate-700">Dirección de la Sede</label>
-              <input
-                type="text"
-                value={settings.address_street || ''}
-                onChange={(e) => handleChange('address_street', e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Social Media Links */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="font-serif font-bold text-base text-[#0B2545] border-b border-slate-100 pb-3 flex items-center gap-2">
-            <Globe className="w-4 h-4 text-blue-600" />
-            Redes Sociales Oficiales
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">LinkedIn</label>
-              <input
-                type="url"
-                value={settings.social_linkedin || ''}
-                onChange={(e) => handleChange('social_linkedin', e.target.value)}
-                placeholder="https://linkedin.com/..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">X (Twitter)</label>
-              <input
-                type="url"
-                value={settings.social_twitter || ''}
-                onChange={(e) => handleChange('social_twitter', e.target.value)}
-                placeholder="https://twitter.com/..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Facebook</label>
-              <input
-                type="url"
-                value={settings.social_facebook || ''}
-                onChange={(e) => handleChange('social_facebook', e.target.value)}
-                placeholder="https://facebook.com/..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Instagram</label>
-              <input
-                type="url"
-                value={settings.social_instagram || ''}
-                onChange={(e) => handleChange('social_instagram', e.target.value)}
-                placeholder="https://instagram.com/..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Submit */}
-        <div className="flex justify-end">
+        {isAdmin && (
           <button
-            type="submit"
-            disabled={saving}
-            className="px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
+            onClick={() => setActiveTab('users')}
+            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+              activeTab === 'users'
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
           >
-            <Save className="w-4 h-4" />
-            {saving ? 'Guardando...' : 'Guardar Configuraciones'}
+            <Shield className="w-4 h-4" />
+            Usuarios & Roles ({users.length})
           </button>
+        )}
+
+        <button
+          onClick={() => setActiveTab('institutional')}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'institutional'
+              ? 'border-blue-600 text-blue-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          Misión & Estatutos ({sections.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('authorities')}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'authorities'
+              ? 'border-blue-600 text-blue-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          Comisión Directiva ({authorities.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('alliances')}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'alliances'
+              ? 'border-blue-600 text-blue-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          Alianzas Estratégicas ({alliances.length})
+        </button>
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <Loader text="Cargando configuración..." />
+      ) : activeTab === 'settings' ? (
+        /* Settings Tab */
+        <form onSubmit={handleSaveSettings} className="space-y-6">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <h2 className="font-serif font-bold text-base text-cicha-navy border-b border-slate-100 pb-3 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-blue-600" /> Datos Institucionales y de Contacto
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Nombre del Portal</label>
+                <input
+                  type="text"
+                  value={settings.site_name || ''}
+                  onChange={(e) => setSettings({ ...settings, site_name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Email Institucional</label>
+                <input
+                  type="email"
+                  value={settings.contact_email || ''}
+                  onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Teléfono Principal</label>
+                <input
+                  type="text"
+                  value={settings.phone_primary || ''}
+                  onChange={(e) => setSettings({ ...settings, phone_primary: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Dirección Sede</label>
+                <input
+                  type="text"
+                  value={settings.address_street || ''}
+                  onChange={(e) => setSettings({ ...settings, address_street: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+            </div>
+
+            {/* Official Logo Uploader */}
+            <div className="pt-3 border-t border-slate-100">
+              <ImageUploader
+                label="Logotipo Oficial de CICHA"
+                value={settings.logo_url || ''}
+                onChange={(url) => setSettings({ ...settings, logo_url: url })}
+                helperText="Logotipo oficial con fondo transparente PNG o SVG (guardado en /backend/public/uploads/)"
+                previewHeight="h-28"
+                aspectRatio="square"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            {settingsSaved && (
+              <span className="text-emerald-700 text-xs font-bold flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                <CheckCircle className="w-4 h-4" /> Ajustes guardados con éxito
+              </span>
+            )}
+            <button
+              type="submit"
+              disabled={savingSettings}
+              className="ml-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {savingSettings ? 'Guardando...' : 'Guardar Ajustes'}
+            </button>
+          </div>
+        </form>
+      ) : activeTab === 'users' ? (
+        /* Users Tab */
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-4">Usuario</th>
+                  <th className="py-3.5 px-4">Email</th>
+                  <th className="py-3.5 px-4">Rol</th>
+                  <th className="py-3.5 px-4">Empresa Socia</th>
+                  <th className="py-3.5 px-4">Estado</th>
+                  <th className="py-3.5 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {users.map((u) => (
+                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-900">{u.name}</td>
+                    <td className="py-3.5 px-4 text-slate-600">{u.email}</td>
+                    <td className="py-3.5 px-4">
+                      <Badge
+                        variant={u.role === 'admin' ? 'danger' : u.role === 'secretario' ? 'primary' : 'gold'}
+                        className="uppercase"
+                      >
+                        {u.role}
+                      </Badge>
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-500">{u.member_company_name || '-'}</td>
+                    <td className="py-3.5 px-4">
+                      <Badge variant={u.status === 'active' ? 'success' : 'secondary'}>{u.status}</Badge>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEditUser(u)}
+                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        {Number(u.id) !== 1 && (
+                          <button
+                            onClick={() => handleDeleteUser(u.id)}
+                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </form>
+      ) : activeTab === 'institutional' ? (
+        /* Institutional Sections Tab */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {sections.map((sec) => (
+            <div key={sec.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                  {sec.section_key}
+                </span>
+                <button
+                  onClick={() => handleOpenEditSection(sec)}
+                  className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 font-bold text-xs flex items-center gap-1"
+                >
+                  <Edit2 className="w-3.5 h-3.5" /> Editar
+                </button>
+              </div>
+              <h3 className="font-serif font-bold text-base text-cicha-navy">{sec.title}</h3>
+              <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{sec.content}</p>
+            </div>
+          ))}
+        </div>
+      ) : activeTab === 'authorities' ? (
+        /* Authorities Tab */
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-4">Orden</th>
+                  <th className="py-3.5 px-4">Nombre</th>
+                  <th className="py-3.5 px-4">Cargo</th>
+                  <th className="py-3.5 px-4">Empresa</th>
+                  <th className="py-3.5 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {authorities.map((auth) => (
+                  <tr key={auth.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-400">#{auth.order_num}</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                          {auth.photo_url ? (
+                            <img src={auth.photo_url} alt={auth.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-serif text-xs font-bold text-slate-600">{auth.name.charAt(0)}</span>
+                          )}
+                        </div>
+                        <span>{auth.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-blue-700 font-semibold">{auth.role_title}</td>
+                    <td className="py-3.5 px-4 text-slate-500">{auth.company || '-'}</td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEditAuth(auth)}
+                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAuth(auth.id)}
+                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* Alliances Tab */
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-4">Orden</th>
+                  <th className="py-3.5 px-4">Alianza / Red</th>
+                  <th className="py-3.5 px-4">Categoría</th>
+                  <th className="py-3.5 px-4">Destacado</th>
+                  <th className="py-3.5 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {alliances.map((all) => (
+                  <tr key={all.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-400">#{all.order_num}</td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center overflow-hidden p-1">
+                          {all.logo_url ? (
+                            <img src={all.logo_url} alt={all.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <Globe className="w-4 h-4 text-slate-400" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900">{all.name}</div>
+                          {all.website_url && (
+                            <a
+                              href={all.website_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                            >
+                              <Globe className="w-3 h-3" />
+                              {all.website_url}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 font-medium capitalize">{all.category}</td>
+                    <td className="py-3.5 px-4 text-amber-700 font-semibold">{all.highlight_text || '-'}</td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEditAlliance(all)}
+                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAlliance(all.id)}
+                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* User Modal */}
+      <Modal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        title={editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
+        maxWidth="lg"
+      >
+        <form onSubmit={handleSubmitUser} className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Nombre Completo *</label>
+            <input
+              type="text"
+              required
+              value={userForm.name}
+              onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Correo Electrónico *</label>
+            <input
+              type="email"
+              required
+              value={userForm.email}
+              onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">
+              Contraseña {editingUser && '(En blanco para mantener)'}
+            </label>
+            <input
+              type="password"
+              required={!editingUser}
+              value={userForm.password}
+              onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+              placeholder={editingUser ? '••••••••' : 'Mínimo 6 caracteres'}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Rol *</label>
+              <select
+                value={userForm.role}
+                onChange={(e) => setUserForm({ ...userForm, role: e.target.value as any })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
+              >
+                <option value="admin">Administrador (Total)</option>
+                <option value="secretario">Secretario (Operativo)</option>
+                <option value="socio">Socio (Intranet)</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Estado</label>
+              <select
+                value={userForm.status}
+                onChange={(e) => setUserForm({ ...userForm, status: e.target.value as any })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
+              >
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+              </select>
+            </div>
+          </div>
+
+          {userForm.role === 'socio' && (
+            <div className="space-y-1.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <label className="font-bold text-amber-900">Vincular a Empresa Socia:</label>
+              <select
+                value={userForm.member_id}
+                onChange={(e) => setUserForm({ ...userForm, member_id: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-amber-300 bg-white"
+              >
+                <option value="">-- Seleccionar Empresa --</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.company_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsUserModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              {submitting ? 'Guardando...' : 'Guardar Usuario'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Section Modal */}
+      {editingSection && (
+        <Modal
+          isOpen={!!editingSection}
+          onClose={() => setEditingSection(null)}
+          title={`Editar Sección: ${editingSection.section_key}`}
+          maxWidth="xl"
+        >
+          <form onSubmit={handleSubmitSection} className="space-y-4 text-xs">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Título *</label>
+              <input
+                type="text"
+                required
+                value={sectionForm.title}
+                onChange={(e) => setSectionForm({ ...sectionForm, title: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Texto Estatutario Completo *</label>
+              <textarea
+                rows={8}
+                required
+                value={sectionForm.content}
+                onChange={(e) => setSectionForm({ ...sectionForm, content: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setEditingSection(null)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+              >
+                {submitting ? 'Guardando...' : 'Guardar Sección'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Authority Modal */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        title={editingAuth ? 'Editar Autoridad' : 'Nueva Autoridad'}
+        maxWidth="lg"
+      >
+        <form onSubmit={handleSubmitAuth} className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Nombre *</label>
+            <input
+              type="text"
+              required
+              value={authForm.name}
+              onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Cargo *</label>
+              <input
+                type="text"
+                required
+                value={authForm.role_title}
+                onChange={(e) => setAuthForm({ ...authForm, role_title: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Empresa</label>
+              <input
+                type="text"
+                value={authForm.company}
+                onChange={(e) => setAuthForm({ ...authForm, company: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          {/* Director Photo Uploader */}
+          <ImageUploader
+            label="Foto de Perfil Profesional"
+            value={authForm.photo_url}
+            onChange={(url) => setAuthForm({ ...authForm, photo_url: url })}
+            helperText="Foto de retrato institucional (se guardará en /backend/public/uploads/)"
+            previewHeight="h-36"
+            aspectRatio="square"
+          />
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Biografía / Perfil Breve</label>
+            <textarea
+              rows={2}
+              value={authForm.bio}
+              onChange={(e) => setAuthForm({ ...authForm, bio: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              {submitting ? 'Guardando...' : 'Guardar Autoridad'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Alliance Modal */}
+      <Modal
+        isOpen={isAllianceModalOpen}
+        onClose={() => setIsAllianceModalOpen(false)}
+        title={editingAlliance ? 'Editar Alianza' : 'Nueva Alianza Estratégica'}
+        maxWidth="lg"
+      >
+        <form onSubmit={handleSubmitAlliance} className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Nombre de la Red / Alianza *</label>
+            <input
+              type="text"
+              required
+              value={allianceForm.name}
+              onChange={(e) => setAllianceForm({ ...allianceForm, name: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Categoría</label>
+              <select
+                value={allianceForm.category}
+                onChange={(e) => setAllianceForm({ ...allianceForm, category: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
+              >
+                <option value="institucional">Institucional</option>
+                <option value="red_europea">Red Europea</option>
+                <option value="binacional">Binacional</option>
+                <option value="comercial">Comercial</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Texto Destacado (Badge)</label>
+              <input
+                type="text"
+                value={allianceForm.highlight_text}
+                onChange={(e) => setAllianceForm({ ...allianceForm, highlight_text: e.target.value })}
+                placeholder="Ej. Miembro Activo desde Mayo 2017"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Sitio Web Oficial</label>
+            <input
+              type="url"
+              value={allianceForm.website_url}
+              onChange={(e) => setAllianceForm({ ...allianceForm, website_url: e.target.value })}
+              placeholder="https://eurocamara.com.ar"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          {/* Alliance Logo Uploader */}
+          <ImageUploader
+            label="Logotipo de la Alianza / Red"
+            value={allianceForm.logo_url}
+            onChange={(url) => setAllianceForm({ ...allianceForm, logo_url: url })}
+            helperText="Logo institucional PNG con transparencia o SVG (guardado en /backend/public/uploads/)"
+            previewHeight="h-32"
+            aspectRatio="square"
+          />
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Descripción Institucional</label>
+            <textarea
+              rows={3}
+              value={allianceForm.description}
+              onChange={(e) => setAllianceForm({ ...allianceForm, description: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsAllianceModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              {submitting ? 'Guardando...' : 'Guardar Alianza'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

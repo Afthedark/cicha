@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Globe2,
@@ -8,16 +8,26 @@ import {
   Phone,
   Mail,
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   Briefcase,
   Lock,
+  Sparkles,
+  FileDown,
+  Gift,
+  Users,
 } from 'lucide-react';
+import cichaLogo from '../../assets/images/logo.png';
+import { useAuth } from '../../context/AuthContext';
 import { GoogleTranslate } from '../common/GoogleTranslate';
 
 export const Navbar: React.FC = () => {
+  const { user, logout } = useAuth();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+  const [isPartnerMenuOpen, setIsPartnerMenuOpen] = useState(false);
+  const partnerMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +37,18 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (partnerMenuRef.current && !partnerMenuRef.current.contains(event.target as Node)) {
+        setIsPartnerMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Public Visible Modules for all visitors
+  const publicNavLinks = [
     { name: 'Inicio', path: '/' },
     { name: 'Institucional', path: '/institucional' },
     { name: 'Comercio Bilateral & EEN', path: '/comercio-bilateral' },
@@ -35,6 +56,15 @@ export const Navbar: React.FC = () => {
     { name: 'Eventos', path: '/eventos' },
     { name: 'Socios', path: '/socios' },
     { name: 'Contacto', path: '/contacto' },
+  ];
+
+  // Exclusive Partner Modules
+  const partnerLinks = [
+    { name: 'Intranet / Dashboard Socio', path: '/portal-socios', icon: Building2, desc: 'Panel principal de la empresa socia' },
+    { name: 'Informes & Normativas', path: '/portal-socios/recursos', icon: FileDown, desc: 'Informes sectoriales y guías arancelarias' },
+    { name: 'Oportunidades VIP', path: '/portal-socios/oportunidades', icon: Sparkles, desc: 'Contactos directos de contrapartes' },
+    { name: 'Club de Beneficios', path: '/portal-socios/beneficios', icon: Gift, desc: 'Descuentos en fletes y eventos' },
+    { name: 'Networking B2B', path: '/portal-socios/directorio', icon: Users, desc: 'Directorio privado de directivos' },
   ];
 
   const isActive = (path: string) => {
@@ -45,107 +75,132 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-300">
-      {/* Top Diplomatic Bar */}
-      <div className="bg-[#0B2545] text-slate-300 text-xs py-2 border-b border-blue-950/80 px-4 sm:px-8">
+      <div className="bg-gradient-to-r from-cicha-navy via-cicha-aegean to-cicha-sky text-white text-xs py-2 px-4 sm:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
-          {/* Alliance Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-slate-300">
-            <span className="inline-flex items-center gap-1.5 font-medium text-amber-400">
-              <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="flex flex-wrap items-center justify-center gap-3 text-white">
+            <span className="inline-flex items-center gap-1.5 font-bold text-cicha-gold-light">
+              <ShieldCheck className="w-3.5 h-3.5 text-cicha-gold" />
               Reconocimiento Oficial: Argentina 1989 • Grecia 1998
             </span>
-            <span className="hidden sm:inline text-slate-600">|</span>
-            <span className="inline-flex items-center gap-1 text-slate-300">
-              <Globe2 className="w-3.5 h-3.5 text-blue-400" />
+            <span className="hidden sm:inline text-white/40">|</span>
+            <span className="inline-flex items-center gap-1 text-white/90 font-medium">
+              <Globe2 className="w-3.5 h-3.5 text-cicha-sky-light" />
               Miembro EUROCAMARA • Nodo EEN Unión Europea • UCCEB (32 Cámaras)
             </span>
           </div>
 
-          {/* Quick Contact, Language Selector, Portal Socios & Admin Link */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <a href="tel:+541143289898" className="hover:text-amber-400 transition-colors hidden md:flex items-center gap-1">
+            <a href="tel:+541143289898" className="hover:text-cicha-gold-light transition-colors hidden md:flex items-center gap-1">
               <Phone className="w-3 h-3" />
               +54 11 4328-9898
             </a>
-            <a href="mailto:info@cicha.com.ar" className="hover:text-amber-400 transition-colors hidden sm:flex items-center gap-1">
+            <a href="mailto:info@cicha.com.ar" className="hover:text-cicha-gold-light transition-colors hidden sm:flex items-center gap-1">
               <Mail className="w-3 h-3" />
               info@cicha.com.ar
             </a>
 
-            {/* Google Translate Flag Selector */}
             <div className="notranslate">
               <GoogleTranslate variant="diplomatic" align="right" />
             </div>
 
             <Link
-              to="/portal-socios"
-              className="text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30"
-            >
-              <Briefcase className="w-3 h-3" />
-              Portal Socios
-            </Link>
-            <Link
               to="/admin/login"
-              className="text-xs text-blue-300 hover:text-amber-400 transition-colors flex items-center gap-1 border-l border-slate-700 pl-3"
+              className="text-xs text-white/90 hover:text-white font-medium transition-colors flex items-center gap-1 border-l border-white/30 pl-3"
             >
-              <Lock className="w-3 h-3" />
+              <Lock className="w-3 h-3 text-cicha-gold" />
               Acceso CMS
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Bar */}
       <nav
         className={`w-full transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#0B2545]/95 backdrop-blur-md shadow-xl py-3 border-b border-blue-900/50'
-            : 'bg-[#0B2545] py-4'
+            ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-cicha-sky/10 py-2.5 border-b-2 border-cicha-sky/30'
+            : 'bg-white py-3 border-b-2 border-cicha-sky-light'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3.5 group">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0D5EAF] to-[#0B2545] border-2 border-amber-400/80 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
-              <span className="font-serif font-bold text-lg text-amber-300 tracking-wider">C</span>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-serif font-extrabold text-xl text-white tracking-widest leading-none">
-                  CICHA
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/30">
-                  AR • GR
-                </span>
-              </div>
-              <span className="text-[11px] text-slate-300 font-medium tracking-tight mt-0.5 hidden sm:block">
-                Cámara de Industria y Comercio Heleno Argentina
-              </span>
-            </div>
+          <Link to="/" className="flex items-center gap-3 group py-1">
+            <img
+              src={cichaLogo}
+              alt="CICHA - Cámara de Industria y Comercio Heleno Argentina"
+              className="h-12 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+            />
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {navLinks.map((link) => (
+          <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+            {publicNavLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive(link.path)
-                    ? 'text-amber-400 bg-white/10 shadow-inner font-semibold'
-                    : 'text-slate-200 hover:text-white hover:bg-white/5'
+                    ? 'text-cicha-aegean bg-cicha-sky-light shadow-inner font-semibold'
+                    : 'text-slate-700 hover:text-cicha-aegean hover:bg-cicha-sky-light/50'
                 }`}
               >
                 {link.name}
               </Link>
             ))}
 
+            <div className="relative ml-2" ref={partnerMenuRef}>
+              <button
+                onClick={() => setIsPartnerMenuOpen(!isPartnerMenuOpen)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  location.pathname.startsWith('/portal-socios')
+                    ? 'bg-cicha-aegean text-white border-cicha-aegean shadow-md'
+                    : 'bg-cicha-sky-light/40 hover:bg-cicha-sky-light text-cicha-navy border-cicha-sky/30'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Portal Socios</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isPartnerMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isPartnerMenuOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <span className="text-[10px] uppercase font-bold text-cicha-aegean bg-cicha-sky-light px-2 py-0.5 rounded-full">
+                      Exclusivo Empresas Socias
+                    </span>
+                    <p className="text-[11px] text-slate-500 mt-1">Servicios e inteligencia comercial reservada</p>
+                  </div>
+
+                  <div className="p-1 space-y-0.5">
+                    {partnerLinks.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setIsPartnerMenuOpen(false)}
+                          className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-blue-50/70 transition-colors group"
+                        >
+                          <div className="p-2 rounded-lg bg-blue-100/70 text-blue-800 group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0">
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-slate-900 group-hover:text-blue-700">
+                              {item.name}
+                            </div>
+                            <div className="text-[10px] text-slate-500">{item.desc}</div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* CTA Button */}
             <Link
               to="/asociarse"
-              className="ml-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-md hover:shadow-amber-500/20 transition-all hover:scale-105"
+              className="ml-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white font-extrabold text-xs shadow-md shadow-cicha-sky/25 transition-all hover:scale-105"
             >
-              <Briefcase className="w-4 h-4" />
+              <Building2 className="w-3.5 h-3.5" />
               Asociarse
             </Link>
           </div>
@@ -162,34 +217,63 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Dropdown */}
         {isOpen && (
-          <div className="lg:hidden bg-[#071E38] border-t border-blue-900/60 px-4 pt-3 pb-6 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-2.5 rounded-lg text-sm font-medium ${
-                  isActive(link.path)
-                    ? 'text-amber-400 bg-white/10 font-bold'
-                    : 'text-slate-200 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{link.name}</span>
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                </div>
-              </Link>
-            ))}
-            <div className="pt-3 flex items-center justify-between gap-2 border-t border-blue-900/60 notranslate">
+          <div className="lg:hidden bg-[#071E38] border-t border-blue-900/60 px-4 pt-3 pb-6 space-y-2 max-h-[80vh] overflow-y-auto">
+            {/* Public Links */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-4">Módulos Públicos</span>
+              {publicNavLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-4 py-2 rounded-lg text-sm font-medium ${
+                    isActive(link.path)
+                      ? 'text-amber-400 bg-white/10 font-bold'
+                      : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{link.name}</span>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Exclusive Partner Section in Mobile */}
+            <div className="pt-2 border-t border-blue-900/60 space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 px-4">Área Exclusiva de Socios</span>
+              {partnerLinks.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-between px-4 py-2 rounded-lg text-xs font-semibold text-amber-200 hover:bg-white/5"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{item.name}</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-amber-400/60" />
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Google Translate in Mobile */}
+            <div className="pt-3 flex items-center justify-between gap-2 border-t border-blue-900/60 notranslate px-2">
               <span className="text-xs font-semibold text-slate-300">Idioma / Language:</span>
               <GoogleTranslate variant="compact" align="right" />
             </div>
 
+            {/* CTA in Mobile */}
             <div className="pt-2">
               <Link
                 to="/asociarse"
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-sm shadow-md"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-sm shadow-md"
               >
                 <Building2 className="w-4 h-4" />
                 Solicitar Afiliación / Asociarse

@@ -38,7 +38,7 @@ export const EventsPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <Badge variant="gold">Agenda & Networking</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
@@ -54,7 +54,7 @@ export const EventsPage: React.FC = () => {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Toggle Filters */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-          <h2 className="font-serif font-bold text-2xl text-[#0B2545]">
+          <h2 className="font-serif font-bold text-2xl text-cicha-navy">
             {filter === 'upcoming' ? 'Próximos Encuentros' : 'Eventos Realizados'}
           </h2>
 
@@ -63,7 +63,7 @@ export const EventsPage: React.FC = () => {
               onClick={() => setFilter('upcoming')}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 filter === 'upcoming'
-                  ? 'bg-[#0B2545] text-white shadow-xs'
+                  ? 'bg-cicha-navy text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -73,7 +73,7 @@ export const EventsPage: React.FC = () => {
               onClick={() => setFilter('past')}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 filter === 'past'
-                  ? 'bg-[#0B2545] text-white shadow-xs'
+                  ? 'bg-cicha-navy text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -95,8 +95,8 @@ export const EventsPage: React.FC = () => {
                 >
                   <div className="flex flex-col sm:flex-row gap-6 items-start flex-1">
                     {/* Date Block */}
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#0B2545] to-[#0D5EAF] text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-md">
-                      <span className="font-serif font-extrabold text-2xl text-amber-300 leading-none">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cicha-navy to-cicha-blue text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-md">
+                      <span className="font-serif font-extrabold text-2xl text-cicha-sky-light leading-none">
                         {eventDate.getDate()}
                       </span>
                       <span className="text-xs uppercase font-bold text-slate-200 mt-1">
@@ -117,7 +117,7 @@ export const EventsPage: React.FC = () => {
                         )}
                       </div>
 
-                      <h3 className="font-serif font-bold text-lg sm:text-xl text-[#0B2545] group-hover:text-blue-700 transition-colors">
+                      <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors">
                         {event.title}
                       </h3>
 

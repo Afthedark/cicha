@@ -199,19 +199,11 @@ export function App() {
             <Route path="solicitudes" element={<AdminApplicationsPage />} />
             <Route path="mensajes" element={<AdminMessagesPage />} />
 
-            {/* Admin-Only Routes (Role: admin) */}
-            <Route
-              path="usuarios"
-              element={
-                <RoleRoute allowedRoles={['admin']}>
-                  <AdminUsersPage />
-                </RoleRoute>
-              }
-            />
+            {/* Configuration & Institutional Management (Roles: admin, secretario) */}
             <Route
               path="autoridades"
               element={
-                <RoleRoute allowedRoles={['admin']}>
+                <RoleRoute allowedRoles={['admin', 'secretario']}>
                   <AdminAuthoritiesPage />
                 </RoleRoute>
               }
@@ -219,7 +211,7 @@ export function App() {
             <Route
               path="institucional"
               element={
-                <RoleRoute allowedRoles={['admin']}>
+                <RoleRoute allowedRoles={['admin', 'secretario']}>
                   <AdminInstitutionalPage />
                 </RoleRoute>
               }
@@ -227,7 +219,7 @@ export function App() {
             <Route
               path="alianzas"
               element={
-                <RoleRoute allowedRoles={['admin']}>
+                <RoleRoute allowedRoles={['admin', 'secretario']}>
                   <AdminAlliancesPage />
                 </RoleRoute>
               }
@@ -235,8 +227,18 @@ export function App() {
             <Route
               path="configuracion"
               element={
-                <RoleRoute allowedRoles={['admin']}>
+                <RoleRoute allowedRoles={['admin', 'secretario']}>
                   <AdminSettingsPage />
+                </RoleRoute>
+              }
+            />
+
+            {/* Strict Admin-Only Routes (Role: admin) */}
+            <Route
+              path="usuarios"
+              element={
+                <RoleRoute allowedRoles={['admin']}>
+                  <AdminUsersPage />
                 </RoleRoute>
               }
             />

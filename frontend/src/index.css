@@ -13,16 +13,26 @@
   --color-helenic-900: #0b2545; /* Official Deep Diplomatic Navy */
   --color-helenic-950: #051427;
 
-  --color-gold-50: #fffbeb;
-  --color-gold-100: #fef3c7;
-  --color-gold-200: #fde68a;
-  --color-gold-300: #fcd34d;
-  --color-gold-400: #fbbf24;
-  --color-gold-500: #d4af37; /* Metallic Gold Accent */
-  --color-gold-600: #b8860b;
-  --color-gold-700: #926b08;
-  --color-gold-800: #78350f;
-  --color-gold-900: #451a03;
+  /* CICHA Official Greek Aegean & Santorini Palette */
+  --color-cicha-navy-deep: #0c1527;     /* Azul Profundo Noche Helénica */
+  --color-cicha-navy-dark: #0a3d70;     /* Azul Heleno */
+  --color-cicha-navy: #005eaf;          /* Cod. AP82-4 / Greek Aegean Blue para títulos y headers */
+  --color-cicha-navy-light: #0077d6;
+
+  --color-cicha-aegean: #0066cc;        /* Cod. AP82-4: Azul Cúpula Santorini */
+  --color-cicha-blue: #0066ff;          /* Cod. AP160-2: Azul Mar Jónico */
+  --color-cicha-blue-hover: #0052cc;
+  --color-cicha-blue-light: #eff6ff;
+
+  --color-cicha-sky: #00aeef;           /* Cod. AP76-3: Celeste Egeo Vibrante */
+  --color-cicha-sky-hover: #0096ce;
+  --color-cicha-sky-light: #d4eefc;     /* Cod. AP76-1: Celeste Brisa Marina */
+  --color-cicha-turquoise: #00a8cc;     /* Cod. AP74-3: Turquesa Mediterráneo */
+
+  --color-cicha-gold: #f5a623;          /* Campanario Cícladas & Sol */
+  --color-cicha-gold-light: #fef6e4;
+  --color-cicha-gold-dark: #d98200;
+  --color-cicha-amber: #fa8c16;
 
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Cinzel', 'Merriweather', Georgia, serif;

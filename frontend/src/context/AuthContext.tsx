@@ -34,8 +34,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userData = await adminApi.getMe();
           setUser(userData);
           localStorage.setItem('cicha_user', JSON.stringify(userData));
-        } catch {
-          logout();
+        } catch (err: any) {
+          console.error('Error al validar sesión con backend:', err);
+          // Only clear if the server explicitly returned 401 Unauthorized
+          if (err?.response?.status === 401) {
+            logout();
+          }
         }
       }
       setIsLoading(false);

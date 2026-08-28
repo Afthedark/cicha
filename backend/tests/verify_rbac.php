@@ -124,7 +124,7 @@ if ($secLogin['code'] === 200 && $secLogin['body']['user']['role'] === 'secretar
         echo "   [PASS] Secretario can manage Partner Resources & Documents (200 OK)\n";
     }
 
-    // Verify Secretario is FORBIDDEN on Admin-Only Users and Settings
+    // Verify Secretario can manage Settings and Institutional, but is FORBIDDEN on User Management
     $secUsersAttempt = apiCall("$baseUrl/admin/users", 'GET', null, $secToken);
     if ($secUsersAttempt['code'] === 403) {
         echo "   [PASS] Secretario is FORBIDDEN on User Management (403 Forbidden)\n";
@@ -132,11 +132,16 @@ if ($secLogin['code'] === 200 && $secLogin['body']['user']['role'] === 'secretar
         echo "   [FAIL] Secretario was not blocked on User Management (Code: " . $secUsersAttempt['code'] . ")\n";
     }
 
-    $secSettingsAttempt = apiCall("$baseUrl/admin/settings", 'GET', null, $secToken);
-    if ($secSettingsAttempt['code'] === 403) {
-        echo "   [PASS] Secretario is FORBIDDEN on System Settings (403 Forbidden)\n";
+    $secSettings = apiCall("$baseUrl/admin/settings", 'GET', null, $secToken);
+    if ($secSettings['code'] === 200) {
+        echo "   [PASS] Secretario can access and edit System Settings & Contacts (200 OK)\n";
     } else {
-        echo "   [FAIL] Secretario was not blocked on Settings (Code: " . $secSettingsAttempt['code'] . ")\n";
+        echo "   [FAIL] Secretario could not access Settings (Code: " . $secSettings['code'] . ")\n";
+    }
+
+    $secAuth = apiCall("$baseUrl/admin/authorities", 'GET', null, $secToken);
+    if ($secAuth['code'] === 200) {
+        echo "   [PASS] Secretario can manage Board Authorities (200 OK)\n";
     }
 } else {
     echo "   [FAIL] Secretario Login failed.\n";

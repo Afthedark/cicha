@@ -84,12 +84,12 @@ export const ArticleDetailPage: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="font-serif font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#0B2545] leading-tight">
+          <h1 className="font-serif font-extrabold text-2xl sm:text-3xl lg:text-4xl text-cicha-navy leading-tight">
             {article.title}
           </h1>
 
           {article.summary && (
-            <p className="text-sm sm:text-base text-slate-600 font-light leading-relaxed italic border-l-4 border-amber-500 pl-4 py-1 bg-amber-50/50 rounded-r-lg">
+            <p className="text-sm sm:text-base text-slate-600 font-light leading-relaxed italic border-l-4 border-cicha-sky pl-4 py-1 bg-amber-50/50 rounded-r-lg">
               {article.summary}
             </p>
           )}
@@ -124,7 +124,7 @@ export const ArticleDetailPage: React.FC = () => {
         {/* Related Articles */}
         {related.length > 0 && (
           <div className="pt-12 space-y-6">
-            <h3 className="font-serif font-bold text-xl text-[#0B2545]">Noticias Relacionadas</h3>
+            <h3 className="font-serif font-bold text-xl text-cicha-navy">Noticias Relacionadas</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {related.map((rel) => (
                 <Link

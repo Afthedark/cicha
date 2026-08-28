@@ -43,7 +43,7 @@ export const TradeBilateralPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* 1. Header Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <Badge variant="gold">Comercio Bilateral & EEN</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
@@ -57,7 +57,7 @@ export const TradeBilateralPage: React.FC = () => {
 
       {/* 2. EEN Node Highlights */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-[#0B2545] rounded-3xl p-8 sm:p-12 text-white border border-blue-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-cicha-navy rounded-3xl p-8 sm:p-12 text-white border border-blue-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 text-xs font-bold">
               <Globe2 className="w-4 h-4 text-blue-400" />
@@ -71,26 +71,26 @@ export const TradeBilateralPage: React.FC = () => {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
                 <span>Búsqueda directa de importadores/exportadores</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
                 <span>Vinculación con más de 600 nodos en 60 países</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
                 <span>Asesoramiento en regulaciones de la UE</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
                 <span>Rondas de negocios en Eurocámara</span>
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-4 bg-blue-950/80 rounded-2xl p-6 border border-blue-800 space-y-4 text-center">
-            <Ship className="w-12 h-12 text-amber-400 mx-auto" />
+            <Ship className="w-12 h-12 text-cicha-sky mx-auto" />
             <h3 className="font-serif font-bold text-base text-white">Mesa de Comercio Exterior</h3>
             <p className="text-xs text-slate-300">
               ¿Tiene una propuesta de inversión o desea colocar sus productos en Grecia o Argentina?
@@ -110,7 +110,7 @@ export const TradeBilateralPage: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
-            <h2 className="font-serif font-bold text-2xl text-[#0B2545]">
+            <h2 className="font-serif font-bold text-2xl text-cicha-navy">
               Oportunidades de Negocio Activas
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -132,7 +132,7 @@ export const TradeBilateralPage: React.FC = () => {
                 onClick={() => setActiveFilter(tab.value)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   activeFilter === tab.value
-                    ? 'bg-[#0B2545] text-white shadow-sm'
+                    ? 'bg-cicha-navy text-white shadow-sm'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -161,7 +161,7 @@ export const TradeBilateralPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="font-serif font-bold text-base text-[#0B2545] group-hover:text-blue-700 transition-colors">
+                  <h3 className="font-serif font-bold text-base text-cicha-navy group-hover:text-blue-700 transition-colors">
                     {opp.title}
                   </h3>
 

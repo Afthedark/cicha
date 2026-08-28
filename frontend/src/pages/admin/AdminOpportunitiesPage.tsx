@@ -114,7 +114,7 @@ export const AdminOpportunitiesPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Oportunidades Comerciales Bilaterales</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Oportunidades Comerciales Bilaterales</h1>
           <p className="text-xs text-slate-500 mt-0.5">Gestión de ofertas exportables, importación e inversiones.</p>
         </div>
         <button

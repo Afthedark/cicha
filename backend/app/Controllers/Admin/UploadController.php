@@ -25,7 +25,7 @@ class UploadController extends ResourceController
             return $this->fail('El archivo supera el tamaño máximo permitido (10MB).');
         }
 
-        $uploadPath = ROOTPATH . 'public/uploads/';
+        $uploadPath = FCPATH . 'uploads/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0777, true);
         }
@@ -33,6 +33,7 @@ class UploadController extends ResourceController
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);
 
+        // Public URL pointing dynamically to /uploads/{filename} according to App.baseURL in production
         $url = base_url('uploads/' . $newName);
 
         return $this->respond([

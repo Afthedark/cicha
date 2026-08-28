@@ -42,7 +42,7 @@ export const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] flex flex-col justify-center items-center p-4 sm:p-6 text-white font-sans relative">
+    <div className="min-h-screen bg-gradient-to-br from-cicha-navy via-cicha-navy-dark to-cicha-navy-deep flex flex-col justify-center items-center p-4 sm:p-6 text-white font-sans relative">
       <div className="absolute top-6 left-6">
         <Link
           to="/"
@@ -55,7 +55,7 @@ export const AdminLoginPage: React.FC = () => {
       <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 p-8 sm:p-10 rounded-3xl shadow-2xl space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0D5EAF] to-[#0B2545] border-2 border-amber-400 flex items-center justify-center text-white font-serif font-bold text-2xl text-amber-300 mx-auto shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0D5EAF] to-cicha-navy border-2 border-amber-400 flex items-center justify-center text-white font-serif font-bold text-2xl text-amber-300 mx-auto shadow-xl">
             C
           </div>
           <div>

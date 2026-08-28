@@ -26,8 +26,10 @@ class MembersController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
         $rules = [
-            'company_name' => 'required|min_length[2]',
+            'company_name' => 'required|min_length[3]',
             'sector'       => 'required',
         ];
 
@@ -35,22 +37,21 @@ class MembersController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $company = $this->request->getVar('company_name');
-        $slug = url_title($company, '-', true) . '-' . time();
+        $slug = url_title($input['company_name'] ?? 'empresa', '-', true) . '-' . time();
 
         $data = [
-            'company_name'  => $company,
+            'company_name'  => $input['company_name'] ?? '',
             'slug'          => $slug,
-            'sector'        => $this->request->getVar('sector'),
-            'description'   => $this->request->getVar('description') ?: '',
-            'services'      => $this->request->getVar('services') ?: '',
-            'logo_url'      => $this->request->getVar('logo_url') ?: '',
-            'website_url'   => $this->request->getVar('website_url') ?: '',
-            'contact_email' => $this->request->getVar('contact_email') ?: '',
-            'contact_phone' => $this->request->getVar('contact_phone') ?: '',
-            'country'       => $this->request->getVar('country') ?: 'Argentina',
-            'is_featured'   => $this->request->getVar('is_featured') ? 1 : 0,
-            'status'        => $this->request->getVar('status') ?: 'active',
+            'sector'        => $input['sector'] ?? '',
+            'description'   => $input['description'] ?? '',
+            'services'      => $input['services'] ?? '',
+            'logo_url'      => $input['logo_url'] ?? '',
+            'website_url'   => $input['website_url'] ?? '',
+            'contact_email' => $input['contact_email'] ?? '',
+            'contact_phone' => $input['contact_phone'] ?? '',
+            'country'       => $input['country'] ?? 'Argentina',
+            'is_featured'   => !empty($input['is_featured']) ? 1 : 0,
+            'status'        => $input['status'] ?? 'active',
         ];
 
         $memberModel = new MemberModel();
@@ -64,8 +65,7 @@ class MembersController extends ResourceController
         $memberModel = new MemberModel();
         if (!$memberModel->find($id)) return $this->failNotFound('Socio no encontrado');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
         if (isset($input['company_name'])) {
@@ -80,10 +80,13 @@ class MembersController extends ResourceController
         if (isset($input['contact_email'])) $data['contact_email'] = $input['contact_email'];
         if (isset($input['contact_phone'])) $data['contact_phone'] = $input['contact_phone'];
         if (isset($input['country'])) $data['country'] = $input['country'];
-        if (isset($input['is_featured'])) $data['is_featured'] = $input['is_featured'] ? 1 : 0;
+        if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];
 
-        $memberModel->update($id, $data);
+        if (!empty($data)) {
+            $memberModel->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Socio actualizado con éxito']);
     }
 

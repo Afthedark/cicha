@@ -17,7 +17,10 @@ import type {
   PartnerDashboardData,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080/index.php/api';
+// URL Base de la API del Backend (Modificar manualmente aquí para producción)
+//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -29,8 +32,11 @@ export const apiClient = axios.create({
 // Request interceptor for JWT
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('cicha_jwt_token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    if (config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['X-Authorization'] = `Bearer ${token}`;
+    }
   }
   return config;
 });

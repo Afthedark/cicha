@@ -117,7 +117,7 @@ export const AdminEventsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Agenda de Eventos y Encuentros</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Agenda de Eventos y Encuentros</h1>
           <p className="text-xs text-slate-500 mt-0.5">Gestión de foros, webinars y rondas de negocios.</p>
         </div>
         <button

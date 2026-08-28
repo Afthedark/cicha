@@ -56,7 +56,7 @@ export const ContactPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <Badge variant="gold">Atención & Consultas</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
@@ -73,7 +73,7 @@ export const ContactPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left: Contact Information Cards (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-[#0B2545] rounded-3xl p-8 text-white border border-blue-900 shadow-xl space-y-6">
+            <div className="bg-cicha-navy rounded-3xl p-8 text-white border border-blue-900 shadow-xl space-y-6">
               <div>
                 <h2 className="font-serif font-bold text-xl text-white">Sede Central</h2>
                 <p className="text-xs text-slate-300 mt-1">
@@ -83,7 +83,7 @@ export const ContactPage: React.FC = () => {
 
               <div className="space-y-4 text-xs text-slate-300">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-cicha-sky shrink-0 mt-0.5">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
@@ -93,7 +93,7 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-cicha-sky shrink-0 mt-0.5">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
@@ -103,7 +103,7 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-cicha-sky shrink-0 mt-0.5">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
@@ -113,7 +113,7 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-800 flex items-center justify-center text-cicha-sky shrink-0 mt-0.5">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
@@ -134,7 +134,7 @@ export const ContactPage: React.FC = () => {
           {/* Right: Contact Form (7 cols) */}
           <div className="lg:col-span-7 bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl space-y-6">
             <div>
-              <h2 className="font-serif font-bold text-2xl text-[#0B2545]">
+              <h2 className="font-serif font-bold text-2xl text-cicha-navy">
                 Envíenos un Mensaje
               </h2>
               <p className="text-xs text-slate-500 mt-1">
@@ -233,9 +233,9 @@ export const ContactPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 rounded-xl bg-[#0B2545] hover:bg-blue-900 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3.5 rounded-xl bg-cicha-navy hover:bg-blue-900 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Send className="w-4 h-4 text-amber-400" />
+                  <Send className="w-4 h-4 text-cicha-sky" />
                   {loading ? 'Enviando mensaje...' : 'Enviar Mensaje'}
                 </button>
               </form>

@@ -34,7 +34,7 @@ export const PartnerDirectoryPage: React.FC = () => {
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Badge variant="gold">Networking Privado B2B</Badge>
-          <h1 className="font-serif font-bold text-2xl text-[#0B2545] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-cicha-navy mt-1">
             Directorio de Socios para Vinculación Directa
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -72,7 +72,7 @@ export const PartnerDirectoryPage: React.FC = () => {
                   <span className="text-xs text-slate-400 font-medium">{mem.country}</span>
                 </div>
 
-                <h3 className="font-serif font-bold text-lg text-[#0B2545]">{mem.company_name}</h3>
+                <h3 className="font-serif font-bold text-lg text-cicha-navy">{mem.company_name}</h3>
 
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                   {mem.description}

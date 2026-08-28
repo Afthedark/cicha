@@ -43,9 +43,10 @@ class AuthController extends ResourceController
             return $this->failUnauthorized('Credenciales inválidas (Contraseña incorrecta).');
         }
 
-        $secretKey = env('JWT_SECRET_KEY', 'cicha_chamber_heleno_argentina_super_secret_jwt_key_2026');
+        $secretKey = env('JWT_SECRET_KEY') ?: getenv('JWT_SECRET_KEY') ?: 'cicha_chamber_heleno_argentina_super_secret_jwt_key_2026';
+        $secretKey = trim($secretKey, "'\"");
         $iat = time();
-        $exp = $iat + (int) env('JWT_TIME_TO_LIVE', 86400);
+        $exp = $iat + (int) (env('JWT_TIME_TO_LIVE') ?: 86400);
 
         $payload = [
             'iss'  => 'cicha-api',
@@ -76,7 +77,7 @@ class AuthController extends ResourceController
 
     public function me()
     {
-        $userData = $this->request->user ?? null;
+        $userData = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         if (!$userData) {
             return $this->failUnauthorized('No autenticado');
         }

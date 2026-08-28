@@ -56,7 +56,7 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#0B2545] to-[#0D5EAF] text-white p-6 sm:p-8 rounded-3xl shadow-lg border border-blue-900">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-cicha-navy to-cicha-blue text-white p-6 sm:p-8 rounded-3xl shadow-lg border border-blue-900">
         <div>
           <h1 className="font-serif font-bold text-2xl sm:text-3xl text-white">
             Panel de Control Institucional
@@ -75,11 +75,11 @@ export const AdminDashboardPage: React.FC = () => {
             Nueva Noticia
           </Link>
           <Link
-            to="/admin/oportunidades"
+            to="/admin/socios"
             className="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition-all flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            Nueva Oportunidad
+            Nuevo Socio / Oportunidad
           </Link>
         </div>
       </div>
@@ -87,7 +87,7 @@ export const AdminDashboardPage: React.FC = () => {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <Link
-          to="/admin/solicitudes"
+          to="/admin/mensajes"
           className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-slate-400">
@@ -98,7 +98,7 @@ export const AdminDashboardPage: React.FC = () => {
             <p className="text-2xl font-extrabold text-slate-900 font-serif">
               {stats?.pending_applications || 0}
             </p>
-            <p className="text-[10px] text-amber-700 font-semibold mt-0.5">Pendientes de revisión</p>
+            <p className="text-[10px] text-amber-700 font-semibold mt-0.5">Pendientes en Inbox</p>
           </div>
         </Link>
 
@@ -135,7 +135,7 @@ export const AdminDashboardPage: React.FC = () => {
         </Link>
 
         <Link
-          to="/admin/oportunidades"
+          to="/admin/socios"
           className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-400 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-slate-400">
@@ -146,7 +146,7 @@ export const AdminDashboardPage: React.FC = () => {
             <p className="text-2xl font-extrabold text-slate-900 font-serif">
               {stats?.total_opportunities || 0}
             </p>
-            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Comercio bilateral</p>
+            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Demandas bilaterales</p>
           </div>
         </Link>
 
@@ -167,7 +167,7 @@ export const AdminDashboardPage: React.FC = () => {
         </Link>
 
         <Link
-          to="/admin/eventos"
+          to="/admin/noticias"
           className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-400 transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-slate-400">
@@ -190,15 +190,15 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <Inbox className="w-4 h-4 text-amber-500" />
-              <h2 className="font-serif font-bold text-base text-[#0B2545]">
+              <h2 className="font-serif font-bold text-base text-cicha-navy">
                 Últimas Solicitudes de Afiliación
               </h2>
             </div>
             <Link
-              to="/admin/solicitudes"
+              to="/admin/mensajes"
               className="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1"
             >
-              Ver todas <ArrowRight className="w-3.5 h-3.5" />
+              Ver en Inbox <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -241,7 +241,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-blue-600" />
-              <h2 className="font-serif font-bold text-base text-[#0B2545]">
+              <h2 className="font-serif font-bold text-base text-cicha-navy">
                 Mensajes de Contacto Recientes
               </h2>
             </div>

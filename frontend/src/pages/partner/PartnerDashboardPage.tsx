@@ -45,7 +45,7 @@ export const PartnerDashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* 1. Welcome Member Banner */}
-      <div className="bg-gradient-to-r from-[#0B2545] via-[#0E3360] to-[#0D5EAF] text-white rounded-3xl p-6 sm:p-10 border border-blue-900 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-cicha-navy via-[#0E3360] to-cicha-blue text-white rounded-3xl p-6 sm:p-10 border border-blue-900 shadow-xl relative overflow-hidden">
         <div className="relative z-10 space-y-4 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-bold">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
@@ -139,7 +139,7 @@ export const PartnerDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
               <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Inteligencia Comercial</span>
-              <h2 className="font-serif font-bold text-xl text-[#0B2545]">Informes & Documentos Exclusivos</h2>
+              <h2 className="font-serif font-bold text-xl text-cicha-navy">Informes & Documentos Exclusivos</h2>
             </div>
             <Link
               to="/portal-socios/recursos"
@@ -185,7 +185,7 @@ export const PartnerDashboardPage: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
               <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Trato Directo</span>
-              <h2 className="font-serif font-bold text-xl text-[#0B2545]">Oportunidades VIP</h2>
+              <h2 className="font-serif font-bold text-xl text-cicha-navy">Oportunidades VIP</h2>
             </div>
             <Link
               to="/portal-socios/oportunidades"

@@ -26,6 +26,8 @@ class AlliancesController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
         $rules = [
             'name' => 'required|min_length[3]',
         ];
@@ -34,19 +36,19 @@ class AlliancesController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $name = $this->request->getVar('name');
+        $name = $input['name'] ?? 'alianza';
         $slug = url_title($name, '-', true) . '-' . time();
 
         $data = [
             'name'           => $name,
             'slug'           => $slug,
-            'category'       => $this->request->getVar('category') ?: 'internacional',
-            'description'    => $this->request->getVar('description') ?: '',
-            'website_url'    => $this->request->getVar('website_url') ?: '',
-            'logo_url'       => $this->request->getVar('logo_url') ?: '',
-            'highlight_text' => $this->request->getVar('highlight_text') ?: '',
-            'order_num'      => (int) ($this->request->getVar('order_num') ?: 0),
-            'is_active'      => $this->request->getVar('is_active') ? 1 : 0,
+            'category'       => $input['category'] ?? 'institucional',
+            'description'    => $input['description'] ?? '',
+            'website_url'    => $input['website_url'] ?? '',
+            'logo_url'       => $input['logo_url'] ?? '',
+            'highlight_text' => $input['highlight_text'] ?? '',
+            'order_num'      => (int) ($input['order_num'] ?? 0),
+            'is_active'      => !empty($input['is_active']) ? 1 : 0,
         ];
 
         $model = new AllianceModel();
@@ -60,8 +62,7 @@ class AlliancesController extends ResourceController
         $model = new AllianceModel();
         if (!$model->find($id)) return $this->failNotFound('Alianza no encontrada');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
         if (isset($input['name'])) {
@@ -74,9 +75,12 @@ class AlliancesController extends ResourceController
         if (isset($input['logo_url'])) $data['logo_url'] = $input['logo_url'];
         if (isset($input['highlight_text'])) $data['highlight_text'] = $input['highlight_text'];
         if (isset($input['order_num'])) $data['order_num'] = (int) $input['order_num'];
-        if (isset($input['is_active'])) $data['is_active'] = $input['is_active'] ? 1 : 0;
+        if (isset($input['is_active'])) $data['is_active'] = !empty($input['is_active']) ? 1 : 0;
 
-        $model->update($id, $data);
+        if (!empty($data)) {
+            $model->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Alianza actualizada con éxito']);
     }
 

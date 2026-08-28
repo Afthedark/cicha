@@ -28,7 +28,7 @@ export const PartnerBenefitsPage: React.FC = () => {
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Badge variant="gold">Club de Convenios & Beneficios</Badge>
-          <h1 className="font-serif font-bold text-2xl text-[#0B2545] mt-1">
+          <h1 className="font-serif font-bold text-2xl text-cicha-navy mt-1">
             Beneficios Exclusivos para Socios CICHA
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -59,7 +59,7 @@ export const PartnerBenefitsPage: React.FC = () => {
                   )}
                 </div>
 
-                <h3 className="font-serif font-bold text-base text-[#0B2545] leading-snug">
+                <h3 className="font-serif font-bold text-base text-cicha-navy leading-snug">
                   {ben.title}
                 </h3>
 

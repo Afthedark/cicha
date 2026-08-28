@@ -58,7 +58,7 @@ export const AdminApplicationsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <h1 className="font-serif font-bold text-xl text-[#0B2545]">Solicitudes de Afiliación</h1>
+        <h1 className="font-serif font-bold text-xl text-cicha-navy">Solicitudes de Afiliación</h1>
         <p className="text-xs text-slate-500 mt-0.5">
           Bandeja de empresas y profesionales que solicitan asociarse a CICHA.
         </p>
@@ -193,7 +193,7 @@ export const AdminApplicationsPage: React.FC = () => {
             {/* Company and Person Profile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl border border-slate-200 space-y-2">
-                <h3 className="font-serif font-bold text-sm text-[#0B2545] flex items-center gap-1.5">
+                <h3 className="font-serif font-bold text-sm text-cicha-navy flex items-center gap-1.5">
                   <Building className="w-4 h-4 text-blue-600" />
                   Datos de la Empresa
                 </h3>
@@ -204,7 +204,7 @@ export const AdminApplicationsPage: React.FC = () => {
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 space-y-2">
-                <h3 className="font-serif font-bold text-sm text-[#0B2545] flex items-center gap-1.5">
+                <h3 className="font-serif font-bold text-sm text-cicha-navy flex items-center gap-1.5">
                   <Phone className="w-4 h-4 text-blue-600" />
                   Contacto Responsable
                 </h3>

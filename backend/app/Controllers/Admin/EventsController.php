@@ -26,6 +26,8 @@ class EventsController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
         $rules = [
             'title'      => 'required|min_length[3]',
             'event_date' => 'required',
@@ -35,23 +37,23 @@ class EventsController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $title = $this->request->getVar('title');
+        $title = $input['title'] ?? 'evento';
         $slug = url_title($title, '-', true) . '-' . time();
 
         $data = [
-            'category_id'      => $this->request->getVar('category_id') ?: null,
             'title'            => $title,
             'slug'             => $slug,
-            'description'      => $this->request->getVar('description') ?: '',
-            'event_date'       => $this->request->getVar('event_date'),
-            'end_date'         => $this->request->getVar('end_date') ?: null,
-            'location_type'    => $this->request->getVar('location_type') ?: 'presencial',
-            'location_address' => $this->request->getVar('location_address') ?: '',
-            'registration_url' => $this->request->getVar('registration_url') ?: '',
-            'image_url'        => $this->request->getVar('image_url') ?: '',
-            'organizer'        => $this->request->getVar('organizer') ?: 'CICHA / Red EEN',
-            'is_featured'      => $this->request->getVar('is_featured') ? 1 : 0,
-            'status'           => $this->request->getVar('status') ?: 'upcoming',
+            'category_id'      => $input['category_id'] ?? null,
+            'description'      => $input['description'] ?? '',
+            'event_date'       => $input['event_date'] ?? date('Y-m-d H:i:s'),
+            'end_date'         => $input['end_date'] ?? null,
+            'location_type'    => $input['location_type'] ?? 'presencial',
+            'location_address' => $input['location_address'] ?? '',
+            'registration_url' => $input['registration_url'] ?? '',
+            'image_url'        => $input['image_url'] ?? '',
+            'organizer'        => $input['organizer'] ?? 'CICHA',
+            'is_featured'      => !empty($input['is_featured']) ? 1 : 0,
+            'status'           => $input['status'] ?? 'upcoming',
         ];
 
         $eventModel = new EventModel();
@@ -65,8 +67,7 @@ class EventsController extends ResourceController
         $eventModel = new EventModel();
         if (!$eventModel->find($id)) return $this->failNotFound('Evento no encontrado');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
         if (isset($input['title'])) {
@@ -82,10 +83,13 @@ class EventsController extends ResourceController
         if (isset($input['registration_url'])) $data['registration_url'] = $input['registration_url'];
         if (isset($input['image_url'])) $data['image_url'] = $input['image_url'];
         if (isset($input['organizer'])) $data['organizer'] = $input['organizer'];
-        if (isset($input['is_featured'])) $data['is_featured'] = $input['is_featured'] ? 1 : 0;
+        if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];
 
-        $eventModel->update($id, $data);
+        if (!empty($data)) {
+            $eventModel->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Evento actualizado con éxito']);
     }
 

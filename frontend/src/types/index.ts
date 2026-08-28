@@ -46,7 +46,7 @@ export interface Authority {
   id: number;
   name: string;
   role_title: string;
-  category: 'directiva' | 'honorario' | 'comite';
+  category: 'directiva' | 'honorario' | 'comite' | 'revisora' | string;
   company?: string;
   bio?: string;
   photo_url?: string;

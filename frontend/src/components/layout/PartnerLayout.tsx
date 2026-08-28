@@ -47,13 +47,13 @@ export const PartnerLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
       {/* Top Intranet Header */}
-      <header className="bg-[#0B2545] text-white border-b-2 border-amber-400 sticky top-0 z-40 shadow-xl">
+      <header className="bg-cicha-navy text-white border-b-2 border-amber-400 sticky top-0 z-40 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Brand Logo & Partner Badge */}
             <div className="flex items-center gap-4">
               <Link to="/portal-socios" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0D5EAF] to-[#0B2545] border border-amber-400/80 flex items-center justify-center text-white font-serif font-bold text-lg text-amber-300 shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0D5EAF] to-cicha-navy border border-amber-400/80 flex items-center justify-center text-white font-serif font-bold text-lg text-amber-300 shadow-md">
                   C
                 </div>
                 <div>

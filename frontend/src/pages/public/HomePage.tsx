@@ -47,29 +47,29 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-16 lg:space-y-24 pb-20">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-20 lg:py-28 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500">
-        {/* Decorative background glow */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean/90 to-cicha-navy-deep text-white py-20 lg:py-28 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky">
+        {/* Decorative Aegean Glow & Marine Light */}
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-cicha-sky/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-cicha-turquoise/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
               {/* Diplomatic Badges */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-900/60 border border-amber-400/40 text-amber-300 text-xs font-semibold shadow-inner">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-cicha-sky-light/40 text-cicha-sky-light text-xs font-semibold shadow-inner backdrop-blur-md">
+                <ShieldCheck className="w-4 h-4 text-cicha-sky" />
                 <span>Reconocida por Gobiernos de Argentina (1989) y Grecia (1998)</span>
               </div>
 
               <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
                 Impulsando el Comercio Bilateral e Inversiones entre{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-amber-300">
+                <span className="text-[#072B54] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">
                   Grecia y Argentina
                 </span>
               </h1>
 
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
+              <p className="text-slate-200 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
                 {data?.mision?.content ||
                   'Fuerza creadora en un ambiente de negocios que contribuye al desarrollo de nuestra sociedad con responsabilidad, ética y transparencia. Nucleamos el empresariado heleno y articulamos foros de conocimiento y diálogo.'}
               </p>
@@ -78,7 +78,7 @@ export const HomePage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link
                   to="/asociarse"
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white font-bold text-sm shadow-xl shadow-cicha-sky/25 hover:scale-105 transition-all flex items-center gap-2"
                 >
                   <Briefcase className="w-4 h-4" />
                   Solicitar Membresía / Asociarse
@@ -86,9 +86,9 @@ export const HomePage: React.FC = () => {
 
                 <Link
                   to="/comercio-bilateral"
-                  className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 font-semibold text-sm backdrop-blur-sm transition-all flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-cicha-sky-light/30 font-semibold text-sm backdrop-blur-sm transition-all flex items-center gap-2"
                 >
-                  <TrendingUp className="w-4 h-4 text-amber-400" />
+                  <TrendingUp className="w-4 h-4 text-cicha-sky" />
                   Oportunidades Comerciales
                 </Link>
               </div>
@@ -96,7 +96,7 @@ export const HomePage: React.FC = () => {
               {/* Strategic Node Highlights */}
               <div className="pt-4 border-t border-blue-900/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0" />
                   <span>Miembro EUROCAMARA (2017)</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export const HomePage: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
-                    <p className="text-3xl font-extrabold text-amber-400 font-serif">+35</p>
+                    <p className="text-3xl font-extrabold text-cicha-sky font-serif">+35</p>
                     <p className="text-xs text-slate-300 mt-1 font-medium">Años de Trayectoria Bilateral (1989)</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
@@ -138,7 +138,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-blue-900/30 border border-blue-700/50 space-y-2">
-                  <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <p className="text-xs font-bold text-cicha-sky-light flex items-center gap-1.5">
                     <Award className="w-4 h-4" />
                     Objeto de la Cámara
                   </p>
@@ -156,7 +156,7 @@ export const HomePage: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
           <Badge variant="primary">Redes Internacionales</Badge>
-          <h2 className="font-serif font-bold text-2xl sm:text-3xl text-[#0B2545]">
+          <h2 className="font-serif font-bold text-2xl sm:text-3xl text-cicha-navy">
             Alianzas Estratégicas y Nodos Globales
           </h2>
           <p className="text-xs sm:text-sm text-slate-600">
@@ -183,7 +183,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-[#0B2545] group-hover:text-blue-700 transition-colors">
+                  <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors">
                     {alliance.name}
                   </h3>
                   <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
@@ -214,24 +214,25 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 3. BILATERAL COMMERCIAL OPPORTUNITIES */}
-      <section className="bg-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border border-blue-900 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-blue-800">
+      <section className="bg-gradient-to-br from-cicha-navy-dark via-cicha-navy to-cicha-navy-deep text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border-2 border-cicha-sky/30 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cicha-sky/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-cicha-sky/20">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 text-cicha-sky text-xs font-bold uppercase tracking-wider">
               <TrendingUp className="w-4 h-4" />
-              Comercio Exterior & Inversión
+              Comercio Exterior & Inversión Egea
             </div>
             <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
               Oportunidades Comerciales Bilaterales
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-light">
               Demandas y ofertas comerciales activas gestionadas a través de CICHA y el nodo Enterprise Europe Network.
             </p>
           </div>
 
           <Link
             to="/comercio-bilateral"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white text-xs font-bold shadow-lg shadow-cicha-sky/20 transition-all shrink-0"
           >
             Ver Todas las Oportunidades
             <ArrowRight className="w-4 h-4" />
@@ -242,19 +243,19 @@ export const HomePage: React.FC = () => {
           {data?.opportunities?.map((opp) => (
             <div
               key={opp.id}
-              className="bg-[#0B2545] rounded-2xl p-6 border border-blue-800/80 hover:border-amber-400/60 transition-all flex flex-col justify-between group"
+              className="bg-cicha-navy/90 rounded-2xl p-6 border border-cicha-sky/30 hover:border-cicha-sky transition-all flex flex-col justify-between group shadow-md"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-300 font-semibold border border-blue-700 capitalize">
+                  <span className="px-2.5 py-0.5 rounded-full bg-cicha-sky-light text-cicha-aegean font-bold border border-cicha-sky/30 capitalize">
                     {opp.type}
                   </span>
-                  <span className="text-amber-400 font-medium">
+                  <span className="text-cicha-gold font-medium">
                     {opp.origin_country} ➔ {opp.target_country}
                   </span>
                 </div>
 
-                <h3 className="font-serif font-bold text-base text-white group-hover:text-amber-300 transition-colors leading-snug">
+                <h3 className="font-serif font-bold text-base text-white group-hover:text-cicha-sky-light transition-colors leading-snug">
                   {opp.title}
                 </h3>
 
@@ -267,7 +268,7 @@ export const HomePage: React.FC = () => {
                 <span className="text-slate-400 font-medium">{opp.sector}</span>
                 <Link
                   to={`/comercio-bilateral`}
-                  className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1"
+                  className="text-cicha-sky hover:text-cicha-sky-light font-bold flex items-center gap-1"
                 >
                   Consultar <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -285,7 +286,7 @@ export const HomePage: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
                 <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Actualidad</span>
-                <h2 className="font-serif font-bold text-2xl text-[#0B2545]">Noticias & Comunicados</h2>
+                <h2 className="font-serif font-bold text-2xl text-cicha-navy">Noticias & Comunicados</h2>
               </div>
               <Link
                 to="/noticias"
@@ -321,7 +322,7 @@ export const HomePage: React.FC = () => {
                         <span>{new Date(article.published_at).toLocaleDateString('es-AR')}</span>
                       </div>
 
-                      <h3 className="font-serif font-bold text-base text-[#0B2545] group-hover:text-blue-700 transition-colors leading-snug">
+                      <h3 className="font-serif font-bold text-base text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
                         <Link to={`/noticias/${article.slug}`}>{article.title}</Link>
                       </h3>
 
@@ -347,7 +348,7 @@ export const HomePage: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
                 <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Agenda</span>
-                <h2 className="font-serif font-bold text-2xl text-[#0B2545]">Próximos Eventos</h2>
+                <h2 className="font-serif font-bold text-2xl text-cicha-navy">Próximos Eventos</h2>
               </div>
               <Link
                 to="/eventos"
@@ -365,8 +366,8 @@ export const HomePage: React.FC = () => {
                     className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl p-5 border border-blue-100 shadow-sm hover:shadow-md transition-all flex gap-4"
                   >
                     {/* Date Badge */}
-                    <div className="w-16 h-16 rounded-xl bg-[#0B2545] text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-sm">
-                      <span className="text-lg font-bold font-serif leading-none text-amber-300">
+                    <div className="w-16 h-16 rounded-xl bg-cicha-navy text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-sm">
+                      <span className="text-lg font-bold font-serif leading-none text-cicha-sky-light">
                         {new Date(event.event_date).getDate()}
                       </span>
                       <span className="text-[10px] uppercase font-semibold text-slate-300">
@@ -381,7 +382,7 @@ export const HomePage: React.FC = () => {
                         </span>
                       </div>
 
-                      <h3 className="font-serif font-bold text-sm text-[#0B2545] leading-snug">
+                      <h3 className="font-serif font-bold text-sm text-cicha-navy leading-snug">
                         {event.title}
                       </h3>
 
@@ -421,7 +422,7 @@ export const HomePage: React.FC = () => {
 
       {/* 5. MEMBERS DIRECTORY HIGHLIGHT */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-blue-900 to-[#0B2545] rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="bg-gradient-to-r from-blue-900 to-cicha-navy rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-2xl">
             <Badge variant="gold">Comunidad Empresarial</Badge>
             <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
@@ -444,7 +445,7 @@ export const HomePage: React.FC = () => {
               to="/socios"
               className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/20 transition-all flex items-center gap-2"
             >
-              <Users className="w-4 h-4 text-amber-300" />
+              <Users className="w-4 h-4 text-cicha-sky-light" />
               Ver Empresas Socias
             </Link>
           </div>

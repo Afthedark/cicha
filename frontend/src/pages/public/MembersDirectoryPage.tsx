@@ -53,7 +53,7 @@ export const MembersDirectoryPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <Badge variant="gold">Red de Empresas</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
@@ -85,7 +85,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 onClick={() => setSelectedSector(sec.value)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedSector === sec.value
-                    ? 'bg-[#0B2545] text-white shadow-xs'
+                    ? 'bg-cicha-navy text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -125,7 +125,7 @@ export const MembersDirectoryPage: React.FC = () => {
                     {member.is_featured && <Badge variant="gold">Destacada</Badge>}
                   </div>
 
-                  <h3 className="font-serif font-bold text-lg text-[#0B2545] group-hover:text-blue-700 transition-colors">
+                  <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors">
                     {member.company_name}
                   </h3>
 
@@ -168,7 +168,7 @@ export const MembersDirectoryPage: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-serif font-bold text-sm text-[#0B2545]">Descripción de la Empresa</h4>
+              <h4 className="font-serif font-bold text-sm text-cicha-navy">Descripción de la Empresa</h4>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 {activeMember.description || 'Sin descripción disponible.'}
               </p>
@@ -176,7 +176,7 @@ export const MembersDirectoryPage: React.FC = () => {
 
             {activeMember.services && (
               <div className="space-y-2">
-                <h4 className="font-serif font-bold text-sm text-[#0B2545]">Servicios & Oferta Comercial</h4>
+                <h4 className="font-serif font-bold text-sm text-cicha-navy">Servicios & Oferta Comercial</h4>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {activeMember.services}
                 </p>

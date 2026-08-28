@@ -58,13 +58,16 @@ export const ArticlesPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
-        <div className="max-w-4xl mx-auto space-y-4">
-          <Badge variant="gold">Prensa & Novedades</Badge>
-          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light text-center shadow-lg">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-4xl mx-auto space-y-4 relative z-10">
+          <Badge variant="primary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+            Prensa & Novedades Helénicas
+          </Badge>
+          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
             Noticias y Comunicados Institucionales
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base font-light max-w-2xl mx-auto">
+          <p className="text-cicha-sky-light text-sm sm:text-base font-light max-w-2xl mx-auto">
             Actualidad sobre relaciones bilaterales, acuerdos comerciales, actividades en Eurocámara y la red Enterprise Europe Network.
           </p>
         </div>
@@ -83,7 +86,7 @@ export const ArticlesPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 !activeCategory
-                  ? 'bg-[#0B2545] text-white'
+                  ? 'bg-cicha-navy text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -137,7 +140,7 @@ export const ArticlesPage: React.FC = () => {
                       />
                     </div>
                   ) : (
-                    <div className="h-32 bg-gradient-to-br from-blue-900 to-[#0B2545] flex items-center justify-center text-amber-300 font-serif font-bold text-2xl">
+                    <div className="h-32 bg-gradient-to-br from-blue-900 to-cicha-navy flex items-center justify-center text-cicha-sky-light font-serif font-bold text-2xl">
                       CICHA
                     </div>
                   )}
@@ -151,7 +154,7 @@ export const ArticlesPage: React.FC = () => {
                       <span>{new Date(article.published_at).toLocaleDateString('es-AR')}</span>
                     </div>
 
-                    <h3 className="font-serif font-bold text-lg text-[#0B2545] group-hover:text-blue-700 transition-colors leading-snug">
+                    <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
                       <Link to={`/noticias/${article.slug}`}>{article.title}</Link>
                     </h3>
 

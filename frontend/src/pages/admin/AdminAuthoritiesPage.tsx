@@ -15,12 +15,12 @@ export const AdminAuthoritiesPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     role_title: '',
-    category: 'directiva' as 'directiva' | 'honorario' | 'comite',
+    category: 'directiva' as 'directiva' | 'honorario' | 'comite' | 'revisora' | string,
     company: '',
     bio: '',
     photo_url: '',
     linkedin_url: '',
-    order_num: 0,
+    order_num: 1,
     is_active: 1,
   });
 
@@ -108,7 +108,7 @@ export const AdminAuthoritiesPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Comisión Directiva & Autoridades</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Comisión Directiva & Autoridades</h1>
           <p className="text-xs text-slate-500 mt-0.5">Gestión de cargos y autoridades de la Cámara.</p>
         </div>
         <button

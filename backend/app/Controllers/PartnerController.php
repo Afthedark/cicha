@@ -15,7 +15,7 @@ class PartnerController extends ResourceController
 
     public function dashboard()
     {
-        $userData = $this->request->user ?? null;
+        $userData = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         $resourceModel = new PartnerResourceModel();
         $benefitModel  = new PartnerBenefitModel();
         $oppModel      = new CommercialOpportunityModel();

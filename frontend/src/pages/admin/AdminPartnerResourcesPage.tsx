@@ -177,7 +177,7 @@ export const AdminPartnerResourcesPage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-[#0B2545]">Recursos & Beneficios del Portal de Socios</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Recursos & Beneficios del Portal de Socios</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Gestión de biblioteca de informes sectoriales, minutas y convenios exclusivos para socios.
           </p>

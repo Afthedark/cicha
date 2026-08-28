@@ -72,7 +72,7 @@ export const MembershipApplyPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="bg-gradient-to-br from-[#0B2545] via-[#071E38] to-[#040D1A] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
         <div className="max-w-4xl mx-auto space-y-4">
           <Badge variant="gold">Membresía Empresarial</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
@@ -92,7 +92,7 @@ export const MembershipApplyPage: React.FC = () => {
               <CheckCircle className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h2 className="font-serif font-bold text-2xl text-[#0B2545]">
+              <h2 className="font-serif font-bold text-2xl text-cicha-navy">
                 ¡Solicitud Recibida Exitosamente!
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
@@ -124,7 +124,7 @@ export const MembershipApplyPage: React.FC = () => {
         ) : (
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-8">
             <div className="border-b border-slate-100 pb-4">
-              <h2 className="font-serif font-bold text-xl text-[#0B2545]">
+              <h2 className="font-serif font-bold text-xl text-cicha-navy">
                 Formulario de Presentación Institucional
               </h2>
               <p className="text-xs text-slate-500 mt-1">

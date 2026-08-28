@@ -29,6 +29,8 @@ class ArticlesController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
         $rules = [
             'title'   => 'required|min_length[3]',
             'content' => 'required',
@@ -38,20 +40,21 @@ class ArticlesController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $title = $this->request->getVar('title');
+        $title = $input['title'] ?? 'noticia';
         $slug = url_title($title, '-', true) . '-' . time();
 
         $data = [
-            'category_id'  => $this->request->getVar('category_id') ?: null,
             'title'        => $title,
             'slug'         => $slug,
-            'summary'      => $this->request->getVar('summary'),
-            'content'      => $this->request->getVar('content'),
-            'image_url'    => $this->request->getVar('image_url'),
-            'author'       => $this->request->getVar('author') ?: 'CICHA Institucional',
-            'published_at' => $this->request->getVar('published_at') ?: date('Y-m-d'),
-            'is_featured'  => $this->request->getVar('is_featured') ? 1 : 0,
-            'status'       => $this->request->getVar('status') ?: 'published',
+            'category_id'  => $input['category_id'] ?? null,
+            'summary'      => $input['summary'] ?? '',
+            'content'      => $input['content'] ?? '',
+            'image_url'    => $input['image_url'] ?? '',
+            'author'       => $input['author'] ?? 'Comisión de Prensa CICHA',
+            'published_at' => $input['published_at'] ?? date('Y-m-d H:i:s'),
+            'is_featured'  => !empty($input['is_featured']) ? 1 : 0,
+            'status'       => $input['status'] ?? 'draft',
+            'views_count'  => 0,
         ];
 
         $articleModel = new ArticleModel();
@@ -68,10 +71,7 @@ class ArticlesController extends ResourceController
             return $this->failNotFound('Artículo no encontrado');
         }
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) {
-            $input = $this->request->getVar();
-        }
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
         if (isset($input['title'])) {
@@ -84,10 +84,13 @@ class ArticlesController extends ResourceController
         if (isset($input['image_url'])) $data['image_url'] = $input['image_url'];
         if (isset($input['author'])) $data['author'] = $input['author'];
         if (isset($input['published_at'])) $data['published_at'] = $input['published_at'];
-        if (isset($input['is_featured'])) $data['is_featured'] = $input['is_featured'] ? 1 : 0;
+        if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];
 
-        $articleModel->update($id, $data);
+        if (!empty($data)) {
+            $articleModel->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Artículo actualizado con éxito']);
     }
 

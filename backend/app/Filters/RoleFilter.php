@@ -10,7 +10,7 @@ class RoleFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        $userData = $request->user ?? null;
+        $userData = $request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
 
         if (!$userData) {
             $response = service('response');
