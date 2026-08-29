@@ -5,6 +5,7 @@ import { publicApi } from '../../services/api';
 import type { Article } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import bgHeader from '../../assets/static/4.jpeg';
 
 export const ArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -58,16 +59,26 @@ export const ArticlesPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light text-center shadow-lg">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-cicha-navy-deep text-white py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky text-center shadow-xl">
+        {/* Background Static Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={bgHeader}
+            alt="Noticias y Prensa CICHA"
+            className="w-full h-full object-cover object-center transform scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#071E38]/95 via-[#005EAF]/80 to-[#071E38]/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071E38]/90 via-transparent to-black/30" />
+        </div>
+
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="primary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+          <Badge variant="primary" className="bg-white/20 text-white border-white/30 backdrop-blur-md">
             Prensa & Novedades Helénicas
           </Badge>
-          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
+          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight drop-shadow-md">
             Noticias y Comunicados Institucionales
           </h1>
-          <p className="text-cicha-sky-light text-sm sm:text-base font-light max-w-2xl mx-auto">
+          <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
             Actualidad sobre relaciones bilaterales, acuerdos comerciales, actividades en Eurocámara y la red Enterprise Europe Network.
           </p>
         </div>

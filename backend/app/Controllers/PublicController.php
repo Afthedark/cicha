@@ -13,6 +13,7 @@ use App\Models\MemberModel;
 use App\Models\CommercialOpportunityModel;
 use App\Models\MembershipApplicationModel;
 use App\Models\ContactMessageModel;
+use App\Models\BannerModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PublicController extends ResourceController
@@ -28,6 +29,7 @@ class PublicController extends ResourceController
         $eventModel         = new EventModel();
         $memberModel        = new MemberModel();
         $opportunityModel   = new CommercialOpportunityModel();
+        $bannerModel        = new BannerModel();
 
         // Convert settings key-value pairs
         $rawSettings = $settingModel->findAll();
@@ -36,6 +38,7 @@ class PublicController extends ResourceController
             $settings[$s['key_name']] = $s['value_text'];
         }
 
+        $banners = $bannerModel->where('is_active', 1)->orderBy('order_num', 'ASC')->orderBy('id', 'DESC')->findAll();
         $mision = $sectionModel->where('section_key', 'mision')->where('is_active', 1)->first();
         $historia = $sectionModel->where('section_key', 'historia')->where('is_active', 1)->first();
         $alliances = $allianceModel->where('is_active', 1)->orderBy('order_num', 'ASC')->findAll();
@@ -59,14 +62,15 @@ class PublicController extends ResourceController
         return $this->respond([
             'status' => 200,
             'data'   => [
-                'settings'          => $settings,
-                'mision'            => $mision,
-                'historia'          => $historia,
-                'alliances'         => $alliances,
-                'featured_articles' => $featuredArticles,
-                'upcoming_events'   => $upcomingEvents,
-                'featured_members'  => $featuredMembers,
-                'opportunities'     => $opportunities,
+                'banners'               => $banners,
+                'settings'              => $settings,
+                'mision'                => $mision,
+                'historia'              => $historia,
+                'alliances'             => $alliances,
+                'featured_articles'     => $featuredArticles,
+                'upcoming_events'       => $upcomingEvents,
+                'featured_members'      => $featuredMembers,
+                'featured_opportunities'=> $opportunities,
                 'stats' => [
                     'years_active'     => date('Y') - 1989,
                     'binational_cams'  => 32,
@@ -74,6 +78,17 @@ class PublicController extends ResourceController
                     'eurocamara_since' => '2017'
                 ]
             ]
+        ]);
+    }
+
+    public function getBanners()
+    {
+        $bannerModel = new BannerModel();
+        $banners = $bannerModel->where('is_active', 1)->orderBy('order_num', 'ASC')->orderBy('id', 'DESC')->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $banners,
         ]);
     }
 

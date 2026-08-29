@@ -213,7 +213,22 @@ export interface PartnerDashboardData {
   upcoming_events: EventItem[];
 }
 
+export interface Banner {
+  id: number;
+  title: string;
+  subtitle?: string;
+  badge_text?: string;
+  image_url?: string;
+  button_text?: string;
+  button_url?: string;
+  order_num: number;
+  is_active: number | boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface HomeData {
+  banners?: Banner[];
   settings: Settings;
   mision?: InstitutionalSection;
   historia?: InstitutionalSection;

@@ -17,7 +17,7 @@ import {
   Gift,
   Users,
 } from 'lucide-react';
-import cichaLogo from '../../assets/images/logo.png';
+import cichaLogo from '../../assets/images/logo_header.png';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleTranslate } from '../common/GoogleTranslate';
 

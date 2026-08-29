@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
 import { Badge } from '../../components/common/Badge';
+import bgHeader from '../../assets/static/9.jpeg';
 
 export const ContactPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -56,14 +57,25 @@ export const ContactPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
-        <div className="max-w-4xl mx-auto space-y-4">
-          <Badge variant="gold">Atención & Consultas</Badge>
-          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
-            Contacto Institucional & Comercial
+      <section className="relative overflow-hidden bg-cicha-navy-deep text-white py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky shadow-xl text-center">
+        {/* Background Static Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={bgHeader}
+            alt="Contacto Institucional CICHA"
+            className="w-full h-full object-cover object-center transform scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#071E38]/95 via-[#005EAF]/80 to-[#071E38]/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071E38]/90 via-transparent to-black/30" />
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-4 relative z-10">
+          <Badge variant="gold">Canal Oficial</Badge>
+          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight drop-shadow-md">
+            Contacto & Atención Institucional
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base font-light max-w-2xl mx-auto">
-            Estamos a su disposición para coordinar reuniones, consultas de comercio bilateral, afiliación y actividades con EUROCAMARA y la red EEN.
+          <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
+            Estamos a disposición de empresas, diplomáticos y emprendedores interesados en el intercambio comercial y cultural bilateral.
           </p>
         </div>
       </section>

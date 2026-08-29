@@ -28,6 +28,7 @@ $routes->group('api', static function ($routes) {
     // Public Portal Routes (Visitante)
     $routes->group('public', static function ($routes) {
         $routes->get('home', 'PublicController::getHomeData');
+        $routes->get('banners', 'PublicController::getBanners');
         $routes->get('institutional', 'PublicController::getInstitutional');
         $routes->get('articles', 'PublicController::getArticles');
         $routes->get('articles/(:segment)', 'PublicController::getArticleBySlug/$1');
@@ -56,6 +57,9 @@ $routes->group('api', static function ($routes) {
 
         // Articles / News
         $routes->resource('articles', ['controller' => 'Admin\ArticlesController']);
+
+        // Home Banners / Portadas
+        $routes->resource('banners', ['controller' => 'Admin\BannersController']);
 
         // Events
         $routes->resource('events', ['controller' => 'Admin\EventsController']);

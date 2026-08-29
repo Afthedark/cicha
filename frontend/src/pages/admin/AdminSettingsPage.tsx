@@ -13,9 +13,11 @@ import {
   Lock,
   Mail,
   Phone,
+  Image as ImageIcon,
+  ExternalLink,
 } from 'lucide-react';
 import { adminApi } from '../../services/api';
-import type { Settings, User, Authority, InstitutionalSection, Alliance, Member } from '../../types';
+import type { Settings, User, Authority, InstitutionalSection, Alliance, Member, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -24,13 +26,28 @@ import { ImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminSettingsPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<'settings' | 'users' | 'institutional' | 'authorities' | 'alliances'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'banners' | 'users' | 'institutional' | 'authorities' | 'alliances'>('banners');
   const [loading, setLoading] = useState(true);
 
   // Settings state
   const [settings, setSettings] = useState<Settings>({});
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // Banners state
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const [bannerForm, setBannerForm] = useState({
+    title: '',
+    subtitle: '',
+    badge_text: '',
+    image_url: '',
+    button_text: '',
+    button_url: '',
+    order_num: 1,
+    is_active: 1,
+  });
 
   // Users state
   const [users, setUsers] = useState<User[]>([]);
@@ -62,6 +79,7 @@ export const AdminSettingsPage: React.FC = () => {
     company: '',
     bio: '',
     photo_url: '',
+    linkedin_url: '',
     order_num: 1,
   });
 
@@ -91,6 +109,7 @@ export const AdminSettingsPage: React.FC = () => {
     setLoading(true);
     const promises: Promise<any>[] = [
       adminApi.getSettings(),
+      adminApi.getBanners().catch(() => []),
       isAdmin ? adminApi.getUsers().catch(() => []) : Promise.resolve([]),
       adminApi.getMembers().catch(() => []),
       adminApi.getInstitutional().catch(() => []),
@@ -99,8 +118,9 @@ export const AdminSettingsPage: React.FC = () => {
     ];
 
     Promise.all(promises)
-      .then(([set, usrs, mems, secs, auths, allis]) => {
+      .then(([set, bnrs, usrs, mems, secs, auths, allis]) => {
         setSettings(set || {});
+        setBanners(bnrs || []);
         setUsers(usrs || []);
         setMembers(mems || []);
         setSections(secs || []);
@@ -112,6 +132,65 @@ export const AdminSettingsPage: React.FC = () => {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  // Banner Handlers
+  const handleOpenCreateBanner = () => {
+    setEditingBanner(null);
+    setBannerForm({
+      title: '',
+      subtitle: '',
+      badge_text: 'Reconocimiento Oficial 1989 - 1998',
+      image_url: '',
+      button_text: 'Solicitar Membresía / Asociarse',
+      button_url: '/asociarse',
+      order_num: banners.length + 1,
+      is_active: 1,
+    });
+    setIsBannerModalOpen(true);
+  };
+
+  const handleOpenEditBanner = (bnr: Banner) => {
+    setEditingBanner(bnr);
+    setBannerForm({
+      title: bnr.title,
+      subtitle: bnr.subtitle || '',
+      badge_text: bnr.badge_text || '',
+      image_url: bnr.image_url || '',
+      button_text: bnr.button_text || '',
+      button_url: bnr.button_url || '',
+      order_num: bnr.order_num || 1,
+      is_active: typeof bnr.is_active === 'number' ? bnr.is_active : bnr.is_active ? 1 : 0,
+    });
+    setIsBannerModalOpen(true);
+  };
+
+  const handleSubmitBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      if (editingBanner) {
+        await adminApi.updateBanner(editingBanner.id, bannerForm);
+      } else {
+        await adminApi.createBanner(bannerForm);
+      }
+      setIsBannerModalOpen(false);
+      fetchData();
+    } catch {
+      alert('Error al guardar la portada.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteBanner = async (id: number) => {
+    if (!window.confirm('¿Desea eliminar esta portada?')) return;
+    try {
+      await adminApi.deleteBanner(id);
+      fetchData();
+    } catch {
+      alert('Error al eliminar la portada.');
+    }
   };
 
   // Settings Save
@@ -225,6 +304,7 @@ export const AdminSettingsPage: React.FC = () => {
       company: '',
       bio: '',
       photo_url: '',
+      linkedin_url: '',
       order_num: authorities.length + 1,
     });
     setIsAuthModalOpen(true);
@@ -239,6 +319,7 @@ export const AdminSettingsPage: React.FC = () => {
       company: auth.company || '',
       bio: auth.bio || '',
       photo_url: auth.photo_url || '',
+      linkedin_url: auth.linkedin_url || '',
       order_num: auth.order_num || 1,
     });
     setIsAuthModalOpen(true);
@@ -344,7 +425,14 @@ export const AdminSettingsPage: React.FC = () => {
           </p>
         </div>
 
-        {activeTab === 'users' ? (
+        {activeTab === 'banners' ? (
+          <button
+            onClick={handleOpenCreateBanner}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Nueva Portada
+          </button>
+        ) : activeTab === 'users' ? (
           <button
             onClick={handleOpenCreateUser}
             className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
@@ -370,6 +458,18 @@ export const AdminSettingsPage: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-3 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('banners')}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'banners'
+              ? 'border-blue-600 text-blue-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <ImageIcon className="w-4 h-4" />
+          Portadas / Banners Home ({banners.length})
+        </button>
+
         <button
           onClick={() => setActiveTab('settings')}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
@@ -436,6 +536,110 @@ export const AdminSettingsPage: React.FC = () => {
       {/* Content */}
       {loading ? (
         <Loader text="Cargando configuración..." />
+      ) : activeTab === 'banners' ? (
+        /* Banners Tab */
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p className="font-bold">✨ Portadas Principales del Home</p>
+              <p className="text-blue-700 mt-0.5">
+                Las portadas activas se mostrarán en el Slider superior del Home antes del título institucional. Puedes subir imágenes de alta resolución, personalizar el texto y el botón.
+              </p>
+            </div>
+            <button
+              onClick={handleOpenCreateBanner}
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition-all shrink-0 flex items-center gap-1.5 self-start sm:self-center"
+            >
+              <Plus className="w-3.5 h-3.5" /> Agregar Portada
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            {banners.length === 0 ? (
+              <div className="p-12 text-center text-slate-500">
+                <ImageIcon className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                <p className="font-bold text-slate-700">No hay portadas registradas</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Agrega tu primera portada para activar el slider visual en la página principal.
+                </p>
+                <button
+                  onClick={handleOpenCreateBanner}
+                  className="mt-4 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold"
+                >
+                  Crear Portada
+                </button>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {banners.map((bnr) => (
+                  <div key={bnr.id} className="p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors">
+                    <div className="flex items-center gap-4 min-w-0">
+                      {bnr.image_url ? (
+                        <img
+                          src={bnr.image_url}
+                          alt={bnr.title}
+                          className="w-24 h-16 sm:w-32 sm:h-20 rounded-xl object-cover border border-slate-200 shrink-0 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-24 h-16 sm:w-32 sm:h-20 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                      )}
+
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-bold text-sm text-slate-900 truncate">{bnr.title}</h3>
+                          {bnr.badge_text && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                              {bnr.badge_text}
+                            </span>
+                          )}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              (typeof bnr.is_active === 'number' ? bnr.is_active === 1 : bnr.is_active)
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {(typeof bnr.is_active === 'number' ? bnr.is_active === 1 : bnr.is_active) ? 'Activa' : 'Inactiva'}
+                          </span>
+                        </div>
+
+                        {bnr.subtitle && (
+                          <p className="text-xs text-slate-500 line-clamp-2">{bnr.subtitle}</p>
+                        )}
+
+                        <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-1">
+                          <span>Orden: <strong>#{bnr.order_num}</strong></span>
+                          {bnr.button_text && (
+                            <span>Botón: <strong>{bnr.button_text}</strong> ({bnr.button_url || '/'})</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                      <button
+                        onClick={() => handleOpenEditBanner(bnr)}
+                        className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold flex items-center gap-1"
+                        title="Editar portada"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" /> Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBanner(bnr.id)}
+                        className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-bold flex items-center gap-1"
+                        title="Eliminar portada"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       ) : activeTab === 'settings' ? (
         /* Settings Tab */
         <form onSubmit={handleSaveSettings} className="space-y-6">
@@ -1039,6 +1243,181 @@ export const AdminSettingsPage: React.FC = () => {
               className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
               {submitting ? 'Guardando...' : 'Guardar Alianza'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      {/* BANNER CREATE / EDIT MODAL */}
+      <Modal
+        isOpen={isBannerModalOpen}
+        onClose={() => setIsBannerModalOpen(false)}
+        title={editingBanner ? 'Editar Portada del Home' : 'Nueva Portada del Home'}
+        maxWidth="xl"
+      >
+        <form onSubmit={handleSubmitBanner} className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Título Principal *</label>
+            <input
+              type="text"
+              required
+              value={bannerForm.title}
+              onChange={(e) => setBannerForm({ ...bannerForm, title: e.target.value })}
+              placeholder="Ej. Impulsando el Comercio Bilateral e Inversiones"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Insignia / Badge Superior</label>
+              <input
+                type="text"
+                value={bannerForm.badge_text}
+                onChange={(e) => setBannerForm({ ...bannerForm, badge_text: e.target.value })}
+                placeholder="Ej. Reconocimiento Oficial 1989 - 1998"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Orden de Visualización</label>
+              <input
+                type="number"
+                min={1}
+                value={bannerForm.order_num}
+                onChange={(e) => setBannerForm({ ...bannerForm, order_num: parseInt(e.target.value) || 1 })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          {/* Banner Image Uploader */}
+          <ImageUploader
+            label="Imagen de Fondo de la Portada (Full HD / 1920x1080 recomendado)"
+            value={bannerForm.image_url}
+            onChange={(url) => setBannerForm({ ...bannerForm, image_url: url })}
+            helperText="Sube fotografías de alta calidad (paisajes de Grecia, puertos comerciales, eventos diplomáticos)."
+            previewHeight="h-44"
+            aspectRatio="wide"
+          />
+
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Subtítulo / Descripción</label>
+            <textarea
+              rows={3}
+              value={bannerForm.subtitle}
+              onChange={(e) => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
+              placeholder="Descripción breve de la portada o mensaje institucional..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Texto del Botón</label>
+              <input
+                type="text"
+                value={bannerForm.button_text}
+                onChange={(e) => setBannerForm({ ...bannerForm, button_text: e.target.value })}
+                placeholder="Ej. Solicitar Membresía / Asociarse"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Enlace del Botón (Destino Automático)</label>
+              <select
+                value={
+                  [
+                    '',
+                    '/asociarse',
+                    '/comercio-bilateral',
+                    '/institucional',
+                    '/noticias',
+                    '/eventos',
+                    '/socios',
+                    '/contacto',
+                    '/portal-socios',
+                  ].includes(bannerForm.button_url)
+                    ? bannerForm.button_url
+                    : 'custom'
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'custom') {
+                    if (['/asociarse', '/comercio-bilateral', '/institucional', '/noticias', '/eventos', '/socios', '/contacto', '/portal-socios', ''].includes(bannerForm.button_url)) {
+                      setBannerForm({ ...bannerForm, button_url: 'https://' });
+                    }
+                  } else {
+                    setBannerForm({ ...bannerForm, button_url: val });
+                  }
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
+              >
+                <option value="">-- Sin Botón / Enlace --</option>
+                <optgroup label="Secciones Principales del Portal">
+                  <option value="/asociarse">Membresía / Asociarse (/asociarse)</option>
+                  <option value="/comercio-bilateral">Comercio Bilateral & EEN (/comercio-bilateral)</option>
+                  <option value="/institucional">Institucional & Autoridades (/institucional)</option>
+                  <option value="/noticias">Noticias & Artículos (/noticias)</option>
+                  <option value="/eventos">Agenda de Eventos (/eventos)</option>
+                  <option value="/socios">Directorio de Socios (/socios)</option>
+                  <option value="/contacto">Contacto Institucional (/contacto)</option>
+                </optgroup>
+                <optgroup label="Portal Exclusivo de Socios">
+                  <option value="/portal-socios">Intranet / Portal de Socios (/portal-socios)</option>
+                </optgroup>
+                <option value="custom">🌐 Otro enlace personalizado o URL externa...</option>
+              </select>
+
+              {/* Input libre si se selecciona personalizado */}
+              {![
+                '',
+                '/asociarse',
+                '/comercio-bilateral',
+                '/institucional',
+                '/noticias',
+                '/eventos',
+                '/socios',
+                '/contacto',
+                '/portal-socios',
+              ].includes(bannerForm.button_url) && (
+                <input
+                  type="text"
+                  value={bannerForm.button_url}
+                  onChange={(e) => setBannerForm({ ...bannerForm, button_url: e.target.value })}
+                  placeholder="Ej. https://ejemplo.com o /ruta-personalizada"
+                  className="w-full mt-2 px-3.5 py-2 rounded-xl border border-blue-300 bg-blue-50/50 text-blue-900"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+            <span className="font-bold text-slate-700">Estado de la Portada</span>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={bannerForm.is_active === 1}
+                onChange={(e) => setBannerForm({ ...bannerForm, is_active: e.target.checked ? 1 : 0 })}
+                className="w-4 h-4 rounded text-blue-600"
+              />
+              <span className="font-semibold text-slate-700">Portada Activa (Visible en Home)</span>
+            </label>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsBannerModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              {submitting ? 'Guardando...' : 'Guardar Portada'}
             </button>
           </div>
         </form>

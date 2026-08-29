@@ -9,19 +9,22 @@ import {
   ArrowRight,
   Calendar,
   ChevronRight,
+  ChevronLeft,
   CheckCircle2,
   Briefcase,
   Users,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
-import type { HomeData } from '../../types';
+import type { HomeData, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 export const HomePage: React.FC = () => {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
   useEffect(() => {
     publicApi
@@ -36,6 +39,28 @@ export const HomePage: React.FC = () => {
       });
   }, []);
 
+  const activeBanners = data?.banners && data.banners.length > 0
+    ? data.banners.filter((b) => (typeof b.is_active === 'number' ? b.is_active === 1 : b.is_active))
+    : [];
+
+  useEffect(() => {
+    if (activeBanners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % activeBanners.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [activeBanners.length]);
+
+  const handlePrevBanner = () => {
+    if (activeBanners.length === 0) return;
+    setCurrentBannerIndex((prev) => (prev === 0 ? activeBanners.length - 1 : prev - 1));
+  };
+
+  const handleNextBanner = () => {
+    if (activeBanners.length === 0) return;
+    setCurrentBannerIndex((prev) => (prev + 1) % activeBanners.length);
+  };
+
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -46,14 +71,118 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-16 lg:space-y-24 pb-20">
-      {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean/90 to-cicha-navy-deep text-white py-20 lg:py-28 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky">
+      {/* 1. HERO SECTION WITH INTEGRATED TOP BANNER SLIDER */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean/90 to-cicha-navy-deep text-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky">
         {/* Decorative Aegean Glow & Marine Light */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-cicha-sky/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-cicha-turquoise/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="max-w-7xl mx-auto relative z-10 space-y-12">
+          {/* TOP BANNER SLIDER / PORTADAS CAROUSEL */}
+          {activeBanners.length > 0 && (
+            <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-slate-900/40 backdrop-blur-md group">
+              {activeBanners.map((bnr, idx) => {
+                const isActive = idx === currentBannerIndex;
+                return (
+                  <div
+                    key={bnr.id}
+                    className={`transition-all duration-700 ease-in-out ${
+                      isActive ? 'opacity-100 relative z-10 block' : 'opacity-0 absolute inset-0 z-0 hidden pointer-events-none'
+                    }`}
+                  >
+                    <div className="relative min-h-[300px] sm:min-h-[360px] lg:min-h-[420px] flex items-center">
+                      {/* Banner Image / Background */}
+                      {bnr.image_url ? (
+                        <div className="absolute inset-0 z-0">
+                          <img
+                            src={bnr.image_url}
+                            alt={bnr.title}
+                            className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-1000"
+                          />
+                          {/* Rich Gradient Overlay for maximum text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-950 via-slate-900 to-cicha-navy-deep z-0" />
+                      )}
+
+                      {/* Content inside Banner */}
+                      <div className="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl space-y-4">
+                        {bnr.badge_text && (
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-cicha-sky-light text-xs font-bold shadow-sm backdrop-blur-md">
+                            <Sparkles className="w-3.5 h-3.5 text-cicha-gold" />
+                            <span>{bnr.badge_text}</span>
+                          </div>
+                        )}
+
+                        <h2 className="font-serif font-black text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-tight drop-shadow-md">
+                          {bnr.title}
+                        </h2>
+
+                        {bnr.subtitle && (
+                          <p className="text-slate-200 text-sm sm:text-base leading-relaxed line-clamp-3 font-light drop-shadow">
+                            {bnr.subtitle}
+                          </p>
+                        )}
+
+                        {bnr.button_text && (
+                          <div className="pt-2">
+                            <Link
+                              to={bnr.button_url || '/asociarse'}
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cicha-sky hover:bg-cicha-sky-hover text-white font-bold text-xs sm:text-sm shadow-lg shadow-cicha-sky/30 transition-all hover:scale-105"
+                            >
+                              <span>{bnr.button_text}</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Slider Controls (Prev / Next & Dots) */}
+              {activeBanners.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevBanner}
+                    aria-label="Portada anterior"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border border-white/20 transition-all hover:scale-110"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleNextBanner}
+                    aria-label="Siguiente portada"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm border border-white/20 transition-all hover:scale-110"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+
+                  {/* Indicators / Dots */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10">
+                    {activeBanners.map((_, dotIdx) => (
+                      <button
+                        key={dotIdx}
+                        onClick={() => setCurrentBannerIndex(dotIdx)}
+                        aria-label={`Ir a portada ${dotIdx + 1}`}
+                        className={`transition-all rounded-full ${
+                          dotIdx === currentBannerIndex
+                            ? 'w-6 h-2 bg-cicha-sky shadow-sm'
+                            : 'w-2 h-2 bg-white/50 hover:bg-white'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* MAIN BILATERAL HERO SECTION (JUSTO DEBAJO DE LAS PORTADAS Y EN CONJUNTO) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-2">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
               {/* Diplomatic Badges */}

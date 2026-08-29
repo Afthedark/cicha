@@ -14,6 +14,7 @@ import { publicApi } from '../../services/api';
 import type { InstitutionalSection, Authority, Alliance } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import bgHeader from '../../assets/static/1.jpeg';
 
 export const InstitutionalPage: React.FC = () => {
   const [sections, setSections] = useState<InstitutionalSection[]>([]);
@@ -53,27 +54,39 @@ export const InstitutionalPage: React.FC = () => {
   return (
     <div className="space-y-16 pb-20">
       {/* 1. Header Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-cicha-navy via-cicha-aegean to-cicha-sky text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky-light shadow-lg text-center">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <section className="relative overflow-hidden bg-cicha-navy-deep text-white py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b-4 border-cicha-sky shadow-xl text-center">
+        {/* Background Static Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={bgHeader}
+            alt="Institucional CICHA"
+            className="w-full h-full object-cover object-center transform scale-105"
+          />
+          {/* Dual Protection Gradients for Perfect Legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#071E38]/95 via-[#005EAF]/80 to-[#071E38]/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071E38]/90 via-transparent to-black/30" />
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-4 relative z-10">
           <Badge variant="gold">Institucional</Badge>
-          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
+          <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight drop-shadow-md">
             Cámara de Industria y Comercio Heleno Argentina
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base font-light max-w-2xl mx-auto">
+          <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
             Más de 35 años uniendo lazos comerciales, industriales y culturales entre la República Argentina y la República Helénica.
           </p>
 
           <div className="pt-4 flex flex-wrap justify-center gap-4 text-xs text-cicha-sky-light">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 shadow-sm backdrop-blur-md">
               <ShieldCheck className="w-4 h-4 text-cicha-sky" />
               Reconocimiento Arg: 1 Nov 1989
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 shadow-sm backdrop-blur-md">
               <ShieldCheck className="w-4 h-4 text-cicha-sky" />
               Reconocimiento Grecia: 18 Sep 1998
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
-              <Globe2 className="w-4 h-4 text-blue-400" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 shadow-sm backdrop-blur-md">
+              <Globe2 className="w-4 h-4 text-blue-300" />
               Eurocámara • Nodo EEN • UCCEB
             </span>
           </div>

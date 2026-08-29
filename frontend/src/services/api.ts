@@ -15,11 +15,12 @@ import type {
   PartnerResource,
   PartnerBenefit,
   PartnerDashboardData,
+  Banner,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 
 export const apiClient = axios.create({
@@ -59,6 +60,7 @@ apiClient.interceptors.response.use(
 // Public API Service (Visitante)
 export const publicApi = {
   getHomeData: () => apiClient.get<{ status: number; data: HomeData }>('/public/home').then((res) => res.data.data),
+  getBanners: () => apiClient.get<{ status: number; data: Banner[] }>('/public/banners').then((res) => res.data.data),
   
   getInstitutional: () =>
     apiClient
@@ -190,6 +192,13 @@ export const adminApi = {
   createArticle: (data: Partial<Article>) => apiClient.post('/admin/articles', data).then((res) => res.data),
   updateArticle: (id: number, data: Partial<Article>) => apiClient.put(`/admin/articles/${id}`, data).then((res) => res.data),
   deleteArticle: (id: number) => apiClient.delete(`/admin/articles/${id}`).then((res) => res.data),
+
+  // Home Banners / Portadas (Admin & Secretario)
+  getBanners: () => apiClient.get<{ status: number; data: Banner[] }>('/admin/banners').then((res) => res.data.data),
+  getBanner: (id: number) => apiClient.get<{ status: number; data: Banner }>(`/admin/banners/${id}`).then((res) => res.data.data),
+  createBanner: (data: Partial<Banner>) => apiClient.post('/admin/banners', data).then((res) => res.data),
+  updateBanner: (id: number, data: Partial<Banner>) => apiClient.put(`/admin/banners/${id}`, data).then((res) => res.data),
+  deleteBanner: (id: number) => apiClient.delete(`/admin/banners/${id}`).then((res) => res.data),
 
   // Events (Admin & Secretario)
   getEvents: () => apiClient.get<{ status: number; data: EventItem[] }>('/admin/events').then((res) => res.data.data),
