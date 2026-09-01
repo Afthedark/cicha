@@ -67,36 +67,40 @@ export const TradeBilateralPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. EEN Node Highlights */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 2. EEN Node & Foreign Trade Advisory Highlights */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-cicha-navy rounded-3xl p-8 sm:p-12 text-white border border-blue-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 text-xs font-bold">
               <Globe2 className="w-4 h-4 text-blue-400" />
-              Enterprise Europe Network (EEN)
+              Comercio Exterior & Inversiones Bilaterales
             </div>
             <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
-              ¿Qué es el nodo EEN en CICHA?
+              Servicios de Comercio Exterior y Nodo EEN
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              La Enterprise Europe Network es la mayor red mundial de apoyo a empresas con proyección internacional. A través de CICHA, las empresas argentinas y griegas acceden a financiamiento europeo, búsqueda de socios estratégicos, patentes e innovación.
+              La C.I.C.H.A. cuenta con información y asesoramiento estratégico integral para el desarrollo del comercio y las inversiones entre la República Argentina y la República Helénica:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
-                <span>Búsqueda directa de importadores/exportadores</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span><strong>Requisitos técnicos, regulatorios y aduaneros</strong> para exportar e importar hacia y desde Grecia.</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
-                <span>Vinculación con más de 600 nodos en 60 países</span>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span><strong>Análisis de comercio bilateral</strong> e informes de mercado estratégicos entre Argentina y Grecia.</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
-                <span>Asesoramiento en regulaciones de la UE</span>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span><strong>Asesoramiento comercial y técnico</strong> especializado en materia de comercio exterior.</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-cicha-sky" />
-                <span>Rondas de negocios en Eurocámara</span>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span><strong>Asistencia en Latinoamérica</strong> a través de la red de Cámaras de Comercio para expandir negocios.</span>
+              </div>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 sm:col-span-2">
+                <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span><strong>Búsqueda y vinculación directa de proveedores y compradores</strong> en Argentina y Grecia.</span>
               </div>
             </div>
           </div>
@@ -104,11 +108,15 @@ export const TradeBilateralPage: React.FC = () => {
           <div className="lg:col-span-4 bg-blue-950/80 rounded-2xl p-6 border border-blue-800 space-y-4 text-center">
             <Ship className="w-12 h-12 text-cicha-sky mx-auto" />
             <h3 className="font-serif font-bold text-base text-white">Mesa de Comercio Exterior</h3>
-            <p className="text-xs text-slate-300">
-              ¿Tiene una propuesta de inversión o desea colocar sus productos en Grecia o Argentina?
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Para obtener más información sobre asesoramiento aduanero o rondas de negocios:
             </p>
+            <div className="space-y-1.5 text-xs text-slate-300 bg-black/20 p-3 rounded-xl border border-white/10">
+              <p className="font-mono text-cicha-sky-light">info@camarahelenoargentina.org</p>
+              <p className="font-mono text-cicha-sky-light">camarahelenoargentina@gmail.com</p>
+            </div>
             <Link
-              to="/contacto"
+              to="/contacto?asunto=Comercio%20Exterior%20e%20Inversiones"
               className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md"
             >
               <Mail className="w-4 h-4" />

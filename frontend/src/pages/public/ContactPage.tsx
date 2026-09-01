@@ -87,7 +87,7 @@ export const ContactPage: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-cicha-navy rounded-3xl p-8 text-white border border-blue-900 shadow-xl space-y-6">
               <div>
-                <h2 className="font-serif font-bold text-xl text-white">Sede Central</h2>
+                <h2 className="font-serif font-bold text-xl text-white">Sede Central - Κεντρικά Γραφεία</h2>
                 <p className="text-xs text-slate-300 mt-1">
                   Ciudad Autónoma de Buenos Aires, República Argentina
                 </p>
@@ -99,8 +99,8 @@ export const ContactPage: React.FC = () => {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-white">Dirección</p>
-                    <p className="text-slate-300">Av. Leandro N. Alem 1074, Piso 7 (C1001AAT)</p>
+                    <p className="font-bold text-white">Dirección / Headquarters</p>
+                    <p className="text-slate-300">Julián Alvarez 1030 (C1414), C.A.B.A., Argentina</p>
                   </div>
                 </div>
 
@@ -109,8 +109,13 @@ export const ContactPage: React.FC = () => {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-white">Teléfonos de Contacto</p>
-                    <p className="text-slate-300">+54 11 4328-9898 / 9899</p>
+                    <p className="font-bold text-white">Contacto - Επικοινωνία</p>
+                    <a
+                      href="tel:+5491167573851"
+                      className="text-cicha-sky hover:underline font-mono text-xs"
+                    >
+                      Tel.: (+54 9 11) 6757.3851
+                    </a>
                   </div>
                 </div>
 
@@ -119,8 +124,15 @@ export const ContactPage: React.FC = () => {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-white">Correos Electrónicos</p>
-                    <p className="text-slate-300">info@cicha.com.ar • comercio@cicha.com.ar</p>
+                    <p className="font-bold text-white">Correos Oficiales</p>
+                    <div className="space-y-0.5">
+                      <a href="mailto:camarahelenoargentina@gmail.com" className="block text-cicha-sky hover:underline font-mono">
+                        camarahelenoargentina@gmail.com
+                      </a>
+                      <a href="mailto:info@camarahelenoargentina.org" className="block text-slate-300 hover:underline font-mono">
+                        info@camarahelenoargentina.org
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -137,7 +149,7 @@ export const ContactPage: React.FC = () => {
 
               <div className="pt-4 border-t border-blue-900/80">
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  CICHA forma parte del nodo EEN (Enterprise Europe Network) y la red de cámaras europeas en Argentina.
+                  CICHA es miembro activo de EUROCAMARA Argentina, integra la UCCEB (32 cámaras) y forma parte del nodo EEN (Enterprise Europe Network) de la Unión Europea.
                 </p>
               </div>
             </div>

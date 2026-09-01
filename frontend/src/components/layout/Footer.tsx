@@ -83,6 +83,18 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/blogs" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  Blogs & Artículos Editoriales
+                </Link>
+              </li>
+              <li>
+                <Link to="/galeria" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  Galería Fotográfica Institucional
+                </Link>
+              </li>
+              <li>
                 <Link to="/eventos" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
                   <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Agenda de Eventos y Rondas
@@ -124,7 +136,7 @@ export const Footer: React.FC = () => {
                   UCCEB (32 Cámaras)
                   <Building2 className="w-3.5 h-3.5 text-[#F5A623]" />
                 </p>
-                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Unión de Cámaras Binacionales</p>
+                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Unión de Cámaras Comerciales Extranjeras Binacionales</p>
               </div>
             </div>
           </div>
@@ -137,19 +149,28 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-xs text-white/90 font-light">
               <p className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
-                <span>Av. Leandro N. Alem 1074, Piso 7, Ciudad Autónoma de Buenos Aires, Argentina</span>
+                <span>Julián Alvarez 1030 (C1414), C.A.B.A., Argentina</span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#00AEEF] shrink-0" />
-                <span>+54 11 4328-9898 / 9899</span>
+                <a href="tel:+5491167573851" className="hover:text-[#00AEEF] transition-colors">
+                  (+54 9 11) 6757.3851
+                </a>
               </p>
-              <p className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#00AEEF] shrink-0" />
-                <span>info@cicha.com.ar • comercio@cicha.com.ar</span>
+              <p className="flex items-start gap-2.5">
+                <Mail className="w-4 h-4 text-[#00AEEF] shrink-0 mt-0.5" />
+                <span className="leading-tight">
+                  <a href="mailto:camarahelenoargentina@gmail.com" className="hover:text-[#00AEEF] block transition-colors">
+                    camarahelenoargentina@gmail.com
+                  </a>
+                  <a href="mailto:info@camarahelenoargentina.org" className="hover:text-[#00AEEF] block text-white/70 transition-colors">
+                    info@camarahelenoargentina.org
+                  </a>
+                </span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#00AEEF] shrink-0" />
-                <span>Lun a Vie 09:00 a 18:00 hs</span>
+                <span>Lun a Vie 09:00 a 18:00 hs (ART)</span>
               </p>
             </div>
           </div>

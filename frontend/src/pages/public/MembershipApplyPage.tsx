@@ -97,7 +97,44 @@ export const MembershipApplyPage: React.FC = () => {
       </section>
 
       {/* Main Application Container */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Member Benefits Grid */}
+        <div className="bg-gradient-to-br from-slate-900 via-cicha-navy to-slate-900 rounded-3xl p-8 sm:p-10 text-white border border-blue-800 shadow-xl space-y-6">
+          <div className="space-y-2">
+            <Badge variant="gold">Ventajas Exclusivas</Badge>
+            <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
+              Beneficios por ser Miembro de la C.I.C.H.A.
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Al asociarse, su firma tendrá a disposición los siguientes servicios gratuitos o con tarifa preferencial:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs text-slate-200">
+            {[
+              'Acceso a información reservada y confidencial para socios dentro del portal web.',
+              'Publicación y difusión destacada de los productos y servicios ofrecidos por las firmas asociadas.',
+              'Acceso a investigaciones e informes de mercados en Grecia y Argentina.',
+              'Acceso a estadísticas y normativas de comercio exterior entre Argentina y Grecia.',
+              'Participación en ferias, exposiciones y misiones comerciales en Argentina y Grecia.',
+              'Participación activa en la Unión de Cámaras de Comercios Binacionales (UCCEB).',
+              'Invitaciones a conferencias, charlas temáticas y rondas de negocios bilaterales.',
+              'Servicios de traducción especializada (de y hacia el griego y el inglés).',
+              'Recepción periódica del listado exclusivo de oportunidades comerciales y licitaciones.',
+              'Actividades de camaradería y networking empresarial con directivos de la comunidad.',
+              'Invitaciones preferenciales o con descuento a seminarios y grupos de trabajo empresarial.',
+              'Publicaciones especializadas en distintos rubros y sectores de inversión.',
+              'Asesoramiento para facilitar la participación de expositores y visitantes en ferias.',
+              'Acceso a la Bolsa de Trabajo y Programa de Practicantes universitarios.',
+            ].map((benefit, bIdx) => (
+              <div key={bIdx} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                <CheckCircle className="w-4 h-4 text-cicha-sky shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {submitted ? (
           <div className="bg-white rounded-3xl p-8 sm:p-12 border border-emerald-200 shadow-xl text-center space-y-6">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">

@@ -376,22 +376,22 @@ CREATE TABLE `settings` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table `settings`
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('1', 'site_name', 'Cámara de Industria y Comercio Heleno Argentina (CICHA)', 'general', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('2', 'site_acronym', 'CICHA', 'general', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('3', 'contact_email', 'info@cicha.com.ar', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('4', 'trade_email', 'comercio@cicha.com.ar', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('5', 'phone_primary', '+54 11 4328-9898', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('6', 'phone_secondary', '+54 11 4328-9899', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('7', 'address_street', 'Av. Leandro N. Alem 1074, Piso 7', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('8', 'address_city', 'Ciudad Autónoma de Buenos Aires', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('9', 'address_country', 'Argentina (C1001AAT)', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('10', 'office_hours', 'Lunes a Viernes de 09:00 a 18:00 hs', 'contact', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('11', 'social_linkedin', 'https://www.linkedin.com/company/cicha-argentina', 'social', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('12', 'social_twitter', 'https://twitter.com/cicha_arg', 'social', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('13', 'social_facebook', 'https://facebook.com/cicha.argentina', 'social', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('14', 'social_instagram', 'https://instagram.com/cicha_argentina', 'social', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('15', 'meta_description', 'Cámara de Industria y Comercio Heleno Argentina. Miembro activo de EUROCAMARA Argentina, nodo EEN de la Unión Europea y miembro de UCCEB.', 'seo', '2026-08-24 22:51:04');
-INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('16', 'meta_keywords', 'CICHA, Grecia, Argentina, Comercio Bilateral, Eurocamara, EEN, UCCEB, Inversiones, Negocios, Heleno Argentina', 'seo', '2026-08-24 22:51:04');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('1', 'site_name', 'Cámara de Industria y Comercio Heleno Argentina (CICHA)', 'general', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('2', 'site_acronym', 'CICHA', 'general', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('3', 'contact_email', 'camarahelenoargentina@gmail.com', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('4', 'contact_email_secondary', 'info@camarahelenoargentina.org', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('5', 'trade_email', 'info@camarahelenoargentina.org', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('6', 'phone_primary', '(+54 9 11) 6757.3851', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('7', 'address_street', 'Julián Alvarez 1030 (C1414)', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('8', 'address_city', 'Ciudad Autónoma de Buenos Aires (C.A.B.A.)', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('9', 'address_country', 'Argentina', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('10', 'office_hours', 'Lunes a Viernes de 09:00 a 18:00 hs (ART)', 'contact', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('11', 'social_linkedin', 'https://www.linkedin.com/company/cicha-argentina', 'social', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('12', 'social_twitter', 'https://twitter.com/cicha_arg', 'social', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('13', 'social_facebook', 'https://facebook.com/cicha.argentina', 'social', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('14', 'social_instagram', 'https://instagram.com/cicha_argentina', 'social', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('15', 'meta_description', 'Cámara de Industria y Comercio Heleno Argentina. Miembro activo de EUROCAMARA Argentina, nodo EEN de la Unión Europea y miembro de UCCEB (32 Cámaras).', 'seo', '2026-08-29 17:45:00');
+INSERT INTO `settings` (`id`, `key_name`, `value_text`, `group_name`, `updated_at`) VALUES ('16', 'meta_keywords', 'CICHA, Grecia, Argentina, Comercio Bilateral, Eurocamara, EEN, UCCEB, Inversiones, Negocios, Heleno Argentina', 'seo', '2026-08-29 17:45:00');
 
 
 -- --------------------------------------------------------

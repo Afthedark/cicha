@@ -6,7 +6,7 @@ Backend RESTful y motor de gestión de contenidos desarrollado con **CodeIgniter
 
 ## 📋 Requisitos del Sistema
 
-- **PHP**: Versión `8.1` o superior (probado en PHP 8.2 con XAMPP).
+- **PHP**: Versión `8.1` o superior (probado y compatible con PHP 8.2 en entornos locales y cPanel FastCGI).
 - **Extensiones PHP Requeridas**:
   - `intl` (habilitada en `php.ini` con `extension=intl`)
   - `zip` (habilitada en `php.ini` con `extension=zip`)
@@ -40,20 +40,24 @@ database.default.port = 3306
 ```
 
 ### 2. Ejecutar Migraciones de Base de Datos
-Crea todas las tablas estructurales (12 tablas principales + 2 tablas de intranet de socios):
+Crea todas las tablas estructurales (16 tablas principales):
 
 ```bash
 php spark migrate
 ```
 
-Tablas generadas:
+Tablas generadas en la base de datos:
 - `users`: Usuarios, roles (`admin`, `secretario`, `socio`) y vinculación a socios.
-- `settings`: Configuración institucional, contactos, redes sociales y metadatos SEO.
+- `settings`: Configuración institucional, contactos, teléfonos, sede, redes sociales y metadatos SEO.
 - `institutional_sections`: Misión, Objeto estatutario, Historia y reconocimientos diplomáticos.
 - `authorities`: Comisión Directiva y autoridades de la Cámara.
 - `alliances`: Redes estratégicas (EUROCAMARA, EEN Unión Europea, UCCEB, Embajada).
 - `categories`: Taxonomía para noticias, eventos y socios.
 - `articles`: Noticias, prensa y comunicados institucionales.
+- `blogs`: Módulo editorial de artículos de análisis, opinión y notas técnicas.
+- `photo_albums`: Álbumes y grupos temáticos de la galería fotográfica.
+- `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
+- `banners`: Portadas y slides dinámicos del Home con selector de rutas.
 - `events`: Agenda de foros, webinars y rondas de negocios.
 - `members`: Directorio de empresas socias de CICHA.
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
@@ -62,7 +66,12 @@ Tablas generadas:
 - `membership_applications`: Bandeja de solicitudes de afiliación con gestión de estados.
 - `contact_messages`: Bandeja de mensajes de contacto y consultas.
 
-### 3. Poblar la Base de Datos con Seeders
+### 3. Auto-Migración con 1 Clic para Producción (Sin SSH)
+Para entornos de hosting cPanel sin consola de comandos:
+- **Endpoint**: `GET /api/admin/migrate?secret=cicha_migration_secret_key_2026`
+- Ejecuta automáticamente todas las migraciones pendientes sin afectar los datos existentes de usuarios ni socios.
+
+### 4. Poblar la Base de Datos con Seeders
 Inserta datos institucionales fidedignos, noticias iniciales, empresas socias y cuentas de acceso por rol:
 
 ```bash
@@ -75,22 +84,22 @@ php spark db:seed RolesAndPartnersSeeder
 ## 🔐 Seguridad y Control de Acceso (RBAC)
 
 La API cuenta con una arquitectura de seguridad por capas:
-- **`CorsFilter.php`**: Permite peticiones seguras de orígenes cruzados (CORS) con soporte para preflight `OPTIONS`.
-- **`JwtAuthFilter.php`**: Valida y decodifica el token Bearer en cabecera `Authorization: Bearer <token>` mediante la librería `firebase/php-jwt`.
+- **`CorsFilter.php`**: Permite peticiones seguras de orígenes cruzados (CORS) con soporte para preflight `OPTIONS` y cabeceras duales (`Authorization` y `X-Authorization`).
+- **`JwtAuthFilter.php`**: Valida y decodifica el token Bearer mediante la librería `firebase/php-jwt`.
 - **`RoleFilter.php`**: Middleware que verifica que el rol del usuario (`admin`, `secretario`, `socio`) tenga autorización para ejecutar la acción solicitada; de lo contrario, responde con HTTP `403 Forbidden`.
 
 ### Cuentas de Acceso Preconfiguradas:
 | Rol | Email | Contraseña | Permisos |
 | :--- | :--- | :--- | :--- |
-| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total del sistema, gestión de usuarios, roles, configuraciones y portal de socios. |
-| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos (noticias, eventos, oportunidades, socios, recursos de socios, bandejas de mensajes y solicitudes). |
+| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total del sistema: Usuarios, Roles, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos, Socios y Portal de Socios. |
+| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos: Blogs, Galería de Fotos, Noticias, Eventos, Oportunidades, Socios, Recursos de socios y Bandejas. |
 | **`socio`** | `socio@cicha.com.ar` | `socio123` | Intranet de socios: descargas de informes, oportunidades VIP con contacto directo, club de beneficios y directorio B2B. |
 
 ---
 
 ## 📡 Referencia de Endpoints REST
 
-La URL base de la API es: `http://127.0.0.1:8080/index.php/api/`
+La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api.cicha.com.ar/index.php/api/` en producción).
 
 ### 1. Autenticación (`/api/auth`)
 | Método | Endpoint | Descripción | Acceso |
@@ -102,10 +111,15 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/`
 ### 2. Portal Público (`/api/public`)
 | Método | Endpoint | Descripción | Acceso |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/public/home` | Datos completos de portada (hero, misión, estadísticas, destacados) | Público |
+| `GET` | `/public/home` | Datos de portada (hero, misión, estadísticas, destacados) | Público |
+| `GET` | `/public/banners` | Lista de portadas/banners activos para el carrusel | Público |
 | `GET` | `/public/institutional` | Secciones institucionales, comisión directiva y alianzas | Público |
 | `GET` | `/public/articles` | Noticias y comunicados con filtros por categoría y búsqueda | Público |
 | `GET` | `/public/articles/{slug}` | Detalle de noticia por slug con artículos relacionados | Público |
+| `GET` | `/public/blogs` | Catálogo de blogs con filtros por categoría y buscador | Público |
+| `GET` | `/public/blogs/{slug}` | Detalle de artículo de blog con posts recomendados | Público |
+| `GET` | `/public/gallery` | Álbumes fotográficos activos, mosaico de fotos y categorías | Público |
+| `GET` | `/public/gallery/{slug}` | Detalle de álbum con todas sus fotografías en alta resolución | Público |
 | `GET` | `/public/events` | Agenda de eventos con filtros (próximos, anteriores) | Público |
 | `GET` | `/public/members` | Catálogo de empresas socias filtrable por sector | Público |
 | `GET` | `/public/opportunities` | Oportunidades comerciales abiertas | Público |
@@ -131,6 +145,11 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/`
 | :--- | :--- | :--- | :--- |
 | `GET` | `/admin/dashboard` | Métricas y contadores de leads | `admin`, `secretario` |
 | `CRUD` | `/admin/articles` | Gestión completa de noticias y prensa | `admin`, `secretario` |
+| `CRUD` | `/admin/blogs` | Gestión de artículos de blogs editoriales | `admin`, `secretario` |
+| `CRUD` | `/admin/gallery` | Gestión de álbumes fotográficos | `admin`, `secretario` |
+| `POST` | `/admin/gallery/{id}/photos`| Subida de fotos individuales a un álbum | `admin`, `secretario` |
+| `DELETE`| `/admin/gallery/photos/{id}`| Eliminación de una foto de álbum | `admin`, `secretario` |
+| `CRUD` | `/admin/banners` | Gestión de portadas y slides del Home | `admin`, `secretario` |
 | `CRUD` | `/admin/events` | Gestión de agenda de eventos | `admin`, `secretario` |
 | `CRUD` | `/admin/members` | Gestión del directorio de empresas socias | `admin`, `secretario` |
 | `CRUD` | `/admin/opportunities` | Gestión de oportunidades comerciales | `admin`, `secretario` |
@@ -138,12 +157,12 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/`
 | `CRUD` | `/admin/partner-benefits` | Gestión de convenios y beneficios de socios | `admin`, `secretario` |
 | `CRUD` | `/admin/applications` | Bandeja y estados de solicitudes de afiliación | `admin`, `secretario` |
 | `CRUD` | `/admin/messages` | Bandeja y seguimiento de mensajes de contacto | `admin`, `secretario` |
-| `POST` | `/admin/upload` | Subida de imágenes de portada | `admin`, `secretario` |
+| `POST` | `/admin/upload` | Subida de imágenes a `/public/uploads/` | `admin`, `secretario` |
+| `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva | `admin`, `secretario` |
+| `CRUD` | `/admin/alliances` | Gestión de convenios y redes | `admin`, `secretario` |
+| `GET/PUT`| `/admin/institutional`| Edición de Misión, Objeto y Estatutos | `admin`, `secretario` |
+| `GET/POST`| `/admin/settings` | Configuración global, sede, teléfonos y SEO | `admin`, `secretario` |
 | `CRUD` | `/admin/users` | Administración de usuarios y asignación de roles | **`admin` únicamente** |
-| `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva | **`admin` únicamente** |
-| `CRUD` | `/admin/alliances` | Gestión de convenios y redes | **`admin` únicamente** |
-| `GET/PUT`| `/admin/institutional`| Edición de Misión, Objeto e Historia | **`admin` únicamente** |
-| `GET/POST`| `/admin/settings` | Configuración global y metadatos SEO | **`admin` únicamente** |
 
 ---
 

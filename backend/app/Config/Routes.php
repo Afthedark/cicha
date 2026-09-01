@@ -32,6 +32,10 @@ $routes->group('api', static function ($routes) {
         $routes->get('institutional', 'PublicController::getInstitutional');
         $routes->get('articles', 'PublicController::getArticles');
         $routes->get('articles/(:segment)', 'PublicController::getArticleBySlug/$1');
+        $routes->get('blogs', 'PublicController::getBlogs');
+        $routes->get('blogs/(:segment)', 'PublicController::getBlogBySlug/$1');
+        $routes->get('gallery', 'PublicController::getGallery');
+        $routes->get('gallery/(:segment)', 'PublicController::getAlbumBySlug/$1');
         $routes->get('events', 'PublicController::getEvents');
         $routes->get('members', 'PublicController::getMembers');
         $routes->get('opportunities', 'PublicController::getOpportunities');
@@ -51,12 +55,23 @@ $routes->group('api', static function ($routes) {
         $routes->get('directory', 'PartnerController::getDirectory');
     });
 
+    // Database Auto-Migration (Secured via secret key parameter)
+    $routes->get('admin/migrate', 'Admin\MigrationController::run');
+
     // Admin Content Management (Roles: admin, secretario)
     $routes->group('admin', ['filter' => ['jwt', 'role:admin,secretario']], static function ($routes) {
         $routes->get('dashboard', 'Admin\DashboardController::index');
 
         // Articles / News
         $routes->resource('articles', ['controller' => 'Admin\ArticlesController']);
+
+        // Blogs
+        $routes->resource('blogs', ['controller' => 'Admin\BlogsController']);
+
+        // Gallery / Photo Albums
+        $routes->resource('gallery', ['controller' => 'Admin\GalleryController']);
+        $routes->post('gallery/(:num)/photos', 'Admin\GalleryController::addPhoto/$1');
+        $routes->delete('gallery/photos/(:num)', 'Admin\GalleryController::deletePhoto/$1');
 
         // Home Banners / Portadas
         $routes->resource('banners', ['controller' => 'Admin\BannersController']);

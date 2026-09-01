@@ -16,11 +16,14 @@ import type {
   PartnerBenefit,
   PartnerDashboardData,
   Banner,
+  Blog,
+  PhotoAlbum,
+  GalleryPhoto,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 
 export const apiClient = axios.create({
@@ -81,6 +84,28 @@ export const publicApi = {
     apiClient
       .get<{ status: number; data: { article: Article; related: Article[] } }>(`/public/articles/${slug}`)
       .then((res) => res.data.data),
+
+  getBlogs: (category?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: { blogs: Blog[]; categories: string[] } }>(
+        '/public/blogs',
+        { params: { category, q: search } }
+      )
+      .then((res) => res.data.data),
+
+  getBlog: (slug: string) =>
+    apiClient.get<{ status: number; data: { blog: Blog; related: Blog[] } }>(`/public/blogs/${slug}`).then((res) => res.data.data),
+
+  getGallery: (category?: string) =>
+    apiClient
+      .get<{ status: number; data: { albums: PhotoAlbum[]; all_photos: GalleryPhoto[]; categories: string[] } }>(
+        '/public/gallery',
+        { params: { category } }
+      )
+      .then((res) => res.data.data),
+
+  getAlbum: (slug: string) =>
+    apiClient.get<{ status: number; data: PhotoAlbum }>(`/public/gallery/${slug}`).then((res) => res.data.data),
 
   getEvents: (filter?: 'upcoming' | 'past' | 'all') =>
     apiClient.get<{ status: number; data: EventItem[] }>('/public/events', { params: { filter } }).then((res) => res.data.data),
@@ -192,6 +217,25 @@ export const adminApi = {
   createArticle: (data: Partial<Article>) => apiClient.post('/admin/articles', data).then((res) => res.data),
   updateArticle: (id: number, data: Partial<Article>) => apiClient.put(`/admin/articles/${id}`, data).then((res) => res.data),
   deleteArticle: (id: number) => apiClient.delete(`/admin/articles/${id}`).then((res) => res.data),
+
+  // Blogs (Admin & Secretario)
+  getBlogs: () => apiClient.get<{ status: number; data: Blog[] }>('/admin/blogs').then((res) => res.data.data),
+  getBlog: (id: number) => apiClient.get<{ status: number; data: Blog }>(`/admin/blogs/${id}`).then((res) => res.data.data),
+  createBlog: (data: Partial<Blog>) => apiClient.post('/admin/blogs', data).then((res) => res.data),
+  updateBlog: (id: number, data: Partial<Blog>) => apiClient.put(`/admin/blogs/${id}`, data).then((res) => res.data),
+  deleteBlog: (id: number) => apiClient.delete(`/admin/blogs/${id}`).then((res) => res.data),
+
+  // Gallery / Photo Albums (Admin & Secretario)
+  getAlbums: () => apiClient.get<{ status: number; data: PhotoAlbum[] }>('/admin/gallery').then((res) => res.data.data),
+  getAlbum: (id: number) => apiClient.get<{ status: number; data: PhotoAlbum }>(`/admin/gallery/${id}`).then((res) => res.data.data),
+  createAlbum: (data: Partial<PhotoAlbum> & { photos?: Array<{ image_url: string; caption?: string } | string> }) =>
+    apiClient.post('/admin/gallery', data).then((res) => res.data),
+  updateAlbum: (id: number, data: Partial<PhotoAlbum> & { photos?: Array<{ image_url: string; caption?: string } | string> }) =>
+    apiClient.put(`/admin/gallery/${id}`, data).then((res) => res.data),
+  deleteAlbum: (id: number) => apiClient.delete(`/admin/gallery/${id}`).then((res) => res.data),
+  addAlbumPhoto: (albumId: number, data: { image_url: string; caption?: string; order_num?: number }) =>
+    apiClient.post(`/admin/gallery/${albumId}/photos`, data).then((res) => res.data),
+  deleteAlbumPhoto: (photoId: number) => apiClient.delete(`/admin/gallery/photos/${photoId}`).then((res) => res.data),
 
   // Home Banners / Portadas (Admin & Secretario)
   getBanners: () => apiClient.get<{ status: number; data: Banner[] }>('/admin/banners').then((res) => res.data.data),

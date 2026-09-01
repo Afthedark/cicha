@@ -53,6 +53,8 @@ export const Navbar: React.FC = () => {
     { name: 'Institucional', path: '/institucional' },
     { name: 'Comercio Bilateral & EEN', path: '/comercio-bilateral' },
     { name: 'Noticias', path: '/noticias' },
+    { name: 'Blogs', path: '/blogs' },
+    { name: 'Galería', path: '/galeria' },
     { name: 'Eventos', path: '/eventos' },
     { name: 'Socios', path: '/socios' },
     { name: 'Contacto', path: '/contacto' },
@@ -90,13 +92,13 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <a href="tel:+541143289898" className="hover:text-cicha-gold-light transition-colors hidden md:flex items-center gap-1">
-              <Phone className="w-3 h-3" />
-              +54 11 4328-9898
+            <a href="tel:+5491167573851" className="hover:text-cicha-gold-light transition-colors hidden md:flex items-center gap-1 font-mono text-[11px]">
+              <Phone className="w-3 h-3 text-cicha-gold" />
+              (+54 9 11) 6757-3851
             </a>
-            <a href="mailto:info@cicha.com.ar" className="hover:text-cicha-gold-light transition-colors hidden sm:flex items-center gap-1">
-              <Mail className="w-3 h-3" />
-              info@cicha.com.ar
+            <a href="mailto:camarahelenoargentina@gmail.com" className="hover:text-cicha-gold-light transition-colors hidden sm:flex items-center gap-1 font-mono text-[11px]">
+              <Mail className="w-3 h-3 text-cicha-sky-light" />
+              camarahelenoargentina@gmail.com
             </a>
 
             <div className="notranslate">

@@ -9,21 +9,27 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 - **Framework**: React 19 + TypeScript + Vite 8.
 - **Motor de Estilos**: **Tailwind CSS v4** (`@tailwindcss/vite` y `@theme`).
   - Paleta cromática oficial greco-argentina:
-    - Azul Egeo: `#0D5EAF`
+    - Azul Egeo: `#0D5EAF` (Código oficial AP82-4)
     - Azul Marino Diplomático: `#0B2545`
-    - Dorado Metálico: `#D4AF37`
+    - Celeste Brisa Egeo: `#00AEEF` / `#D4EEFC`
+    - Dorado Metálico: `#F5A623` / `#D4AF37`
   - Tipografías: *Inter* para lectura corporativa y *Cinzel* para títulos solemnes institucionales.
-  - Micro-animaciones, efectos de glassmorphism y diseño 100% responsivo para móviles, tablets y pantallas de escritorio.
+  - Micro-animaciones, efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS (iPhone / iPad).
+- **📰 Módulo de Blogs**:
+  - Catálogo de artículos con filtros por categoría y buscador en tiempo real.
+  - Vista de lectura completa con tiempo estimado de lectura, etiquetas y publicaciones relacionadas.
+- **📷 Módulo de Galería de Fotos Inteligente**:
+  - Selector de vistas (*Por Álbumes* vs *Mosaico Dinámico continuo*).
+  - Visor **Lightbox a Pantalla Completa** con navegación interactiva por teclado (`←`, `→`, `Esc`), tira de miniaturas inferior y botón de descarga en alta resolución.
 - **🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`)**:
   - Traducción automática e instantánea del 100% del portal (incluyendo datos dinámicos provenientes de MySQL).
   - Selector desplegable con banderas vectoriales SVG nítidas:
     - 🇦🇷 **Español (Argentina)**: Idioma base nativo.
     - 🇬🇷 **Ελληνικά (Grecia)**: Traducción para el ecosistema helénico.
     - 🇬🇧 **English (Reino Unido / Internacional)**: Traducción para comercio exterior.
-  - Reglas en `src/index.css` que eliminan por completo las barras grises, tooltips e iframes predeterminados de Google.
   - Integrado en **Portal Público**, **Intranet de Socios** y **CMS**.
 - **Iconografía**: `lucide-react`.
-- **Cliente HTTP**: `axios` con interceptores para inyección automática de tokens JWT y expiración de sesiones.
+- **Cliente HTTP**: `axios` con soporte dual de cabeceras de autorización (`Authorization` y `X-Authorization`) para compatibilidad con servidores cPanel FastCGI.
 - **Enrutamiento**: `react-router-dom` con protección granular por roles (`RoleRoute`).
 
 ---
@@ -35,24 +41,27 @@ La aplicación se compone de 3 áreas principales:
 ```
 frontend/src/
 ├── components/
-│   ├── common/              # Modales, Badges de estado, Loaders, GoogleTranslate con banderas
+│   ├── common/              # Modales, Badges de estado, Loaders, ImageUploader, GoogleTranslate
 │   │   ├── Badge.tsx
 │   │   ├── Modal.tsx
 │   │   ├── Loader.tsx
+│   │   ├── ImageUploader.tsx
 │   │   └── GoogleTranslate.tsx
 │   └── layout/
-│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor y acceso a socios
-│       ├── Footer.tsx       # Pie de página institucional y enlaces
-│       ├── PartnerLayout.tsx# Intranet privada exclusiva para empresas socias con traductor
-│       └── AdminLayout.tsx  # CMS administrativo con menú dinámico por rol y traductor
+│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor y accesos rápidos
+│       ├── Footer.tsx       # Pie de página institucional, alianzas y enlaces directos
+│       ├── PartnerLayout.tsx# Intranet privada exclusiva para empresas socias
+│       └── AdminLayout.tsx  # CMS administrativo con menú dinámico por rol
 ├── context/
 │   └── AuthContext.tsx      # Gestión de autenticación, JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 ├── pages/
-│   ├── public/              # 8 Vistas del Portal Público (Visitante)
+│   ├── public/              # 11 Vistas del Portal Público (Visitante)
 │   │   ├── HomePage.tsx
 │   │   ├── InstitutionalPage.tsx
 │   │   ├── TradeBilateralPage.tsx
 │   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
+│   │   ├── BlogsPage.tsx & BlogDetailPage.tsx     # 👈 Módulo de Blogs
+│   │   ├── GalleryPage.tsx                        # 👈 Módulo de Galería
 │   │   ├── EventsPage.tsx
 │   │   ├── MembersDirectoryPage.tsx
 │   │   ├── MembershipApplyPage.tsx
@@ -63,10 +72,12 @@ frontend/src/
 │   │   ├── PartnerOpportunitiesPage.tsx
 │   │   ├── PartnerBenefitsPage.tsx
 │   │   └── PartnerDirectoryPage.tsx
-│   └── admin/               # 12 Vistas del CMS Administrativo
+│   └── admin/               # 14 Vistas del CMS Administrativo
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
 │       ├── AdminArticlesPage.tsx
+│       ├── AdminBlogsPage.tsx                     # 👈 Gestión de Blogs
+│       ├── AdminGalleryPage.tsx                   # 👈 Gestión de Galería
 │       ├── AdminEventsPage.tsx
 │       ├── AdminMembersPage.tsx
 │       ├── AdminOpportunitiesPage.tsx
@@ -77,11 +88,11 @@ frontend/src/
 │       ├── AdminAlliancesPage.tsx
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       └── AdminSettingsPage.tsx
+│       └── AdminSettingsPage.tsx (Portadas, Sede, Teléfonos, Misión y Estatutos)
 ├── services/
 │   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi
 └── types/
-    └── index.ts             # Modelos e interfaces TypeScript
+    └── index.ts             # Modelos e interfaces TypeScript (Blog, PhotoAlbum, GalleryPhoto, etc.)
 ```
 
 ---
@@ -96,7 +107,7 @@ npm install
 ```
 
 ### 2. Variables de Entorno (Opcional)
-Por defecto, el frontend se conecta a la API en `http://127.0.0.1:8080/index.php/api`. Si se requiere modificar la URL, se puede crear un archivo `.env` en `frontend/`:
+Por defecto, el frontend se conecta a la API en `http://127.0.0.1:8080/index.php/api` (o a `https://api.cicha.com.ar/index.php/api` según `api.ts`). Si se requiere modificar la URL:
 
 ```ini
 VITE_API_URL=http://127.0.0.1:8080/index.php/api
@@ -110,7 +121,7 @@ npm run dev
 El portal estará disponible en: [http://localhost:5173/](http://localhost:5173/)
 
 ### 4. Compilación para Producción
-Para verificar tipos y generar los archivos optimizados (`dist/`):
+Para verificar tipos de TypeScript y generar el paquete optimizado (`dist/`):
 
 ```bash
 npm run build
@@ -128,10 +139,10 @@ npm run preview
 En la pantalla de login ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)), se dispone de botones de acceso rápido para probar los 3 perfiles:
 
 1. **Administrador (`admin@cicha.com.ar` / `admin123`)**:
-   - Acceso total a todos los módulos: Gestión de Usuarios, Configuración General, Contenidos Institucionales, Alianzas, Autoridades, Noticias, Eventos, Socios y Solicitudes.
+   - Acceso total a todos los módulos: Gestión de Usuarios, Roles, Configuración General, Portadas / Banners, Misión & Estatutos, Blogs, Galería, Noticias, Eventos, Socios y Solicitudes.
 2. **Secretaría (`secretaria@cicha.com.ar` / `sec123`)**:
-   - Acceso a la gestión operativa de Noticias, Agenda de Eventos, Oportunidades Comerciales, Directorio de Socios, Recursos de Socios y Bandejas de Mensajes y Afiliaciones.
-   - *Oculta y restringe módulos críticos como Configuración y Usuarios.*
+   - Acceso operativo completo a Blogs, Galería de Fotos, Noticias, Agenda de Eventos, Oportunidades Comerciales, Directorio de Socios, Recursos de Socios y Bandejas de Mensajes y Afiliaciones.
+   - *Oculta y restringe módulos críticos exclusivos como Gestión de Usuarios.*
 3. **Empresa Socia (`socio@cicha.com.ar` / `socio123`)**:
    - Redirección automática a la intranet privada (`/portal-socios`).
    - Acceso a descargas de informes sectoriales, oportunidades comerciales VIP con datos de contacto directo de contrapartes, club de convenios y directorio B2B para networking.

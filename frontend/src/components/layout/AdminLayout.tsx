@@ -21,6 +21,8 @@ import {
   ExternalLink,
   Gift,
   FileDown,
+  BookOpen,
+  Images,
 } from 'lucide-react';
 import { GoogleTranslate } from '../common/GoogleTranslate';
 
@@ -36,7 +38,7 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  // Streamlined 5 Essential Modules
+  // Streamlined Essential Modules
   const allNavItems = [
     {
       name: 'Panel Principal',
@@ -48,6 +50,18 @@ export const AdminLayout: React.FC = () => {
       name: 'Prensa & Agenda',
       path: '/admin/noticias',
       icon: Newspaper,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Blogs & Artículos',
+      path: '/admin/blogs',
+      icon: BookOpen,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Galería de Fotos',
+      path: '/admin/galeria',
+      icon: Images,
       roles: ['admin', 'secretario'],
     },
     {

@@ -660,34 +660,94 @@ export const AdminSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-700">Email Institucional</label>
-                <input
-                  type="email"
-                  value={settings.contact_email || ''}
-                  onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700">Teléfono Principal</label>
+                <label className="font-bold text-slate-700">Teléfono Oficial (+54 9 11 6757-3851)</label>
                 <input
                   type="text"
                   value={settings.phone_primary || ''}
                   onChange={(e) => setSettings({ ...settings, phone_primary: e.target.value })}
+                  placeholder="(+54 9 11) 6757.3851"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-700">Dirección Sede</label>
+                <label className="font-bold text-slate-700">Email Institucional Principal</label>
+                <input
+                  type="email"
+                  value={settings.contact_email || ''}
+                  onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
+                  placeholder="camarahelenoargentina@gmail.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Email Secundario / Alternativo</label>
+                <input
+                  type="email"
+                  value={settings.contact_email_secondary || ''}
+                  onChange={(e) => setSettings({ ...settings, contact_email_secondary: e.target.value })}
+                  placeholder="info@camarahelenoargentina.org"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Dirección Sede Central (Calle y Altura)</label>
                 <input
                   type="text"
                   value={settings.address_street || ''}
                   onChange={(e) => setSettings({ ...settings, address_street: e.target.value })}
+                  placeholder="Julián Alvarez 1030 (C1414)"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Ciudad y País</label>
+                <input
+                  type="text"
+                  value={settings.address_city || ''}
+                  onChange={(e) => setSettings({ ...settings, address_city: e.target.value })}
+                  placeholder="C.A.B.A., Argentina"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="font-bold text-slate-700">Email Desk Comercio Exterior</label>
+                <input
+                  type="email"
+                  value={settings.trade_email || ''}
+                  onChange={(e) => setSettings({ ...settings, trade_email: e.target.value })}
+                  placeholder="info@camarahelenoargentina.org"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                />
+              </div>
+            </div>
+
+            {/* Comercio Exterior Text */}
+            <div className="pt-4 border-t border-slate-100 space-y-1.5 text-xs">
+              <label className="font-bold text-slate-700">Texto Institucional de Comercio Exterior & Inversiones</label>
+              <textarea
+                rows={4}
+                value={settings.trade_description || ''}
+                onChange={(e) => setSettings({ ...settings, trade_description: e.target.value })}
+                placeholder="Descripción del asesoramiento en comercio exterior, análisis de mercado y búsqueda de proveedores..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+              />
+            </div>
+
+            {/* Member Benefits Text */}
+            <div className="pt-4 border-t border-slate-100 space-y-1.5 text-xs">
+              <label className="font-bold text-slate-700">Texto / Lista de Beneficios para Miembros de la Cámara</label>
+              <textarea
+                rows={6}
+                value={settings.member_benefits_text || ''}
+                onChange={(e) => setSettings({ ...settings, member_benefits_text: e.target.value })}
+                placeholder="Detalle de beneficios por ser miembro de CICHA (servicios gratuitos, difusión, traducción, bolsa de trabajo)..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+              />
             </div>
 
             {/* Official Logo Uploader */}
@@ -1046,13 +1106,23 @@ export const AdminSettingsPage: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Subtítulo / Bajada</label>
+              <input
+                type="text"
+                value={sectionForm.subtitle}
+                onChange={(e) => setSectionForm({ ...sectionForm, subtitle: e.target.value })}
+                placeholder="Ej. Nucleamiento y representación"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
               <label className="font-bold text-slate-700">Texto Estatutario Completo *</label>
               <textarea
-                rows={8}
+                rows={10}
                 required
                 value={sectionForm.content}
                 onChange={(e) => setSectionForm({ ...sectionForm, content: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
               />
             </div>
             <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">

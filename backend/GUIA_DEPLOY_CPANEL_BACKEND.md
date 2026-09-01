@@ -220,14 +220,45 @@ Abre tu navegador y prueba directamente estos enlaces para verificar que la API 
 
 ---
 
-## 🔄 10. Procedimiento Rápido para Actualizar Nuevas Versiones
+## 🔄 10. Procedimiento Rápido para Actualizar Nuevas Versiones (Sin SSH ni Terminal)
 
-Cuando hagas cambios en el código local:
+> [!NOTE]
+> Este procedimiento está diseñado **100% para planes de hosting cPanel sin acceso a SSH ni Terminal**. No necesitas consola de comandos ni ejecutar sentencias SQL manuales en phpMyAdmin.
 
-1. Comprime únicamente tu carpeta local `backend/app/` en `app_update.zip`.
-2. En cPanel, entra a `/api.cicha.com.ar/` y sube/extrae `app_update.zip` (reemplazará los archivos de `app/` al instante).
+Cuando hagas cambios en el código local o agreguemos nuevas funciones / tablas:
+
+### Paso 1: Subir la Actualización de Código
+1. En tu computadora, comprime únicamente la carpeta `backend/app/` en un archivo `app_update.zip`.
+2. En el Administrador de Archivos de cPanel, entra a `/api.cicha.com.ar/` y sube/extrae `app_update.zip` (reemplazará los archivos de `app/` al instante).
 3. 🛑 **NUNCA toques ni reemplaces**:
-   - `public/uploads/` (imágenes de usuarios).
-   - `.env` (conexión a la base de datos).
+   - `public/uploads/` (imágenes subidas por usuarios).
+   - `.env` (conexión y claves de la base de datos).
    - `writable/` (logs y caché).
-4. ¡Listo! Actualización completada en 10 segundos.
+
+---
+
+### Paso 2: Auto-Migración de Base de Datos (1 Clic)
+Si la nueva versión incluye tablas nuevas (por ejemplo: `banners` o nuevos campos):
+
+Abre este enlace directamente en tu navegador:
+👉 **`https://api.cicha.com.ar/index.php/api/admin/migrate?secret=cicha_migration_secret_key_2026`**
+
+**¿Qué hace este link automáticamente?**
+- ✅ CodeIgniter revisa el historial de la base de datos.
+- ✅ Si hay tablas nuevas pendientes, las crea en **menos de 1 segundo**.
+- ✅ **NO toca ni borra** ningún dato existente de tus usuarios, noticias ni socios.
+- ✅ Te devuelve una respuesta JSON de confirmación:
+  ```json
+  {
+    "status": 200,
+    "success": true,
+    "message": "✅ Base de datos actualizada con éxito.",
+    "timestamp": "2026-08-29 17:35:00"
+  }
+  ```
+
+---
+
+### 💡 Resumen:
+- **Actualización normal de código**: Solo ejecutas el **Paso 1**.
+- **Actualización con tablas nuevas**: Ejecutas **Paso 1** y luego abres el link del **Paso 2**. ¡Listo!

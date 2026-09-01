@@ -14,6 +14,9 @@ use App\Models\CommercialOpportunityModel;
 use App\Models\MembershipApplicationModel;
 use App\Models\ContactMessageModel;
 use App\Models\BannerModel;
+use App\Models\BlogModel;
+use App\Models\PhotoAlbumModel;
+use App\Models\GalleryPhotoModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PublicController extends ResourceController
@@ -348,6 +351,115 @@ class PublicController extends ResourceController
         return $this->respondCreated([
             'status'  => 201,
             'message' => 'Solicitud de afiliación enviada con éxito. La Comisión Directiva revisará su presentación.',
+        ]);
+    }
+
+    public function getBlogs()
+    {
+        $blogModel = new BlogModel();
+        $category  = $this->request->getGet('category');
+        $search    = $this->request->getGet('q');
+
+        $blogs = $blogModel->getPublished($category, $search);
+
+        // Extract available categories
+        $allCategories = $blogModel->where('status', 'published')
+            ->select('category')
+            ->distinct()
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'blogs'      => $blogs,
+                'categories' => array_map(function($c) { return $c['category']; }, $allCategories),
+            ]
+        ]);
+    }
+
+    public function getBlogBySlug($slug = null)
+    {
+        $blogModel = new BlogModel();
+        $blog = $blogModel->where('slug', $slug)
+            ->where('status', 'published')
+            ->first();
+
+        if (!$blog) {
+            return $this->failNotFound('Artículo de blog no encontrado');
+        }
+
+        // Get related blogs
+        $related = $blogModel->where('status', 'published')
+            ->where('id !=', $blog['id'])
+            ->orderBy('published_at', 'DESC')
+            ->limit(3)
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'blog'    => $blog,
+                'related' => $related,
+            ]
+        ]);
+    }
+
+    public function getGallery()
+    {
+        $albumModel = new PhotoAlbumModel();
+        $photoModel = new GalleryPhotoModel();
+
+        $category = $this->request->getGet('category');
+        $builder = $albumModel->where('is_active', 1);
+
+        if (!empty($category) && $category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        $albums = $builder->orderBy('order_num', 'ASC')->orderBy('event_date', 'DESC')->findAll();
+
+        foreach ($albums as &$album) {
+            $album['photos'] = $photoModel->where('album_id', $album['id'])->orderBy('order_num', 'ASC')->findAll();
+            $album['photos_count'] = count($album['photos']);
+        }
+
+        // Distinct categories for filter
+        $categories = $albumModel->where('is_active', 1)->select('category')->distinct()->findAll();
+
+        // Also flatten all photos for general feed / masonry
+        $allPhotos = $photoModel->db->table('gallery_photos')
+            ->select('gallery_photos.*, photo_albums.title as album_title, photo_albums.category as album_category, photo_albums.event_date')
+            ->join('photo_albums', 'photo_albums.id = gallery_photos.album_id')
+            ->where('photo_albums.is_active', 1)
+            ->orderBy('photo_albums.event_date', 'DESC')
+            ->get()->getResultArray();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'albums'     => $albums,
+                'all_photos' => $allPhotos,
+                'categories' => array_map(function($c) { return $c['category']; }, $categories),
+            ]
+        ]);
+    }
+
+    public function getAlbumBySlug($slug = null)
+    {
+        $albumModel = new PhotoAlbumModel();
+        $photoModel = new GalleryPhotoModel();
+
+        $album = $albumModel->where('slug', $slug)->where('is_active', 1)->first();
+        if (!$album) {
+            return $this->failNotFound('Álbum de fotos no encontrado');
+        }
+
+        $album['photos'] = $photoModel->where('album_id', $album['id'])->orderBy('order_num', 'ASC')->findAll();
+        $album['photos_count'] = count($album['photos']);
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $album,
         ]);
     }
 }

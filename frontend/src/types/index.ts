@@ -13,13 +13,17 @@ export interface Settings {
   site_name?: string;
   site_acronym?: string;
   contact_email?: string;
+  contact_email_secondary?: string;
   trade_email?: string;
+  trade_email_secondary?: string;
   phone_primary?: string;
   phone_secondary?: string;
   address_street?: string;
   address_city?: string;
   address_country?: string;
   office_hours?: string;
+  trade_description?: string;
+  member_benefits_text?: string;
   social_linkedin?: string;
   social_twitter?: string;
   social_facebook?: string;
@@ -90,6 +94,53 @@ export interface Article {
   is_featured: number | boolean;
   status: 'published' | 'draft';
   created_at?: string;
+}
+
+export interface Blog {
+  id: number;
+  title: string;
+  slug: string;
+  author: string;
+  author_role?: string;
+  summary?: string;
+  content: string;
+  image_url?: string;
+  category: string;
+  tags?: string;
+  read_time?: string;
+  is_featured: number | boolean;
+  status: 'published' | 'draft' | 'archived';
+  published_at: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GalleryPhoto {
+  id?: number;
+  album_id?: number;
+  image_url: string;
+  caption?: string;
+  order_num?: number;
+  album_title?: string;
+  album_category?: string;
+  event_date?: string;
+  created_at?: string;
+}
+
+export interface PhotoAlbum {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  cover_image_url?: string;
+  event_date?: string;
+  category: string;
+  order_num: number;
+  is_active: number | boolean;
+  photos_count?: number;
+  photos?: GalleryPhoto[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface EventItem {

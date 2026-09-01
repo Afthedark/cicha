@@ -94,7 +94,7 @@ export const InstitutionalPage: React.FC = () => {
       </section>
 
       {/* 2. Mission & Object Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Misión */}
           <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-lg hover:shadow-xl transition-all space-y-4 flex flex-col justify-between">
@@ -103,12 +103,12 @@ export const InstitutionalPage: React.FC = () => {
                 <Target className="w-6 h-6" />
               </div>
               <h2 className="font-serif font-bold text-2xl text-cicha-navy">
-                {mision?.title || 'Nuestra Misión'}
+                {mision?.title || 'Misión de la CICHA'}
               </h2>
               <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">
                 {mision?.subtitle || 'Fuerza creadora bilateral'}
               </p>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                 {mision?.content ||
                   'La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia - en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.'}
               </p>
@@ -131,7 +131,7 @@ export const InstitutionalPage: React.FC = () => {
               <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">
                 {objeto?.subtitle || 'Nucleamiento y representación'}
               </p>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                 {objeto?.content ||
                   'La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina.'}
               </p>
@@ -140,6 +140,43 @@ export const InstitutionalPage: React.FC = () => {
               <CheckCircle className="w-4 h-4 text-emerald-500" />
               Integración de la Comunidad Heleno-Argentina en el Mercosur y la UE
             </div>
+          </div>
+        </div>
+
+        {/* 2.1 Statutory Activities / Actividades Reglamentarias */}
+        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-lg space-y-6">
+          <div className="space-y-2">
+            <Badge variant="gold">Estatuto & Acciones Oficiales</Badge>
+            <h3 className="font-serif font-bold text-2xl text-cicha-navy">
+              Actividades Estatutarias de la Cámara
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600">
+              Para el cumplimiento de su misión y objeto, la Cámara desarrolla entre otras las siguientes actividades:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-700">
+            {[
+              'Auspiciar medidas que beneficien y protejan el intercambio comercial, industrial y tecnológico heleno-argentino.',
+              'Representar a las comunidades en cuanto a sus relaciones de intercambio económico, tecnológico y cultural.',
+              'Peticionar a las autoridades públicas que corresponda, el dictado de normas legales y administrativas.',
+              'Representar a sus asociados a pedido de éstos ante las autoridades, reparticiones públicas, o entidades de ambos países.',
+              'Recoger y distribuir información estadística, técnica, jurídica, cultural y turística con fines de asesoramiento y difusión.',
+              'Asistir y asesorar a miembros y personas interesadas respecto a formas de inversión e intercambio comercial y tecnológico.',
+              'Resguardar el prestigio de ambas comunidades, jerarquizando y enalteciendo la imagen de los representados.',
+              'Mantener relaciones y cooperación activa con otras Cámaras de Comercio y organizaciones empresariales.',
+              'Mantener relaciones institucionales fluidas e intercambiar informaciones con instituciones helénicas.',
+              'Otorgar becas y apoyo a griegos y sus descendientes para realizar estudios e investigaciones de importancia justificada.',
+              'Organizar y participar en conferencias, congresos y foros cuyos temas sean de interés bilateral.',
+              'Crear y desarrollar bajo su cuidado institutos culturales, sociales y deportivos conforme al interés de los asociados.',
+            ].map((act, index) => (
+              <div key={index} className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:bg-blue-50/50 transition-colors">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                  {index + 1}
+                </span>
+                <span className="leading-relaxed">{act}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>

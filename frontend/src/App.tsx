@@ -10,6 +10,9 @@ import { InstitutionalPage } from './pages/public/InstitutionalPage';
 import { TradeBilateralPage } from './pages/public/TradeBilateralPage';
 import { ArticlesPage } from './pages/public/ArticlesPage';
 import { ArticleDetailPage } from './pages/public/ArticleDetailPage';
+import { BlogsPage } from './pages/public/BlogsPage';
+import { BlogDetailPage } from './pages/public/BlogDetailPage';
+import { GalleryPage } from './pages/public/GalleryPage';
 import { EventsPage } from './pages/public/EventsPage';
 import { MembersDirectoryPage } from './pages/public/MembersDirectoryPage';
 import { MembershipApplyPage } from './pages/public/MembershipApplyPage';
@@ -28,6 +31,8 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminArticlesPage } from './pages/admin/AdminArticlesPage';
+import { AdminBlogsPage } from './pages/admin/AdminBlogsPage';
+import { AdminGalleryPage } from './pages/admin/AdminGalleryPage';
 import { AdminEventsPage } from './pages/admin/AdminEventsPage';
 import { AdminMembersPage } from './pages/admin/AdminMembersPage';
 import { AdminOpportunitiesPage } from './pages/admin/AdminOpportunitiesPage';
@@ -129,6 +134,30 @@ export function App() {
             }
           />
           <Route
+            path="/blogs"
+            element={
+              <PublicLayout>
+                <BlogsPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/blogs/:slug"
+            element={
+              <PublicLayout>
+                <BlogDetailPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/galeria"
+            element={
+              <PublicLayout>
+                <GalleryPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/eventos"
             element={
               <PublicLayout>
@@ -168,12 +197,13 @@ export function App() {
           <Route
             path="/portal-socios"
             element={
-              <RoleRoute allowedRoles={['socio', 'admin', 'secretario']}>
+              <RoleRoute allowedRoles={['admin', 'secretario', 'socio']}>
                 <PartnerLayout />
               </RoleRoute>
             }
           >
-            <Route index element={<PartnerDashboardPage />} />
+            <Route index element={<Navigate to="/portal-socios/dashboard" replace />} />
+            <Route path="dashboard" element={<PartnerDashboardPage />} />
             <Route path="recursos" element={<PartnerResourcesPage />} />
             <Route path="oportunidades" element={<PartnerOpportunitiesPage />} />
             <Route path="beneficios" element={<PartnerBenefitsPage />} />
@@ -192,6 +222,8 @@ export function App() {
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="noticias" element={<AdminArticlesPage />} />
+            <Route path="blogs" element={<AdminBlogsPage />} />
+            <Route path="galeria" element={<AdminGalleryPage />} />
             <Route path="eventos" element={<AdminEventsPage />} />
             <Route path="socios" element={<AdminMembersPage />} />
             <Route path="oportunidades" element={<AdminOpportunitiesPage />} />
