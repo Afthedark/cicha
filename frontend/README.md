@@ -14,13 +14,23 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
     - Celeste Brisa Egeo: `#00AEEF` / `#D4EEFC`
     - Dorado Metálico: `#F5A623` / `#D4AF37`
   - Tipografías: *Inter* para lectura corporativa y *Cinzel* para títulos solemnes institucionales.
-  - Micro-animaciones, efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS (iPhone / iPad).
+  - Micro-animaciones:
+    - `@keyframes zoomFromCenter`: animación expansiva del título principal institucional desde el centro.
+    - Contadores dinámicos cíclicos (`CounterDisplay`) con curva cúbica suave (`easeOut`) e intervalos periódicos.
+    - Efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS (iPhone / iPad).
+- **📱 Módulo "Post Redes Sociales" (`/redes-sociales`)**:
+  - Feed dual en 2 columnas en paralelo (lado a lado):
+    - **Facebook Oficial**: Widget embebido de la página oficial de CICHA con publicaciones en tiempo real.
+    - **Instagram Oficial**: Feed interactivo de publicaciones de `@camarahelenoargentina` con botón directo para seguir la cuenta.
 - **📰 Módulo de Blogs**:
   - Catálogo de artículos con filtros por categoría y buscador en tiempo real.
   - Vista de lectura completa con tiempo estimado de lectura, etiquetas y publicaciones relacionadas.
 - **📷 Módulo de Galería de Fotos Inteligente**:
   - Selector de vistas (*Por Álbumes* vs *Mosaico Dinámico continuo*).
   - Visor **Lightbox a Pantalla Completa** con navegación interactiva por teclado (`←`, `→`, `Esc`), tira de miniaturas inferior y botón de descarga en alta resolución.
+- **🌐 Ecosistema de Redes Sociales en Footer**:
+  - Botones estilizados con efecto glassmorphism, resplandor celeste egeo (`#00AEEF`) e íconos interactivos: LinkedIn, Instagram, Facebook, X (Twitter), YouTube y TikTok.
+  - Bloque centralizado simétrico para pantallas de escritorio y dispositivos móviles.
 - **🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`)**:
   - Traducción automática e instantánea del 100% del portal (incluyendo datos dinámicos provenientes de MySQL).
   - Selector desplegable con banderas vectoriales SVG nítidas:
@@ -48,24 +58,25 @@ frontend/src/
 │   │   ├── ImageUploader.tsx
 │   │   └── GoogleTranslate.tsx
 │   └── layout/
-│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor y accesos rápidos
-│       ├── Footer.tsx       # Pie de página institucional, alianzas y enlaces directos
+│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor, logo sin texto y accesos
+│       ├── Footer.tsx       # Pie de página institucional, redes sociales centradas, alianzas y mailto dinámico
 │       ├── PartnerLayout.tsx# Intranet privada exclusiva para empresas socias
 │       └── AdminLayout.tsx  # CMS administrativo con menú dinámico por rol
 ├── context/
 │   └── AuthContext.tsx      # Gestión de autenticación, JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 ├── pages/
-│   ├── public/              # 11 Vistas del Portal Público (Visitante)
-│   │   ├── HomePage.tsx
+│   ├── public/              # 12 Vistas del Portal Público (Visitante)
+│   │   ├── HomePage.tsx                           # 👈 Inicio con contadores cíclicos y Misión/Objeto
 │   │   ├── InstitutionalPage.tsx
 │   │   ├── TradeBilateralPage.tsx
 │   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
 │   │   ├── BlogsPage.tsx & BlogDetailPage.tsx     # 👈 Módulo de Blogs
 │   │   ├── GalleryPage.tsx                        # 👈 Módulo de Galería
+│   │   ├── SocialFeedPage.tsx                     # 👈 Feed Dual Facebook & Instagram
 │   │   ├── EventsPage.tsx
 │   │   ├── MembersDirectoryPage.tsx
-│   │   ├── MembershipApplyPage.tsx
-│   │   └── ContactPage.tsx
+│   │   ├── MembershipApplyPage.tsx                # 👈 Solicitud con logo obligatorio
+│   │   └── ContactPage.tsx                        # 👈 Contacto con mailto dinámico
 │   ├── partner/             # 5 Vistas del Portal Exclusivo de Socios
 │   │   ├── PartnerDashboardPage.tsx
 │   │   ├── PartnerResourcesPage.tsx
@@ -88,11 +99,11 @@ frontend/src/
 │       ├── AdminAlliancesPage.tsx
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       └── AdminSettingsPage.tsx (Portadas, Sede, Teléfonos, Misión y Estatutos)
+│       └── AdminSettingsPage.tsx (Redes con TikTok, Asuntos/Cuerpo de Correo, Portadas y Sede)
 ├── services/
 │   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi
 └── types/
-    └── index.ts             # Modelos e interfaces TypeScript (Blog, PhotoAlbum, GalleryPhoto, etc.)
+    └── index.ts             # Modelos e interfaces TypeScript (Blog, PhotoAlbum, Settings con TikTok, etc.)
 ```
 
 ---

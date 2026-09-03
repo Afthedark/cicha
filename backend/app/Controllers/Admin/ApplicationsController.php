@@ -36,15 +36,37 @@ class ApplicationsController extends ResourceController
         $model = new MembershipApplicationModel();
         if (!$model->find($id)) return $this->failNotFound('Solicitud no encontrada');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+
+        $allowedFields = [
+            'status',
+            'notes',
+            'internal_verdict',
+            'internal_reasons',
+            'verdict_date',
+            'approved_by_president',
+            'approved_by_secretary',
+            'approved_by_treasurer',
+        ];
 
         $data = [];
-        if (isset($input['status'])) $data['status'] = $input['status'];
-        if (isset($input['notes'])) $data['notes'] = $input['notes'];
+        foreach ($allowedFields as $field) {
+            if (isset($input[$field])) {
+                $data[$field] = $input[$field];
+            }
+        }
+
+        // Auto-sync status if internal_verdict is changed
+        if (!empty($input['internal_verdict'])) {
+            if ($input['internal_verdict'] === 'approved') {
+                $data['status'] = 'approved';
+            } elseif ($input['internal_verdict'] === 'rejected') {
+                $data['status'] = 'rejected';
+            }
+        }
 
         $model->update($id, $data);
-        return $this->respond(['status' => 200, 'message' => 'Solicitud de afiliación actualizada']);
+        return $this->respond(['status' => 200, 'message' => 'Solicitud de afiliación actualizada correctamente']);
     }
 
     public function delete($id = null)

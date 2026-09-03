@@ -200,9 +200,11 @@ export const AdminSettingsPage: React.FC = () => {
     try {
       await adminApi.updateSettings(settings);
       setSettingsSaved(true);
-      setTimeout(() => setSettingsSaved(false), 3000);
-    } catch {
-      alert('Error al guardar configuraciones.');
+      setTimeout(() => setSettingsSaved(false), 3500);
+    } catch (err: any) {
+      console.error('Error al guardar configuraciones:', err);
+      const msg = err.response?.data?.message || err.response?.data?.messages?.error || 'Error al guardar configuraciones.';
+      alert(typeof msg === 'string' ? msg : JSON.stringify(msg));
     } finally {
       setSavingSettings(false);
     }
@@ -724,6 +726,40 @@ export const AdminSettingsPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
                 />
               </div>
+
+              {/* Prefilled Email Subject & Body */}
+              <div className="space-y-1.5 sm:col-span-2 pt-3 border-t border-slate-100">
+                <label className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-blue-600" />
+                  Asunto Predeterminado al presionar Correos de la Web (Subject)
+                </label>
+                <input
+                  type="text"
+                  value={settings.email_prefilled_subject || ''}
+                  onChange={(e) => setSettings({ ...settings, email_prefilled_subject: e.target.value })}
+                  placeholder="Ej. Consulta desde la Web Oficial de CICHA"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Asunto que se completará automáticamente en el correo del usuario cuando haga clic en un email de la web.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="font-bold text-slate-800 text-xs">
+                  Mensaje / Cuerpo Predeterminado al presionar Correos de la Web (Body)
+                </label>
+                <textarea
+                  rows={3}
+                  value={settings.email_prefilled_body || ''}
+                  onChange={(e) => setSettings({ ...settings, email_prefilled_body: e.target.value })}
+                  placeholder="Ej. Hola, vengo de la web de CICHA y me gustaría solicitar información sobre..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Texto precargado en el cuerpo del correo listo para que el usuario escriba su consulta.
+                </p>
+              </div>
             </div>
 
             {/* Comercio Exterior Text */}
@@ -760,6 +796,102 @@ export const AdminSettingsPage: React.FC = () => {
                 previewHeight="h-28"
                 aspectRatio="square"
               />
+            </div>
+
+            {/* Redes Sociales Oficiales */}
+            <div className="pt-4 border-t border-slate-100 space-y-4">
+              <h3 className="font-serif font-bold text-sm text-cicha-navy flex items-center gap-2">
+                <Globe className="w-4 h-4 text-blue-600" /> Redes Sociales Oficiales (Visibles en el Footer)
+              </h3>
+              <p className="text-slate-500 text-xs">
+                Ingrese las direcciones web completas de las redes oficiales. Solo los campos completados mostrarán su icono en el pie de página.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                    LinkedIn Institucional
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_linkedin || ''}
+                    onChange={(e) => setSettings({ ...settings, social_linkedin: e.target.value })}
+                    placeholder="https://www.linkedin.com/company/cicha-argentina"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-pink-600"></span>
+                    Instagram Oficial
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_instagram || ''}
+                    onChange={(e) => setSettings({ ...settings, social_instagram: e.target.value })}
+                    placeholder="https://instagram.com/cicha_argentina"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-700"></span>
+                    Facebook Oficial
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_facebook || ''}
+                    onChange={(e) => setSettings({ ...settings, social_facebook: e.target.value })}
+                    placeholder="https://facebook.com/cicha.argentina"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-800"></span>
+                    X / Twitter Oficial
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_twitter || ''}
+                    onChange={(e) => setSettings({ ...settings, social_twitter: e.target.value })}
+                    placeholder="https://x.com/cicha_arg"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                    Canal de YouTube Oficial
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_youtube || ''}
+                    onChange={(e) => setSettings({ ...settings, social_youtube: e.target.value })}
+                    placeholder="https://youtube.com/@cicha-argentina"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-neutral-900"></span>
+                    TikTok Oficial
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.social_tiktok || ''}
+                    onChange={(e) => setSettings({ ...settings, social_tiktok: e.target.value })}
+                    placeholder="https://tiktok.com/@cicha_argentina"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

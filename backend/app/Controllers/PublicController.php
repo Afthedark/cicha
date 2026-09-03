@@ -317,40 +317,72 @@ class PublicController extends ResourceController
 
     public function submitApplication()
     {
+        $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
+        $applicantType = $input['applicant_type'] ?? 'empresa';
+
         $rules = [
-            'company_name' => 'required|min_length[2]',
-            'contact_name' => 'required|min_length[3]',
-            'email'        => 'required|valid_email',
-            'phone'        => 'required|min_length[6]',
-            'sector'       => 'required',
+            'email'            => 'required|valid_email',
+            'phone'            => 'required|min_length[5]',
+            'company_logo_url' => 'required|min_length[5]',
         ];
 
-        if (!$this->validate($rules)) {
+        $messages = [
+            'company_logo_url' => [
+                'required' => 'El logotipo de la empresa o emprendimiento personal es obligatorio.',
+                'min_length' => 'Debe adjuntar una imagen válida para el logotipo o distintivo.',
+            ],
+        ];
+
+        if ($applicantType === 'empresa') {
+            $rules['company_name'] = 'required|min_length[2]';
+            $rules['contact_name'] = 'required|min_length[2]';
+        } else {
+            $rules['contact_name'] = 'required|min_length[2]';
+        }
+
+        if (!$this->validate($rules, $messages)) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
         $appModel = new MembershipApplicationModel();
+        
         $data = [
-            'company_name' => $this->request->getVar('company_name'),
-            'contact_name' => $this->request->getVar('contact_name'),
-            'contact_role' => $this->request->getVar('contact_role') ?? '',
-            'email'        => $this->request->getVar('email'),
-            'phone'        => $this->request->getVar('phone'),
-            'cuit_rut'     => $this->request->getVar('cuit_rut') ?? '',
-            'sector'       => $this->request->getVar('sector'),
-            'website'      => $this->request->getVar('website') ?? '',
-            'interests'    => is_array($this->request->getVar('interests')) ? implode(', ', $this->request->getVar('interests')) : ($this->request->getVar('interests') ?? ''),
-            'comments'     => $this->request->getVar('comments') ?? '',
-            'status'       => 'pending',
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'applicant_type'          => $applicantType,
+            'company_name'            => $input['company_name'] ?? ($input['contact_name'] ?? 'Persona Física'),
+            'business_name'           => $input['business_name'] ?? '',
+            'company_logo_url'        => $input['company_logo_url'] ?? '',
+            'contact_name'            => $input['contact_name'] ?? '',
+            'contact_role'            => $input['contact_role'] ?? '',
+            'birth_date'              => !empty($input['birth_date']) ? $input['birth_date'] : null,
+            'doc_type'                => $input['doc_type'] ?? '',
+            'doc_number'              => $input['doc_number'] ?? '',
+            'nationality'             => $input['nationality'] ?? '',
+            'address'                 => $input['address'] ?? '',
+            'profession'              => $input['profession'] ?? '',
+            'email'                   => $input['email'],
+            'phone'                   => $input['phone'],
+            'cuit_rut'                => $input['cuit_rut'] ?? '',
+            'sector'                  => $input['sector'] ?? 'General / Otro',
+            'website'                 => $input['website'] ?? '',
+            'referral_source'         => $input['referral_source'] ?? '',
+            'referral_socio_name'     => $input['referral_socio_name'] ?? '',
+            'interests'               => is_array($input['interests'] ?? null) ? implode(', ', $input['interests']) : ($input['interests'] ?? ''),
+            'additional_services'     => is_array($input['additional_services'] ?? null) ? implode(' | ', array_filter($input['additional_services'])) : ($input['additional_services'] ?? ''),
+            'payment_preference'      => $input['payment_preference'] ?? 'anual',
+            'sponsor_1_name'          => $input['sponsor_1_name'] ?? '',
+            'sponsor_2_name'          => $input['sponsor_2_name'] ?? '',
+            'greece_relation_type'    => is_array($input['greece_relation_type'] ?? null) ? implode(', ', $input['greece_relation_type']) : ($input['greece_relation_type'] ?? ''),
+            'greece_relation_details' => $input['greece_relation_details'] ?? '',
+            'comments'                => $input['comments'] ?? '',
+            'status'                  => 'pending',
+            'internal_verdict'        => 'pending',
         ];
 
         $appModel->insert($data);
 
         return $this->respondCreated([
             'status'  => 201,
-            'message' => 'Solicitud de afiliación enviada con éxito. La Comisión Directiva revisará su presentación.',
+            'message' => 'Solicitud de afiliación registrada con éxito. La Comisión Directiva de CICHA evaluará su presentación.',
         ]);
     }
 

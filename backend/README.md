@@ -124,9 +124,9 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `GET` | `/public/members` | Catálogo de empresas socias filtrable por sector | Público |
 | `GET` | `/public/opportunities` | Oportunidades comerciales abiertas | Público |
 | `GET` | `/public/alliances` | Convenios y alianzas estratégicas (Eurocámara, EEN, UCCEB) | Público |
-| `GET` | `/public/settings` | Configuración pública, teléfonos, emails y redes sociales | Público |
+| `GET` | `/public/settings` | Configuración pública, teléfonos, emails, redes sociales (incluyendo TikTok y YouTube) y parámetros de correo prellenado | Público |
 | `POST` | `/public/contact` | Envía mensaje de contacto general | Público |
-| `POST` | `/public/apply` | Envía solicitud de afiliación a la Cámara | Público |
+| `POST` | `/public/apply` | Envía solicitud de afiliación a la Cámara (**`company_logo_url` obligatorio tanto para empresas como personas físicas**) | Público |
 
 ### 3. Portal Exclusivo de Socios (`/api/partner`)
 *Requiere JWT con rol `socio`, `admin` o `secretario`.*
@@ -161,7 +161,7 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva | `admin`, `secretario` |
 | `CRUD` | `/admin/alliances` | Gestión de convenios y redes | `admin`, `secretario` |
 | `GET/PUT`| `/admin/institutional`| Edición de Misión, Objeto y Estatutos | `admin`, `secretario` |
-| `GET/POST`| `/admin/settings` | Configuración global, sede, teléfonos y SEO | `admin`, `secretario` |
+| `GET/POST`| `/admin/settings` | Configuración global (lectura universal JSON/Form, redes con TikTok/YouTube, sede, teléfonos, asunto/cuerpo de mailto y SEO) | `admin`, `secretario` |
 | `CRUD` | `/admin/users` | Administración de usuarios y asignación de roles | **`admin` únicamente** |
 
 ---

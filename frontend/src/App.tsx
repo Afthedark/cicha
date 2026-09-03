@@ -16,6 +16,7 @@ import { GalleryPage } from './pages/public/GalleryPage';
 import { EventsPage } from './pages/public/EventsPage';
 import { MembersDirectoryPage } from './pages/public/MembersDirectoryPage';
 import { MembershipApplyPage } from './pages/public/MembershipApplyPage';
+import { SocialFeedPage } from './pages/public/SocialFeedPage';
 import { ContactPage } from './pages/public/ContactPage';
 
 // Partner Portal (Socio) Components
@@ -146,6 +147,14 @@ export function App() {
             element={
               <PublicLayout>
                 <BlogDetailPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/redes-sociales"
+            element={
+              <PublicLayout>
+                <SocialFeedPage />
               </PublicLayout>
             }
           />

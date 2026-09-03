@@ -15,11 +15,59 @@ import {
   Users,
   ExternalLink,
   Sparkles,
+  Target,
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
 import type { HomeData, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+
+// Componente de Contador Animado Cíclico y Elegante
+const CounterDisplay: React.FC<{
+  target: number;
+  prefix?: string;
+  suffix?: string;
+  className?: string;
+}> = ({ target, prefix = '', suffix = '', className = '' }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    const duration = 2000; // 2s animación fluida
+    let animationFrameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Easing out cubic para sensación premium
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(easeOut * target));
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(step);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    // Ciclo elegante que reinicia el contador suavemente cada 10 segundos
+    const cycleInterval = setInterval(() => {
+      startTimestamp = null;
+      animationFrameId = requestAnimationFrame(step);
+    }, 10000);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      clearInterval(cycleInterval);
+    };
+  }, [target]);
+
+  return (
+    <p className={`${className} tabular-nums tracking-tight transition-all duration-300`}>
+      {prefix}{count}{suffix}
+    </p>
+  );
+};
 
 export const HomePage: React.FC = () => {
   const [data, setData] = useState<HomeData | null>(null);
@@ -77,7 +125,14 @@ export const HomePage: React.FC = () => {
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-cicha-sky/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-cicha-turquoise/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto relative z-10 space-y-12">
+        <div className="max-w-7xl mx-auto relative z-10 space-y-6 sm:space-y-8">
+          {/* TITLE ABOVE TOP BANNERS CON ANIMACIÓN EXPANSIVA DESDE EL CENTRO */}
+          <div className="text-center py-2 sm:py-3">
+            <h2 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#071E38] tracking-wider uppercase drop-shadow-[0_2px_4px_rgba(255,255,255,0.4)] px-2 animate-zoom-center inline-block">
+              CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA
+            </h2>
+          </div>
+
           {/* TOP BANNER SLIDER / PORTADAS CAROUSEL */}
           {activeBanners.length > 0 && (
             <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-slate-900/40 backdrop-blur-md group">
@@ -198,10 +253,17 @@ export const HomePage: React.FC = () => {
                 </span>
               </h1>
 
-              <p className="text-slate-200 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
-                {data?.mision?.content ||
-                  'Fuerza creadora en un ambiente de negocios que contribuye al desarrollo de nuestra sociedad con responsabilidad, ética y transparencia. Nucleamos el empresariado heleno y articulamos foros de conocimiento y diálogo.'}
-              </p>
+              <div className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-2xl font-light space-y-3 text-justify">
+                <p>
+                  La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, desde <strong>Mayo 2017</strong> es <strong>miembro activo de la EUROCAMARA Argentina</strong>, y compone nodo de la red <strong>EEN (Europe Enterprise Network)</strong> de la <strong>Unión Europea</strong>.
+                </p>
+                <p>
+                  Desde hace más de una década, es <strong>miembro activo de la UCCEB</strong> (<strong>Unión de Cámaras Comerciales Extranjeras Binacionales</strong>), compuesta actualmente de <strong>32 cámaras</strong>.
+                </p>
+                <p>
+                  La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, reconocida por el <strong>gobierno griego el 18 de septiembre de 1998</strong>, y por el <strong>gobierno argentino el 1 de noviembre de 1989</strong>, cada día está tomando mayor relevancia y su misión ha sido definida de la siguiente manera:
+                </p>
+              </div>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -248,34 +310,55 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
-                    <p className="text-3xl font-extrabold text-cicha-sky font-serif">+35</p>
+                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-cicha-sky/40 transition-all flex flex-col justify-center">
+                    <CounterDisplay target={38} prefix="+" className="text-3xl font-extrabold text-[#00AEEF] font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Años de Trayectoria Bilateral (1989)</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
-                    <p className="text-3xl font-extrabold text-blue-400 font-serif">32</p>
+                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-blue-400/40 transition-all flex flex-col justify-center">
+                    <CounterDisplay target={32} className="text-3xl font-extrabold text-blue-400 font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Cámaras Binacionales en UCCEB</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
-                    <p className="text-3xl font-extrabold text-emerald-400 font-serif">60+</p>
+                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-white/40 transition-all flex flex-col justify-center">
+                    <CounterDisplay target={60} suffix="+" className="text-3xl font-extrabold text-white font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Países en Red Enterprise Europe Network</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900">
-                    <p className="text-3xl font-extrabold text-purple-400 font-serif">100%</p>
+                  <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-[#F5A623]/40 transition-all flex flex-col justify-center">
+                    <CounterDisplay target={100} suffix="%" className="text-3xl font-extrabold text-[#F5A623] font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Articulación Público-Privada</p>
                   </div>
                 </div>
-
-                <div className="p-4 rounded-2xl bg-blue-900/30 border border-blue-700/50 space-y-2">
-                  <p className="text-xs font-bold text-cicha-sky-light flex items-center gap-1.5">
-                    <Award className="w-4 h-4" />
-                    Objeto de la Cámara
-                  </p>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Nucleamiento y representación del empresariado griego o de ascendencia griega en Argentina, y empresas de ambos países con intereses e inversiones en Grecia y Argentina.
-                  </p>
-                </div>
               </div>
+            </div>
+          </div>
+
+          {/* MISIÓN & OBJETO INSTITUCIONAL EXPANDIDO */}
+          <div className="pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Tarjeta de Misión */}
+            <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
+              <div className="w-2 rounded-full h-8 bg-[#00AEEF] absolute left-0 top-6" />
+              <div className="flex items-center gap-2 text-[#00AEEF]">
+                <Target className="w-5 h-5 text-[#00AEEF]" />
+                <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                  Misión
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
+                La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia- en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.
+              </p>
+            </div>
+
+            {/* Tarjeta de Objeto */}
+            <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
+              <div className="w-2 rounded-full h-8 bg-[#F5A623] absolute left-0 top-6" />
+              <div className="flex items-center gap-2 text-[#F5A623]">
+                <ShieldCheck className="w-5 h-5 text-[#F5A623]" />
+                <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                  Objeto
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
+                La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina.
+              </p>
             </div>
           </div>
         </div>

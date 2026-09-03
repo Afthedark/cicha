@@ -22,8 +22,8 @@ import type {
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 
 export const apiClient = axios.create({

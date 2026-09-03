@@ -11,11 +11,13 @@ import {
   Globe2,
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
+import type { Settings } from '../../types';
 import { Badge } from '../../components/common/Badge';
 import bgHeader from '../../assets/static/9.jpeg';
 
 export const ContactPage: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const [settings, setSettings] = useState<Settings>({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,6 +29,18 @@ export const ContactPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    publicApi.getSettings().then((res) => {
+      if (res) setSettings(res);
+    }).catch(() => {});
+  }, []);
+
+  const getMailtoLink = (email: string) => {
+    const subject = encodeURIComponent(settings.email_prefilled_subject || 'Consulta desde la Web Oficial de CICHA');
+    const body = encodeURIComponent(settings.email_prefilled_body || 'Hola, vengo de la web de CICHA y me gustaría solicitar información sobre...');
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
 
   useEffect(() => {
     const asunto = searchParams.get('asunto');
@@ -100,7 +114,9 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-bold text-white">Dirección / Headquarters</p>
-                    <p className="text-slate-300">Julián Alvarez 1030 (C1414), C.A.B.A., Argentina</p>
+                    <p className="text-slate-300">
+                      {settings.address_street || 'Julián Alvarez 1030 (C1414)'}{settings.address_city ? `, ${settings.address_city}` : ', C.A.B.A., Argentina'}
+                    </p>
                   </div>
                 </div>
 
@@ -111,10 +127,10 @@ export const ContactPage: React.FC = () => {
                   <div>
                     <p className="font-bold text-white">Contacto - Επικοινωνία</p>
                     <a
-                      href="tel:+5491167573851"
+                      href={`tel:${(settings.phone_primary || '+5491167573851').replace(/[^0-9+]/g, '')}`}
                       className="text-cicha-sky hover:underline font-mono text-xs"
                     >
-                      Tel.: (+54 9 11) 6757.3851
+                      Tel.: {settings.phone_primary || '(+54 9 11) 6757.3851'}
                     </a>
                   </div>
                 </div>
@@ -126,12 +142,22 @@ export const ContactPage: React.FC = () => {
                   <div>
                     <p className="font-bold text-white">Correos Oficiales</p>
                     <div className="space-y-0.5">
-                      <a href="mailto:camarahelenoargentina@gmail.com" className="block text-cicha-sky hover:underline font-mono">
-                        camarahelenoargentina@gmail.com
+                      <a
+                        href={getMailtoLink(settings.contact_email || 'camarahelenoargentina@gmail.com')}
+                        className="block text-cicha-sky hover:underline font-mono"
+                        title="Enviar correo a CICHA"
+                      >
+                        {settings.contact_email || 'camarahelenoargentina@gmail.com'}
                       </a>
-                      <a href="mailto:info@camarahelenoargentina.org" className="block text-slate-300 hover:underline font-mono">
-                        info@camarahelenoargentina.org
-                      </a>
+                      {settings.contact_email_secondary && (
+                        <a
+                          href={getMailtoLink(settings.contact_email_secondary)}
+                          className="block text-slate-300 hover:underline font-mono"
+                          title="Enviar correo a CICHA"
+                        >
+                          {settings.contact_email_secondary}
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -142,7 +168,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-bold text-white">Horario de Atención</p>
-                    <p className="text-slate-300">Lunes a Viernes de 09:00 a 18:00 hs (ART)</p>
+                    <p className="text-slate-300">{settings.office_hours || 'Lunes a Viernes de 09:00 a 18:00 hs (ART)'}</p>
                   </div>
                 </div>
               </div>

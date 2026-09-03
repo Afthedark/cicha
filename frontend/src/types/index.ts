@@ -28,8 +28,12 @@ export interface Settings {
   social_twitter?: string;
   social_facebook?: string;
   social_instagram?: string;
+  social_youtube?: string;
+  social_tiktok?: string;
   meta_description?: string;
   meta_keywords?: string;
+  email_prefilled_subject?: string;
+  email_prefilled_body?: string;
   [key: string]: string | undefined;
 }
 
@@ -196,19 +200,43 @@ export interface CommercialOpportunity {
 
 export interface MembershipApplication {
   id: number;
+  applicant_type?: 'empresa' | 'persona_fisica';
   company_name: string;
+  business_name?: string;
+  company_logo_url?: string;
   contact_name: string;
   contact_role?: string;
+  birth_date?: string;
+  doc_type?: string;
+  doc_number?: string;
+  nationality?: string;
+  address?: string;
+  profession?: string;
   email: string;
   phone: string;
   cuit_rut?: string;
   sector: string;
   website?: string;
+  referral_source?: string;
+  referral_socio_name?: string;
   interests?: string;
+  additional_services?: string;
+  payment_preference?: 'anual' | 'semestral';
+  sponsor_1_name?: string;
+  sponsor_2_name?: string;
+  greece_relation_type?: string;
+  greece_relation_details?: string;
   comments?: string;
   status: 'pending' | 'in_review' | 'approved' | 'contacted' | 'rejected';
+  internal_verdict?: 'pending' | 'approved' | 'rejected';
+  internal_reasons?: string;
+  verdict_date?: string;
+  approved_by_president?: string;
+  approved_by_secretary?: string;
+  approved_by_treasurer?: string;
   notes?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface ContactMessage {

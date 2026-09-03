@@ -10,38 +10,62 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-1. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
+1. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
+   - Pestaña de acceso directo en la barra de navegación del Header.
+   - **Feed Dual en 2 Columnas (Lado a Lado)**:
+     - **Facebook Oficial**: Widget interactivo que proyecta el muro y las publicaciones en vivo de la Cámara (`camarahelenoargentina`).
+     - **Instagram Oficial**: Feed visual de publicaciones de `@camarahelenoargentina` con botón directo para seguir la cuenta.
+   - Diseño optimizado y 100% responsivo para computadoras y teléfonos móviles.
+
+2. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
    - Módulo independiente para artículos de análisis, notas de opinión y publicaciones técnicas de la Cámara.
    - Administrable por roles **`admin`** y **`secretario`**: autor con cargo, tiempo de lectura, etiquetas (tags), categorías, estados (`published`, `draft`, `archived`) y destacado.
    - Vista pública para visitantes con catálogo filtrable por temática, buscador en vivo y lectura completa con artículos recomendados.
 
-2. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
+3. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
    - Registro visual y memoria fotográfica de encuentros, misiones comerciales, foros empresariales y visitas diplomáticas.
    - Administrable por roles **`admin`** y **`secretario`**: creación de álbumes/grupos con título, descripción, fecha, categoría y subida de fotos por lotes.
    - Vista pública interactiva con selector de visualización (*Por Álbumes / Eventos* vs *Mosaico Dinámico continuo*) y visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y botón de descarga.
 
-3. **🖼️ Gestión Dinámica de Portadas / Banners del Home (`/admin/configuracion`)**:
-   - Gestor visual para crear, editar, ordenar y activar/desactivar slides de cabecera con imágenes en alta resolución.
-   - Selector dinámico de rutas del sistema (`/asociarse`, `/comercio-bilateral`, `/blogs`, `/galeria`, etc.) y soporte para enlaces externos.
+4. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
+   - Gestión en CMS (`/admin/configuracion`): soporte para LinkedIn, Instagram, Facebook, X (Twitter), YouTube y **TikTok** oficial.
+   - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con sección centralizada simétrica, botones glassmorphism con resplandor celeste egeo (`#00AEEF`) y renderizado condicional inteligente.
 
-4. **🏛️ Contenidos Institucionales 100% Administrables en CMS**:
+5. **✉️ Correos Institucionales con Mensaje Dinámico Prellenado (`mailto:`)**:
+   - Parámetros administrables en el CMS: asunto (`email_prefilled_subject`) y cuerpo de mensaje (`email_prefilled_body`) predefinidos (*"hola vengo de la web de cicha"*).
+   - Generación dinámica de enlaces `mailto:` enriquecidos en Footer y Contacto.
+   - Cabecera del Header despejada y optimizada.
+
+6. **🏛️ Inicio Renovado con Alta Estética e Identidad Institucional**:
+   - **Título Institucional**: `"CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA"` en azul diplomático sobre las portadas, con animación expansiva de entrada desde el centro (`animate-zoom-center`).
+   - **Trayectoria & Representación**: Cifra histórica actualizada a **`+38`** años (1989), con **contadores animados cíclicos y elegantes** (`CounterDisplay`) en colores oficiales (blanco para países EEN, dorado para articulación público-privada, celeste y azul egeo).
+   - **Misión & Objeto Oficiales**: Formato en negrita destacando hitos clave (EUROCAMARA Mayo 2017, UCCEB 32 cámaras, EEN Unión Europea, reconocimientos 1989 y 1998), acompañados de tarjetas dedicadas de cristal para **MISIÓN** y **OBJETO**.
+
+7. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
+   - Requisito obligatorio de subida de logo/marca tanto para **Persona Jurídica (Empresa)** como para **Persona Física (Emprendimiento personal / Marca profesional)**, validado en frontend y backend (`PublicController.php`).
+
+8. **🖼️ Gestión Dinámica de Portadas / Banners del Home (`/admin/configuracion`)**:
+   - Gestor visual para crear, editar, ordenar y activar/desactivar slides de cabecera con imágenes en alta resolución.
+   - Selector dinámico de rutas del sistema (`/asociarse`, `/comercio-bilateral`, `/blogs`, `/galeria`, `/redes-sociales`, etc.) y soporte para enlaces externos.
+
+9. **🏛️ Contenidos Institucionales 100% Administrables en CMS**:
    - Misión, Objeto estatutario, las 12 Actividades Estatutarias Reglamentarias, los 5 pilares de Comercio Exterior & EEN y los 14 Beneficios de Socios.
    - Edición en tiempo real desde el CMS de la **Sede Central** (*Julián Alvarez 1030*), **Teléfono Oficial** (*(+54 9 11) 6757.3851*) y **Correos Oficiales** (*camarahelenoargentina@gmail.com* e *info@camarahelenoargentina.org*).
 
-5. **⚡ Endpoint de Auto-Migración de Base de Datos con 1 Clic**:
-   - Endpoint HTTP seguro (`GET /api/admin/migrate?secret=...`) diseñado para hosting cPanel sin acceso a consola SSH ni terminal.
+10. **⚡ Endpoint de Auto-Migración de Base de Datos con 1 Clic**:
+    - Endpoint HTTP seguro (`GET /api/admin/migrate?secret=...`) diseñado para hosting cPanel sin acceso a consola SSH ni terminal.
 
-6. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
-   - Traducción automática e instantánea del 100% de la web (incluyendo datos dinámicos provenientes de MySQL).
-   - Selector visual con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
-   - Integrado en **Portal Público**, **Intranet de Socios** y **Panel CMS**.
+11. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
+    - Traducción automática e instantánea del 100% de la web (incluyendo datos dinámicos provenientes de MySQL).
+    - Selector visual con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
+    - Integrado en **Portal Público**, **Intranet de Socios** y **Panel CMS**.
 
-7. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
-   - Matriz de permisos con 4 roles: `admin` (superusuario), `secretario` (gestor de contenidos y publicaciones), `socio` (intranet privada) y `visitante` (público general).
-   - Filtro de autorización en backend (`RoleFilter.php`) con protección HTTP `401 Unauthorized` y `403 Forbidden`.
+12. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
+    - Matriz de permisos con 4 roles: `admin` (superusuario), `secretario` (gestor de contenidos y publicaciones), `socio` (intranet privada) y `visitante` (público general).
+    - Filtro de autorización en backend (`RoleFilter.php`) con protección HTTP `401 Unauthorized` y `403 Forbidden`.
 
-8. **🏛️ Portal Exclusivo de Socios (`/portal-socios`)**:
-   - Intranet privada para empresas socias de CICHA con biblioteca de informes de mercado bilateral, guías arancelarias y legales UE-Argentina, oportunidades comerciales VIP con datos de contacto directo de contrapartes, club de beneficios y directorio B2B.
+13. **🏛️ Portal Exclusivo de Socios (`/portal-socios`)**:
+    - Intranet privada para empresas socias de CICHA con biblioteca de informes de mercado bilateral, guías arancelarias y legales UE-Argentina, oportunidades comerciales VIP con datos de contacto directo de contrapartes, club de beneficios y directorio B2B.
 
 ---
 
@@ -58,7 +82,7 @@ cicha/
 │   ├── README.md            # Documentación técnica completa de la API
 │   └── ...
 ├── frontend/                # Aplicación SPA en React 19 + Vite 8 + TypeScript + Tailwind CSS v4
-│   ├── src/                 # Componentes, Páginas públicas (11), Intranet de socios (5) y CMS (14)
+│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (14)
 │   ├── README.md            # Documentación técnica del Frontend
 │   └── ...
 └── README.md                # Guía general de inicio rápido del proyecto

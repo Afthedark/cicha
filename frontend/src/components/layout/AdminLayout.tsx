@@ -71,7 +71,13 @@ export const AdminLayout: React.FC = () => {
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Bandeja de Entrada',
+      name: 'Solicitudes de Ingreso',
+      path: '/admin/solicitudes',
+      icon: FileText,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Bandeja de Contacto',
       path: '/admin/mensajes',
       icon: Inbox,
       roles: ['admin', 'secretario'],
