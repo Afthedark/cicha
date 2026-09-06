@@ -29,8 +29,8 @@ class InstitutionalController extends ResourceController
         $model = new InstitutionalSectionModel();
         if (!$model->find($id)) return $this->failNotFound('Sección no encontrada');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: ($this->request->getRawInput() ?: $this->request->getVar());
+        if (empty($input)) $input = [];
 
         $data = [];
         if (isset($input['title'])) $data['title'] = $input['title'];
@@ -41,7 +41,9 @@ class InstitutionalController extends ResourceController
         if (isset($input['order_num'])) $data['order_num'] = (int) $input['order_num'];
         if (isset($input['is_active'])) $data['is_active'] = $input['is_active'] ? 1 : 0;
 
-        $model->update($id, $data);
+        if (!empty($data)) {
+            $model->update($id, $data);
+        }
         return $this->respond(['status' => 200, 'message' => 'Sección actualizada con éxito']);
     }
 }

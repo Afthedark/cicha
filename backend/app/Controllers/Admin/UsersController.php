@@ -12,7 +12,19 @@ class UsersController extends ResourceController
     public function index()
     {
         $userModel = new UserModel();
+        $roleParam = $this->request->getGet('role');
+
         $users = $userModel->getUsersWithMember();
+
+        if ($roleParam === 'staff') {
+            $users = array_values(array_filter($users, fn($u) => in_array($u['role'], ['admin', 'secretario'])));
+        } elseif ($roleParam === 'socio') {
+            $users = array_values(array_filter($users, fn($u) => $u['role'] === 'socio'));
+        } elseif (!empty($roleParam)) {
+            $roles = explode(',', $roleParam);
+            $users = array_values(array_filter($users, fn($u) => in_array($u['role'], $roles)));
+        }
+
         return $this->respond(['status' => 200, 'data' => $users]);
     }
 
@@ -27,6 +39,7 @@ class UsersController extends ResourceController
 
     public function create()
     {
+        $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         $input = $this->request->getJSON(true) ?: $this->request->getVar();
 
         $rules = [
@@ -38,6 +51,11 @@ class UsersController extends ResourceController
 
         if (!$this->validate($rules)) {
             return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Secretarios solo pueden dar de alta cuentas con rol socio
+        if ($currentUser && $currentUser->role === 'secretario' && $input['role'] !== 'socio') {
+            return $this->failForbidden('Los secretarios solo tienen permisos para registrar cuentas de socios.');
         }
 
         $data = [
@@ -58,11 +76,19 @@ class UsersController extends ResourceController
 
     public function update($id = null)
     {
+        $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) return $this->failNotFound('Usuario no encontrado');
 
         $input = $this->request->getJSON(true) ?: ($this->request->getRawInput() ?: $this->request->getVar());
+
+        // Secretarios solo pueden gestionar usuarios socios
+        if ($currentUser && $currentUser->role === 'secretario') {
+            if ($user['role'] !== 'socio' || (isset($input['role']) && $input['role'] !== 'socio')) {
+                return $this->failForbidden('Los secretarios solo tienen permisos para gestionar cuentas de socios.');
+            }
+        }
 
         $data = [];
         if (!empty($input['name'])) $data['name'] = $input['name'];
@@ -83,11 +109,18 @@ class UsersController extends ResourceController
 
     public function delete($id = null)
     {
+        $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         $userModel = new UserModel();
-        if (!$userModel->find($id)) return $this->failNotFound('Usuario no encontrado');
+        $target = $userModel->find($id);
+        if (!$target) return $this->failNotFound('Usuario no encontrado');
         if ((int) $id === 1) {
             return $this->fail('No es posible eliminar al Administrador principal del sistema.');
         }
+
+        if ($currentUser && $currentUser->role === 'secretario' && $target['role'] !== 'socio') {
+            return $this->failForbidden('Los secretarios solo tienen permisos para eliminar cuentas de socios.');
+        }
+
         $userModel->delete($id);
         return $this->respondDeleted(['status' => 200, 'message' => 'Usuario eliminado con éxito']);
     }

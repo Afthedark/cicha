@@ -81,12 +81,6 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/comercio-bilateral" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
-                  Comercio Bilateral & Red EEN
-                </Link>
-              </li>
-              <li>
                 <Link to="/socios" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
                   <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Directorio de Empresas Socias

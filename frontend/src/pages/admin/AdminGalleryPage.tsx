@@ -18,7 +18,7 @@ import type { PhotoAlbum, GalleryPhoto } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
-import { ImageUploader } from '../../components/common/ImageUploader';
+import { ImageUploader, MultiImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminGalleryPage: React.FC = () => {
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
@@ -432,52 +432,110 @@ export const AdminGalleryPage: React.FC = () => {
             />
           </div>
 
-          {/* Batch Photo Uploader */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-              <h4 className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Camera className="w-4 h-4 text-blue-600" />
-                Fotografías del Álbum ({albumForm.photos.length})
-              </h4>
-              <span className="text-[11px] text-slate-500">Suba imágenes para este grupo</span>
+          {/* Batch Photo Uploader Multi-File (Soporta 1 hasta 300+ fotos) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-blue-600" />
+                  Fotografías del Álbum ({albumForm.photos.length} fotos)
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Arrastre 1 o cientos de fotos simultáneamente para subirlas en lote al álbum.
+                </p>
+              </div>
+
+              {albumForm.photos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('¿Desea quitar todas las fotografías agregadas a este álbum?')) {
+                      setAlbumForm((prev) => ({ ...prev, photos: [] }));
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-rose-600 hover:bg-rose-100/70 text-[11px] font-bold flex items-center gap-1 transition-colors self-start sm:self-auto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Limpiar todas ({albumForm.photos.length})</span>
+                </button>
+              )}
             </div>
 
-            {/* Upload One More Photo to Batch */}
-            <div className="space-y-3">
-              <ImageUploader
-                label="Agregar Fotografía al Álbum"
-                value={newPhotoUrl}
-                onChange={(url) => {
-                  setNewPhotoUrl(url);
-                  handleAddPhotoToBatch(url);
-                }}
-                helperText="Seleccione o arrastre una imagen para agregarla directamente a la lista."
-                previewHeight="h-24"
-                aspectRatio="video"
-              />
-            </div>
+            {/* Dropzone Múltiple con Cola Concurrente */}
+            <MultiImageUploader
+              onImagesUploaded={(newUrls) => {
+                setAlbumForm((prev) => {
+                  const currentPhotos = [...prev.photos];
+                  const newPhotoObjects = newUrls.map((url) => ({
+                    image_url: url,
+                    caption: '',
+                  }));
+                  return {
+                    ...prev,
+                    cover_image_url: prev.cover_image_url || newUrls[0] || '',
+                    photos: [...currentPhotos, ...newPhotoObjects],
+                  };
+                });
+              }}
+              helperText="Arrastra aquí 1 o múltiples fotos simultáneamente (soporta hasta 300+ imágenes en JPG, PNG, WEBP)."
+            />
 
-            {/* List of current photos in album */}
+            {/* Cuadrícula de fotos cargadas con acciones */}
             {albumForm.photos.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                {albumForm.photos.map((p, idx) => (
-                  <div key={idx} className="relative rounded-xl overflow-hidden border border-slate-200 bg-white group h-24 shadow-sm">
-                    <img src={p.image_url} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePhotoFromBatch(idx)}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-90 hover:opacity-100 shadow-md transition-opacity"
-                      title="Quitar foto"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    {albumForm.cover_image_url === p.image_url && (
-                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-blue-600 text-white text-[9px] font-bold">
-                        Portada
-                      </span>
-                    )}
-                  </div>
-                ))}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-500">
+                  <span>Fotos en este álbum ({albumForm.photos.length})</span>
+                  <span>Haz clic en la estrella para definir portada</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-72 overflow-y-auto p-1 bg-white rounded-xl border border-slate-200 shadow-inner">
+                  {albumForm.photos.map((p, idx) => {
+                    const isCover = albumForm.cover_image_url === p.image_url;
+                    return (
+                      <div
+                        key={idx}
+                        className={`relative rounded-xl overflow-hidden border group h-24 bg-slate-100 shadow-xs transition-all ${
+                          isCover ? 'ring-2 ring-blue-600 border-blue-600' : 'border-slate-200'
+                        }`}
+                      >
+                        <img
+                          src={p.image_url}
+                          alt={`Foto ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+
+                        {/* Botón Eliminar Foto */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhotoFromBatch(idx)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-rose-700 shadow-md transition-opacity"
+                          title="Quitar foto del álbum"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Botón Establecer como Portada */}
+                        <button
+                          type="button"
+                          onClick={() => setAlbumForm((prev) => ({ ...prev, cover_image_url: p.image_url }))}
+                          className={`absolute bottom-1 left-1 px-2 py-0.5 rounded text-[9px] font-bold shadow-xs transition-all flex items-center gap-1 ${
+                            isCover
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-900/80 text-white opacity-0 group-hover:opacity-100 hover:bg-blue-600'
+                          }`}
+                          title="Definir como foto de portada"
+                        >
+                          {isCover ? '★ Portada' : 'Hacer Portada'}
+                        </button>
+
+                        <span className="absolute top-1 left-1 px-1.5 py-0.2 rounded bg-slate-900/60 text-white text-[8px] font-mono select-none">
+                          #{idx + 1}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

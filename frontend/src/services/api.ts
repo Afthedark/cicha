@@ -19,11 +19,27 @@ import type {
   Blog,
   PhotoAlbum,
   GalleryPhoto,
+  Category,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
 const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
 //const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+
+/**
+ * Resuelve URLs de imágenes ya sean absolutas (http/https), rutas relativas de uploads (/uploads/...) o blobs locales.
+ */
+export const resolveImageUrl = (url?: string | null): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    // Si viene con localhost:8080 pero el backend corre en 127.0.0.1:8080 (o viceversa), se puede normalizar o usar directamente
+    return url;
+  }
+  // Base del servidor backend sin /index.php/api
+  const serverBase = API_BASE_URL.replace(/\/index\.php\/api\/?$/, '');
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${serverBase}${cleanPath}`;
+};
 
 
 export const apiClient = axios.create({
@@ -158,17 +174,24 @@ export const partnerApi = {
       .post<{ status: number; url: string; title: string; message: string }>(`/partner/resources/${id}/download`)
       .then((res) => res.data),
 
-  getOpportunities: (type?: string) =>
+  getOpportunities: (type?: string, sector?: string) =>
     apiClient
-      .get<{ status: number; data: CommercialOpportunity[] }>('/partner/opportunities', { params: { type } })
+      .get<{ status: number; data: CommercialOpportunity[] }>('/partner/opportunities', { params: { type, sector } })
       .then((res) => res.data.data),
 
-  getBenefits: () =>
-    apiClient.get<{ status: number; data: PartnerBenefit[] }>('/partner/benefits').then((res) => res.data.data),
+  getBenefits: (category?: string) =>
+    apiClient
+      .get<{ status: number; data: PartnerBenefit[] }>('/partner/benefits', { params: { category } })
+      .then((res) => res.data.data),
 
   getDirectory: (search?: string, sector?: string) =>
     apiClient
       .get<{ status: number; data: Member[] }>('/partner/directory', { params: { q: search, sector } })
+      .then((res) => res.data.data),
+
+  getCategories: (type?: string) =>
+    apiClient
+      .get<{ status: number; data: Category[] }>('/partner/categories', { params: { type } })
       .then((res) => res.data.data),
 };
 
@@ -204,8 +227,19 @@ export const adminApi = {
       }>('/admin/dashboard')
       .then((res) => res.data.data),
 
-  // Users (Admin only)
-  getUsers: () => apiClient.get<{ status: number; data: User[] }>('/admin/users').then((res) => res.data.data),
+  // Categories / Rubros
+  getCategories: (type?: string) =>
+    apiClient.get<{ status: number; data: Category[] }>('/admin/categories', { params: { type } }).then((res) => res.data.data),
+  createCategory: (data: Partial<Category>) =>
+    apiClient.post('/admin/categories', data).then((res) => res.data),
+  updateCategory: (id: number, data: Partial<Category>) =>
+    apiClient.put(`/admin/categories/${id}`, data).then((res) => res.data),
+  deleteCategory: (id: number) =>
+    apiClient.delete(`/admin/categories/${id}`).then((res) => res.data),
+
+  // Users
+  getUsers: (role?: string) =>
+    apiClient.get<{ status: number; data: User[] }>('/admin/users', { params: { role } }).then((res) => res.data.data),
   createUser: (data: Partial<User> & { password?: string }) => apiClient.post('/admin/users', data).then((res) => res.data),
   updateUser: (id: number | string, data: Partial<User> & { password?: string }) =>
     apiClient.put(`/admin/users/${id}`, data).then((res) => res.data),
@@ -252,7 +286,10 @@ export const adminApi = {
   deleteEvent: (id: number) => apiClient.delete(`/admin/events/${id}`).then((res) => res.data),
 
   // Members (Admin & Secretario)
-  getMembers: () => apiClient.get<{ status: number; data: Member[] }>('/admin/members').then((res) => res.data.data),
+  getMembers: (search?: string) =>
+    apiClient
+      .get<{ status: number; data: Member[] }>('/admin/members', { params: search ? { search } : undefined })
+      .then((res) => res.data.data),
   getMember: (id: number) => apiClient.get<{ status: number; data: Member }>(`/admin/members/${id}`).then((res) => res.data.data),
   createMember: (data: Partial<Member>) => apiClient.post('/admin/members', data).then((res) => res.data),
   updateMember: (id: number, data: Partial<Member>) => apiClient.put(`/admin/members/${id}`, data).then((res) => res.data),
@@ -330,7 +367,7 @@ export const adminApi = {
     const formData = new FormData();
     formData.append('file', file);
     return apiClient
-      .post<{ status: number; url: string; message: string }>('/admin/upload', formData, {
+      .post<{ status: number; url: string; message: string; filename?: string; file_type?: string; file_size?: string }>('/admin/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((res) => res.data);

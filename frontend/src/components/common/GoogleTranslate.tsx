@@ -167,7 +167,7 @@ export const GoogleTranslate: React.FC<{
   const getButtonStyles = () => {
     switch (variant) {
       case 'light':
-        return 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200';
+        return 'bg-white hover:bg-slate-50 text-slate-700 hover:text-[#004b87] border border-slate-200/90 shadow-2xs hover:border-slate-300';
       case 'compact':
         return 'bg-white/10 hover:bg-white/20 text-white border border-white/20';
       case 'diplomatic':
@@ -184,11 +184,11 @@ export const GoogleTranslate: React.FC<{
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${getButtonStyles()}`}
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${getButtonStyles()}`}
         aria-label="Seleccionar idioma / Select language / Επιλέξτε γλώσσα"
         title="Cambiar idioma del portal"
       >
-        {selectedLanguage.flag}
+        <Globe className="w-3.5 h-3.5 opacity-80" />
         <span className="tracking-wide uppercase text-[11px] font-bold">
           {selectedLanguage.code}
         </span>

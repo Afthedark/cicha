@@ -17,36 +17,39 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Micro-animaciones:
     - `@keyframes zoomFromCenter`: animación expansiva del título principal institucional desde el centro.
     - Contadores dinámicos cíclicos (`CounterDisplay`) con curva cúbica suave (`easeOut`) e intervalos periódicos.
-    - Efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS (iPhone / iPad).
+    - Efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS.
+- **👥 Gestión Especializada de Usuarios y Socios**:
+  - **Staff & Administradores (`AdminUsersPage.tsx`)**: Exclusivo para administradores para dar de alta roles `admin` y `secretario`.
+  - **Cuentas de Socios (`AdminPartnerUsersPage.tsx`)**: Gestionable por administradores y secretarios para dar de alta accesos al Portal de Socios de forma directa y limpia.
+  - **Mostrar / Ocultar Contraseña**: Toggle interactivo con iconos `Eye` / `EyeOff` en los inputs de clave.
+  - **Copiar Credenciales Inteligente**: Botón que detecta automáticamente `window.location.origin + '/admin/login'` y copia al portapapeles el usuario, contraseña y enlace con feedback visual.
+- **✉️ Asunto Predeterminado Administrable ("Correos Socios")**:
+  - Bloque administrable en Ajustes Generales (`AdminSettingsPage.tsx`): `member_email_subject` y `member_email_body`.
+  - Configurado por defecto con `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
+  - Aplicado automáticamente en los enlaces de correo de **Socios Web Pública (`MembersDirectoryPage.tsx`)** y **Directorio B2B Privado (`PartnerDirectoryPage.tsx`)**.
+- **📚 Biblioteca de Socios con Subida Dual (PDF y URL)**:
+  - Soporte de subida de archivos físicos PDF o enlaces directos a normativas y guías en `AdminPartnerResourcesPage.tsx`.
+- **🏷️ Categorías Dinámicas en Portal de Socios**:
+  - Filtros sincronizados en tiempo real en todos los módulos de la intranet de socios consumiendo la taxonomía del CMS.
 - **📱 Módulo "Post Redes Sociales" (`/redes-sociales`)**:
-  - Feed dual en 2 columnas en paralelo (lado a lado):
-    - **Facebook Oficial**: Widget embebido de la página oficial de CICHA con publicaciones en tiempo real.
-    - **Instagram Oficial**: Feed interactivo de publicaciones de `@camarahelenoargentina` con botón directo para seguir la cuenta.
+  - Feed dual en 2 columnas en paralelo (lado a lado) con widgets en vivo de Facebook e Instagram.
 - **📰 Módulo de Blogs**:
   - Catálogo de artículos con filtros por categoría y buscador en tiempo real.
   - Vista de lectura completa con tiempo estimado de lectura, etiquetas y publicaciones relacionadas.
 - **📷 Módulo de Galería de Fotos Inteligente**:
   - Selector de vistas (*Por Álbumes* vs *Mosaico Dinámico continuo*).
-  - Visor **Lightbox a Pantalla Completa** con navegación interactiva por teclado (`←`, `→`, `Esc`), tira de miniaturas inferior y botón de descarga en alta resolución.
+  - Visor **Lightbox a Pantalla Completa** con navegación interactiva por teclado (`←`, `→`, `Esc`), tira de miniaturas inferior y botón de descarga.
 - **🌐 Ecosistema de Redes Sociales en Footer**:
   - Botones estilizados con efecto glassmorphism, resplandor celeste egeo (`#00AEEF`) e íconos interactivos: LinkedIn, Instagram, Facebook, X (Twitter), YouTube y TikTok.
-  - Bloque centralizado simétrico para pantallas de escritorio y dispositivos móviles.
 - **🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`)**:
-  - Traducción automática e instantánea del 100% del portal (incluyendo datos dinámicos provenientes de MySQL).
-  - Selector desplegable con banderas vectoriales SVG nítidas:
-    - 🇦🇷 **Español (Argentina)**: Idioma base nativo.
-    - 🇬🇷 **Ελληνικά (Grecia)**: Traducción para el ecosistema helénico.
-    - 🇬🇧 **English (Reino Unido / Internacional)**: Traducción para comercio exterior.
-  - Integrado en **Portal Público**, **Intranet de Socios** y **CMS**.
+  - Traducción automática e instantánea del 100% del portal con banderas vectoriales SVG (Español, Griego e Inglés).
 - **Iconografía**: `lucide-react`.
-- **Cliente HTTP**: `axios` con soporte dual de cabeceras de autorización (`Authorization` y `X-Authorization`) para compatibilidad con servidores cPanel FastCGI.
+- **Cliente HTTP**: `axios` con soporte dual de cabeceras de autorización (`Authorization` y `X-Authorization`).
 - **Enrutamiento**: `react-router-dom` con protección granular por roles (`RoleRoute`).
 
 ---
 
 ## 🏛️ Estructura de Módulos y Portales
-
-La aplicación se compone de 3 áreas principales:
 
 ```
 frontend/src/
@@ -66,44 +69,45 @@ frontend/src/
 │   └── AuthContext.tsx      # Gestión de autenticación, JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 ├── pages/
 │   ├── public/              # 12 Vistas del Portal Público (Visitante)
-│   │   ├── HomePage.tsx                           # 👈 Inicio con contadores cíclicos y Misión/Objeto
+│   │   ├── HomePage.tsx                           # Inicio con contadores cíclicos y Misión/Objeto
 │   │   ├── InstitutionalPage.tsx
 │   │   ├── TradeBilateralPage.tsx
 │   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
-│   │   ├── BlogsPage.tsx & BlogDetailPage.tsx     # 👈 Módulo de Blogs
-│   │   ├── GalleryPage.tsx                        # 👈 Módulo de Galería
-│   │   ├── SocialFeedPage.tsx                     # 👈 Feed Dual Facebook & Instagram
+│   │   ├── BlogsPage.tsx & BlogDetailPage.tsx
+│   │   ├── GalleryPage.tsx
+│   │   ├── SocialFeedPage.tsx                     # Feed Dual Facebook & Instagram
 │   │   ├── EventsPage.tsx
-│   │   ├── MembersDirectoryPage.tsx
-│   │   ├── MembershipApplyPage.tsx                # 👈 Solicitud con logo obligatorio
-│   │   └── ContactPage.tsx                        # 👈 Contacto con mailto dinámico
+│   │   ├── MembersDirectoryPage.tsx               # Directorio con Correos Socios dinámico
+│   │   ├── MembershipApplyPage.tsx                # Solicitud con logo obligatorio
+│   │   └── ContactPage.tsx
 │   ├── partner/             # 5 Vistas del Portal Exclusivo de Socios
 │   │   ├── PartnerDashboardPage.tsx
-│   │   ├── PartnerResourcesPage.tsx
-│   │   ├── PartnerOpportunitiesPage.tsx
-│   │   ├── PartnerBenefitsPage.tsx
-│   │   └── PartnerDirectoryPage.tsx
-│   └── admin/               # 14 Vistas del CMS Administrativo
+│   │   ├── PartnerResourcesPage.tsx               # Descargas de informes PDF y URLs
+│   │   ├── PartnerOpportunitiesPage.tsx           # Oportunidades VIP con categorías dinámicas
+│   │   ├── PartnerBenefitsPage.tsx                # Club de Beneficios
+│   │   └── PartnerDirectoryPage.tsx               # Directorio B2B con Correos Socios dinámico
+│   └── admin/               # 15 Vistas del CMS Administrativo
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
 │       ├── AdminArticlesPage.tsx
-│       ├── AdminBlogsPage.tsx                     # 👈 Gestión de Blogs
-│       ├── AdminGalleryPage.tsx                   # 👈 Gestión de Galería
+│       ├── AdminBlogsPage.tsx
+│       ├── AdminGalleryPage.tsx
 │       ├── AdminEventsPage.tsx
-│       ├── AdminMembersPage.tsx
+│       ├── AdminMembersPage.tsx                   # Búsqueda en backend optimizada
 │       ├── AdminOpportunitiesPage.tsx
-│       ├── AdminPartnerResourcesPage.tsx
-│       ├── AdminUsersPage.tsx
+│       ├── AdminPartnerResourcesPage.tsx          # Subida dual de PDF / URL
+│       ├── AdminUsersPage.tsx                     # Staff & Administradores (Exclusivo Admin)
+│       ├── AdminPartnerUsersPage.tsx              # Cuentas de Socios (Admin & Secretario)
 │       ├── AdminAuthoritiesPage.tsx
 │       ├── AdminInstitutionalPage.tsx
 │       ├── AdminAlliancesPage.tsx
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       └── AdminSettingsPage.tsx (Redes con TikTok, Asuntos/Cuerpo de Correo, Portadas y Sede)
+│       └── AdminSettingsPage.tsx                  # Correos Socios, Portadas, Redes y Sede
 ├── services/
-│   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi
+│   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi (con búsqueda backend)
 └── types/
-    └── index.ts             # Modelos e interfaces TypeScript (Blog, PhotoAlbum, Settings con TikTok, etc.)
+    └── index.ts             # Modelos e interfaces TypeScript (Settings, User, Member, etc.)
 ```
 
 ---
@@ -149,11 +153,9 @@ npm run preview
 
 En la pantalla de login ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)), se dispone de botones de acceso rápido para probar los 3 perfiles:
 
-1. **Administrador (`admin@cicha.com.ar` / `admin123`)**:
-   - Acceso total a todos los módulos: Gestión de Usuarios, Roles, Configuración General, Portadas / Banners, Misión & Estatutos, Blogs, Galería, Noticias, Eventos, Socios y Solicitudes.
-2. **Secretaría (`secretaria@cicha.com.ar` / `sec123`)**:
-   - Acceso operativo completo a Blogs, Galería de Fotos, Noticias, Agenda de Eventos, Oportunidades Comerciales, Directorio de Socios, Recursos de Socios y Bandejas de Mensajes y Afiliaciones.
-   - *Oculta y restringe módulos críticos exclusivos como Gestión de Usuarios.*
-3. **Empresa Socia (`socio@cicha.com.ar` / `socio123`)**:
-   - Redirección automática a la intranet privada (`/portal-socios`).
-   - Acceso a descargas de informes sectoriales, oportunidades comerciales VIP con datos de contacto directo de contrapartes, club de convenios y directorio B2B para networking.
+| Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
+| :--- | :--- | :--- | :--- | :--- |
+| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Staff & Administradores, Cuentas de Socios, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
+| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Cuentas de Socios, Blogs, Galería, Noticias, Eventos, Oportunidades, Socios, Recursos de Socios y Ajustes. |
+| **Empresa Socia** | `socio@cicha.com.ar` | `socio123` | Portal Exclusivo de Socios (`/portal-socios`) | Intranet: Informes de mercado, Oportunidades VIP, Club de beneficios y Directorio B2B. |
+| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda, noticias, directorio y formularios. |

@@ -53,6 +53,7 @@ $routes->group('api', static function ($routes) {
         $routes->get('opportunities', 'PartnerController::getOpportunities');
         $routes->get('benefits', 'PartnerController::getBenefits');
         $routes->get('directory', 'PartnerController::getDirectory');
+        $routes->get('categories', 'PartnerController::getCategories');
     });
 
     // Database Auto-Migration (Secured via secret key parameter)
@@ -79,8 +80,9 @@ $routes->group('api', static function ($routes) {
         // Events
         $routes->resource('events', ['controller' => 'Admin\EventsController']);
 
-        // Members
+        // Members & Categories/Sectors
         $routes->resource('members', ['controller' => 'Admin\MembersController']);
+        $routes->resource('categories', ['controller' => 'Admin\CategoriesController']);
 
         // Commercial Opportunities
         $routes->resource('opportunities', ['controller' => 'Admin\OpportunitiesController']);
@@ -118,11 +120,8 @@ $routes->group('api', static function ($routes) {
 
         // Uploads
         $routes->post('upload', 'Admin\UploadController::uploadImage');
-    });
 
-    // Admin-Only System Management (Role: admin only - Strict User Management)
-    $routes->group('admin', ['filter' => ['jwt', 'role:admin']], static function ($routes) {
-        // User & Role Management (Strict Admin only)
+        // Users Management (Role permissions enforced internally in UsersController)
         $routes->resource('users', ['controller' => 'Admin\UsersController']);
     });
 });

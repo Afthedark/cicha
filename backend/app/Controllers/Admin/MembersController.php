@@ -12,6 +12,17 @@ class MembersController extends ResourceController
     public function index()
     {
         $memberModel = new MemberModel();
+        $search = trim((string)$this->request->getGet('search') ?: (string)$this->request->getGet('q'));
+
+        if (!empty($search)) {
+            $memberModel->groupStart()
+                ->like('company_name', $search)
+                ->orLike('sector', $search)
+                ->orLike('representative_name', $search)
+                ->orLike('country', $search)
+                ->groupEnd();
+        }
+
         $members = $memberModel->orderBy('company_name', 'ASC')->findAll();
         return $this->respond(['status' => 200, 'data' => $members]);
     }
@@ -40,18 +51,19 @@ class MembersController extends ResourceController
         $slug = url_title($input['company_name'] ?? 'empresa', '-', true) . '-' . time();
 
         $data = [
-            'company_name'  => $input['company_name'] ?? '',
-            'slug'          => $slug,
-            'sector'        => $input['sector'] ?? '',
-            'description'   => $input['description'] ?? '',
-            'services'      => $input['services'] ?? '',
-            'logo_url'      => $input['logo_url'] ?? '',
-            'website_url'   => $input['website_url'] ?? '',
-            'contact_email' => $input['contact_email'] ?? '',
-            'contact_phone' => $input['contact_phone'] ?? '',
-            'country'       => $input['country'] ?? 'Argentina',
-            'is_featured'   => !empty($input['is_featured']) ? 1 : 0,
-            'status'        => $input['status'] ?? 'active',
+            'company_name'        => $input['company_name'] ?? '',
+            'representative_name' => $input['representative_name'] ?? '',
+            'slug'                => $slug,
+            'sector'              => $input['sector'] ?? '',
+            'description'         => $input['description'] ?? '',
+            'services'            => $input['services'] ?? '',
+            'logo_url'            => $input['logo_url'] ?? '',
+            'website_url'         => $input['website_url'] ?? '',
+            'contact_email'       => $input['contact_email'] ?? '',
+            'contact_phone'       => $input['contact_phone'] ?? '',
+            'country'             => $input['country'] ?? 'Argentina',
+            'is_featured'         => !empty($input['is_featured']) ? 1 : 0,
+            'status'              => $input['status'] ?? 'active',
         ];
 
         $memberModel = new MemberModel();
@@ -72,6 +84,7 @@ class MembersController extends ResourceController
             $data['company_name'] = $input['company_name'];
             $data['slug'] = url_title($input['company_name'], '-', true) . '-' . $id;
         }
+        if (isset($input['representative_name'])) $data['representative_name'] = $input['representative_name'];
         if (isset($input['sector'])) $data['sector'] = $input['sector'];
         if (isset($input['description'])) $data['description'] = $input['description'];
         if (isset($input['services'])) $data['services'] = $input['services'];

@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { FileDown, Download, FileText, Filter, Search, CheckCircle } from 'lucide-react';
-import { partnerApi } from '../../services/api';
-import type { PartnerResource } from '../../types';
+import { Download, FileText } from 'lucide-react';
+import { partnerApi, adminApi, resolveImageUrl } from '../../services/api';
+import type { PartnerResource, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 export const PartnerResourcesPage: React.FC = () => {
   const [resources, setResources] = useState<PartnerResource[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<string>('all');
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchResources();
-  }, [category]);
-
-  const fetchResources = () => {
-    setLoading(true);
     partnerApi
       .getResources(category)
       .then((res) => {
@@ -27,32 +23,37 @@ export const PartnerResourcesPage: React.FC = () => {
         console.error(err);
         setLoading(false);
       });
-  };
+  }, [category]);
+
+  useEffect(() => {
+    partnerApi
+      .getCategories('members')
+      .then((cats) => {
+        if (cats && cats.length > 0) {
+          setCategories(cats);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando categorías para recursos:', err);
+      });
+  }, []);
 
   const handleDownload = async (res: PartnerResource) => {
     setDownloadingId(res.id);
     try {
       const response = await partnerApi.downloadResource(res.id);
-      window.open(response.url, '_blank');
+      const targetUrl = resolveImageUrl(response.url || res.file_url);
+      window.open(targetUrl, '_blank');
       // Update local download count
       setResources((prev) =>
         prev.map((r) => (r.id === res.id ? { ...r, downloads: r.downloads + 1 } : r))
       );
     } catch (err) {
-      alert('Descarga iniciada: ' + res.title);
-      window.open(res.file_url, '_blank');
+      window.open(resolveImageUrl(res.file_url), '_blank');
     } finally {
       setDownloadingId(null);
     }
   };
-
-  const categories = [
-    { label: 'Todos los Documentos', value: 'all' },
-    { label: 'Informes de Mercado', value: 'informe_mercado' },
-    { label: 'Guías Legales & Tributarias', value: 'guia_legal' },
-    { label: 'Minutas de Asamblea & Eurocámara', value: 'minuta_asamblea' },
-    { label: 'Circulares Comerciales', value: 'circular_comercial' },
-  ];
 
   return (
     <div className="space-y-8">
@@ -71,17 +72,27 @@ export const PartnerResourcesPage: React.FC = () => {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+        <button
+          onClick={() => setCategory('all')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            category === 'all'
+              ? 'bg-cicha-navy text-white shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          Todos los Documentos
+        </button>
         {categories.map((cat) => (
           <button
-            key={cat.value}
-            onClick={() => setCategory(cat.value)}
+            key={cat.id}
+            onClick={() => setCategory(cat.name)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              category === cat.value
+              category === cat.name
                 ? 'bg-cicha-navy text-white shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
-            {cat.label}
+            {cat.name}
           </button>
         ))}
       </div>

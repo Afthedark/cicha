@@ -26,6 +26,8 @@ class OpportunitiesController extends ResourceController
 
     public function create()
     {
+        $input = $this->request->getJSON(true) ?: ($this->request->getRawInput() ?: $this->request->getVar());
+
         $rules = [
             'title'       => 'required|min_length[3]',
             'sector'      => 'required',
@@ -36,22 +38,22 @@ class OpportunitiesController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $title = $this->request->getVar('title');
+        $title = $input['title'] ?? $this->request->getVar('title');
         $slug = url_title($title, '-', true) . '-' . time();
 
         $data = [
             'title'          => $title,
             'slug'           => $slug,
-            'type'           => $this->request->getVar('type') ?: 'export',
-            'origin_country' => $this->request->getVar('origin_country') ?: 'Grecia',
-            'target_country' => $this->request->getVar('target_country') ?: 'Argentina',
-            'sector'         => $this->request->getVar('sector'),
-            'description'    => $this->request->getVar('description'),
-            'requirements'   => $this->request->getVar('requirements') ?: '',
-            'contact_person' => $this->request->getVar('contact_person') ?: '',
-            'contact_email'  => $this->request->getVar('contact_email') ?: '',
-            'status'         => $this->request->getVar('status') ?: 'open',
-            'deadline'       => $this->request->getVar('deadline') ?: null,
+            'type'           => $input['type'] ?? 'export',
+            'origin_country' => $input['origin_country'] ?? 'Grecia',
+            'target_country' => $input['target_country'] ?? 'Argentina',
+            'sector'         => $input['sector'] ?? '',
+            'description'    => $input['description'] ?? '',
+            'requirements'   => $input['requirements'] ?? '',
+            'contact_person' => $input['contact_person'] ?? '',
+            'contact_email'  => $input['contact_email'] ?? '',
+            'status'         => $input['status'] ?? 'open',
+            'deadline'       => !empty($input['deadline']) ? $input['deadline'] : null,
         ];
 
         $model = new CommercialOpportunityModel();
@@ -65,8 +67,10 @@ class OpportunitiesController extends ResourceController
         $model = new CommercialOpportunityModel();
         if (!$model->find($id)) return $this->failNotFound('Oportunidad no encontrada');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: ($this->request->getRawInput() ?: $this->request->getVar());
+        if (empty($input)) {
+            $input = [];
+        }
 
         $data = [];
         if (isset($input['title'])) {
@@ -82,9 +86,14 @@ class OpportunitiesController extends ResourceController
         if (isset($input['contact_person'])) $data['contact_person'] = $input['contact_person'];
         if (isset($input['contact_email'])) $data['contact_email'] = $input['contact_email'];
         if (isset($input['status'])) $data['status'] = $input['status'];
-        if (isset($input['deadline'])) $data['deadline'] = $input['deadline'] ?: null;
+        if (array_key_exists('deadline', $input)) {
+            $data['deadline'] = !empty($input['deadline']) ? $input['deadline'] : null;
+        }
 
-        $model->update($id, $data);
+        if (!empty($data)) {
+            $model->update($id, $data);
+        }
+
         return $this->respond(['status' => 200, 'message' => 'Oportunidad comercial actualizada']);
     }
 

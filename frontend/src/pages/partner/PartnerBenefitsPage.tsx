@@ -1,17 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Gift, CheckCircle, Tag, ExternalLink, ShieldCheck } from 'lucide-react';
-import { partnerApi } from '../../services/api';
-import type { PartnerBenefit } from '../../types';
+import { Gift, CheckCircle, Tag, ExternalLink, ShieldCheck, Filter } from 'lucide-react';
+import { partnerApi, adminApi } from '../../services/api';
+import type { PartnerBenefit, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 export const PartnerBenefitsPage: React.FC = () => {
   const [benefits, setBenefits] = useState<PartnerBenefit[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState<string>('all');
 
   useEffect(() => {
     partnerApi
-      .getBenefits()
+      .getCategories('members')
+      .then((cats) => {
+        if (cats && cats.length > 0) {
+          setCategories(cats);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando categorías para beneficios:', err);
+      });
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    partnerApi
+      .getBenefits(category)
       .then((res) => {
         setBenefits(res || []);
         setLoading(false);
@@ -20,7 +36,7 @@ export const PartnerBenefitsPage: React.FC = () => {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [category]);
 
   return (
     <div className="space-y-8">
@@ -35,6 +51,33 @@ export const PartnerBenefitsPage: React.FC = () => {
             Descuentos comerciales, bonificaciones en logística, asesoramiento legal y pases para foros EUROCAMARA.
           </p>
         </div>
+      </div>
+
+      {/* Dynamic Category Tabs */}
+      <div className="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+        <button
+          onClick={() => setCategory('all')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            category === 'all'
+              ? 'bg-cicha-navy text-white shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          Todos los Beneficios
+        </button>
+        {categories.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => setCategory(c.name)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              category === c.name
+                ? 'bg-cicha-navy text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            {c.name}
+          </button>
+        ))}
       </div>
 
       {/* Grid */}

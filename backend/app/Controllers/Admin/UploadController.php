@@ -16,19 +16,38 @@ class UploadController extends ResourceController
             return $this->fail('No se subió ningún archivo o el archivo no es válido.');
         }
 
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+        $allowedTypes = [
+            'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/zip',
+            'application/x-zip-compressed',
+            'text/plain',
+            'text/csv'
+        ];
         if (!in_array($file->getMimeType(), $allowedTypes)) {
-            return $this->fail('Tipo de archivo no permitido. Solo se aceptan imágenes JPEG, PNG, WEBP, GIF y SVG.');
+            return $this->fail('Tipo de archivo no permitido. Se aceptan imágenes (JPG, PNG, WEBP) y documentos (PDF, Word, Excel, PowerPoint, ZIP, CSV).');
         }
 
-        if ($file->getSizeByUnit('mb') > 10) {
-            return $this->fail('El archivo supera el tamaño máximo permitido (10MB).');
+        if ($file->getSizeByUnit('mb') > 30) {
+            return $this->fail('El archivo supera el tamaño máximo permitido (30MB).');
         }
 
         $uploadPath = FCPATH . 'uploads/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0777, true);
         }
+
+        $origExtension = strtoupper($file->getClientExtension() ?: 'PDF');
+        $sizeBytes = $file->getSize();
+        $formattedSize = $sizeBytes > 1048576 
+            ? round($sizeBytes / 1048576, 1) . ' MB' 
+            : round($sizeBytes / 1024, 1) . ' KB';
 
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);
@@ -37,10 +56,12 @@ class UploadController extends ResourceController
         $url = base_url('uploads/' . $newName);
 
         return $this->respond([
-            'status'  => 200,
-            'message' => 'Imagen subida exitosamente',
-            'url'     => $url,
-            'filename'=> $newName,
+            'status'     => 200,
+            'message'    => 'Archivo subido exitosamente',
+            'url'        => $url,
+            'filename'   => $newName,
+            'file_type'  => $origExtension,
+            'file_size'  => $formattedSize,
         ]);
     }
 }

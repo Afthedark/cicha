@@ -15,11 +15,11 @@
 
   /* CICHA Official Greek Aegean & Santorini Palette */
   --color-cicha-navy-deep: #0c1527;     /* Azul Profundo Noche Helénica */
-  --color-cicha-navy-dark: #0a3d70;     /* Azul Heleno */
-  --color-cicha-navy: #005eaf;          /* Cod. AP82-4 / Greek Aegean Blue para títulos y headers */
-  --color-cicha-navy-light: #0077d6;
+  --color-cicha-navy-dark: #003666;     /* Azul Heleno Oscuro */
+  --color-cicha-navy: #004b87;          /* Azul Institucional / Classic Aegean Blue */
+  --color-cicha-navy-light: #0060ad;
 
-  --color-cicha-aegean: #0066cc;        /* Cod. AP82-4: Azul Cúpula Santorini */
+  --color-cicha-aegean: #005eaf;        /* Cod. AP82-4: Azul Cúpula Santorini */
   --color-cicha-blue: #0066ff;          /* Cod. AP160-2: Azul Mar Jónico */
   --color-cicha-blue-hover: #0052cc;
   --color-cicha-blue-light: #eff6ff;
@@ -135,4 +135,106 @@
   will-change: transform, opacity;
 }
 
+@keyframes bannerZoomIn {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}
+
+.animate-banner-zoom-in {
+  animation: bannerZoomIn 7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  will-change: transform;
+}
+
+/* =========================================================
+   3D Cube Transitions & Interactive Depth (Galería 3D)
+   ========================================================= */
+.perspective-container {
+  perspective: 1400px;
+  perspective-origin: center center;
+}
+
+@keyframes cubeFlipNext {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(55deg) translateZ(120px) scale(0.85);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg) translateZ(0) scale(1);
+  }
+}
+
+@keyframes cubeFlipPrev {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-55deg) translateZ(120px) scale(0.85);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg) translateZ(0) scale(1);
+  }
+}
+
+.animate-cube-next {
+  animation: cubeFlipNext 0.75s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.animate-cube-prev {
+  animation: cubeFlipPrev 0.75s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Dynamic 3D Masonry Cube Card */
+.cube-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+}
+
+.cube-card-3d:hover {
+  transform: perspective(1000px) rotateX(4deg) rotateY(-3deg) translateZ(16px);
+  box-shadow: 0 20px 35px -10px rgba(0, 94, 175, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* Ken-Burns Breathing Zoom In & Out pulse */
+@keyframes zoomPulseKenBurns {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.085);
+  }
+  100% {
+    transform: scale(1.015);
+  }
+}
+
+.animate-zoom-pulse {
+  animation: zoomPulseKenBurns 4.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-zoom-pulse-slow {
+  animation: zoomPulseKenBurns 6.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-zoom-pulse-fast {
+  animation: zoomPulseKenBurns 2.2s ease-in-out infinite alternate;
+  will-change: transform;
+}
 

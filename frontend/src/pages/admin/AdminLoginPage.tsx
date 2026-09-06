@@ -95,7 +95,7 @@ export const AdminLoginPage: React.FC = () => {
                 email === 'socio@cicha.com.ar' ? 'bg-amber-500 text-slate-950' : 'bg-white/10 text-slate-300 hover:bg-white/15'
               }`}
             >
-              Socio Intranet
+              Socio
             </button>
           </div>
         </div>

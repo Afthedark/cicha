@@ -7,6 +7,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/public/HomePage';
 import { InstitutionalPage } from './pages/public/InstitutionalPage';
+import { PresentationPage } from './pages/public/PresentationPage';
 import { TradeBilateralPage } from './pages/public/TradeBilateralPage';
 import { ArticlesPage } from './pages/public/ArticlesPage';
 import { ArticleDetailPage } from './pages/public/ArticleDetailPage';
@@ -44,6 +45,7 @@ import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminPartnerUsersPage } from './pages/admin/AdminPartnerUsersPage';
 import { AdminPartnerResourcesPage } from './pages/admin/AdminPartnerResourcesPage';
 
 // Role-Based Route Wrapper
@@ -103,6 +105,14 @@ export function App() {
             }
           />
           <Route
+            path="/presentacion"
+            element={
+              <PublicLayout>
+                <PresentationPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/institucional"
             element={
               <PublicLayout>
@@ -112,11 +122,7 @@ export function App() {
           />
           <Route
             path="/comercio-bilateral"
-            element={
-              <PublicLayout>
-                <TradeBilateralPage />
-              </PublicLayout>
-            }
+            element={<Navigate to="/" replace />}
           />
           <Route
             path="/noticias"
@@ -270,6 +276,16 @@ export function App() {
               element={
                 <RoleRoute allowedRoles={['admin', 'secretario']}>
                   <AdminSettingsPage />
+                </RoleRoute>
+              }
+            />
+
+            {/* Partner Users Accounts (Roles: admin, secretario) */}
+            <Route
+              path="usuarios-socios"
+              element={
+                <RoleRoute allowedRoles={['admin', 'secretario']}>
+                  <AdminPartnerUsersPage />
                 </RoleRoute>
               }
             />

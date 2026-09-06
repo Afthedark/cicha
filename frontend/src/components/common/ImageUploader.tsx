@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Link as LinkIcon, Check, Loader2 } from 'lucide-react';
-import { adminApi } from '../../services/api';
+import { adminApi, resolveImageUrl } from '../../services/api';
 
 interface ImageUploaderProps {
   label: string;
@@ -124,7 +124,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200 group bg-slate-900/5">
           <div className={`w-full ${previewHeight} flex items-center justify-center overflow-hidden bg-slate-100`}>
             <img
-              src={value}
+              src={resolveImageUrl(value)}
               alt="Vista previa"
               className={`w-full h-full object-cover transition-transform group-hover:scale-105 ${
                 aspectRatio === 'square' ? 'max-w-xs mx-auto object-contain' : ''
@@ -223,3 +223,238 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     </div>
   );
 };
+
+interface MultiImageUploaderProps {
+  onImagesUploaded: (urls: string[]) => void;
+  helperText?: string;
+  maxFileSizeMb?: number;
+  concurrency?: number;
+}
+
+export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
+  onImagesUploaded,
+  helperText = 'Arrastra aquí 1 o múltiples fotos simultáneamente (soporta hasta 300+ fotos en JPG, PNG, WEBP).',
+  maxFileSizeMb = 10,
+  concurrency = 5,
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState({
+    total: 0,
+    current: 0,
+    success: 0,
+    failed: 0,
+  });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processBatchUpload = async (files: File[]) => {
+    if (!files || files.length === 0) return;
+
+    const validFiles: File[] = [];
+    const invalidNames: string[] = [];
+
+    files.forEach((file) => {
+      const isImg = file.type.startsWith('image/');
+      const isOkSize = file.size <= maxFileSizeMb * 1024 * 1024;
+      if (isImg && isOkSize) {
+        validFiles.push(file);
+      } else {
+        invalidNames.push(file.name);
+      }
+    });
+
+    if (invalidNames.length > 0) {
+      setErrorMessage(
+        `${invalidNames.length} archivo(s) omitidos por no ser imágenes válidas o superar ${maxFileSizeMb}MB.`
+      );
+    } else {
+      setErrorMessage(null);
+    }
+
+    if (validFiles.length === 0) return;
+
+    setIsUploading(true);
+    setProgress({
+      total: validFiles.length,
+      current: 0,
+      success: 0,
+      failed: 0,
+    });
+
+    const uploadedUrls: string[] = [];
+    let completedCount = 0;
+    let successCount = 0;
+    let failedCount = 0;
+
+    // Cola concurrente de subida por chunks
+    const queue = [...validFiles];
+
+    const worker = async () => {
+      while (queue.length > 0) {
+        const file = queue.shift();
+        if (!file) break;
+
+        try {
+          const res = await adminApi.uploadFile(file);
+          if (res && res.url) {
+            uploadedUrls.push(res.url);
+            successCount++;
+          } else {
+            failedCount++;
+          }
+        } catch (err) {
+          console.error(`Error subiendo ${file.name}:`, err);
+          failedCount++;
+        } finally {
+          completedCount++;
+          setProgress({
+            total: validFiles.length,
+            current: completedCount,
+            success: successCount,
+            failed: failedCount,
+          });
+        }
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(concurrency, validFiles.length) }, () => worker());
+    await Promise.all(workers);
+
+    setIsUploading(false);
+
+    if (uploadedUrls.length > 0) {
+      onImagesUploaded(uploadedUrls);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isUploading) return;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const filesArray = Array.from(e.dataTransfer.files);
+      processBatchUpload(filesArray);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!isUploading) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      processBatchUpload(filesArray);
+    }
+  };
+
+  const percentage = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
+
+  return (
+    <div className="space-y-3">
+      {/* Dropzone Area */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={() => {
+          if (!isUploading) fileInputRef.current?.click();
+        }}
+        className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+          isUploading
+            ? 'border-blue-400 bg-blue-50/60 cursor-not-allowed'
+            : isDragging
+            ? 'border-blue-600 bg-blue-100/60 scale-[1.01] shadow-md'
+            : 'border-slate-300 hover:border-blue-500 hover:bg-slate-50/80 bg-white'
+        }`}
+      >
+        {isUploading ? (
+          /* Estado de Progreso de Subida Masiva */
+          <div className="space-y-3 max-w-md mx-auto py-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-2 text-blue-700">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Subiendo {progress.current} de {progress.total} fotografías...
+              </span>
+              <span className="font-mono text-blue-800">{percentage}%</span>
+            </div>
+
+            {/* Barra de Progreso Fluida */}
+            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-blue-600 to-sky-400 h-full transition-all duration-300 ease-out rounded-full"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+              <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                <Check className="w-3.5 h-3.5" /> {progress.success} procesadas con éxito
+              </span>
+              {progress.failed > 0 && (
+                <span className="text-rose-600 font-semibold flex items-center gap-1">
+                  <X className="w-3.5 h-3.5" /> {progress.failed} fallidas
+                </span>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Estado Normal de Arrastre */
+          <div className="space-y-2 flex flex-col items-center">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs">
+              <Upload className="w-6 h-6" />
+            </div>
+
+            <div>
+              <p className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1.5">
+                <span>Arrastra 1 o múltiples fotos aquí, o</span>
+                <span className="text-blue-600 underline">haz clic para examinar</span>
+              </p>
+              <p className="text-[11px] text-slate-400 mt-1 max-w-md mx-auto">
+                {helperText}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Input Oculto de Selección Múltiple */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+          onChange={handleFileInputChange}
+          className="hidden"
+          disabled={isUploading}
+        />
+      </div>
+
+      {/* Alerta de Error si aplica */}
+      {errorMessage && (
+        <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between gap-2">
+          <span className="truncate">{errorMessage}</span>
+          <button
+            type="button"
+            onClick={() => setErrorMessage(null)}
+            className="text-amber-700 hover:text-amber-900 font-bold p-1"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+

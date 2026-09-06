@@ -8,7 +8,6 @@ import { Modal } from '../../components/common/Modal';
 
 export const AdminUsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -17,8 +16,7 @@ export const AdminUsersPage: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    role: 'secretario' as 'admin' | 'secretario' | 'socio',
-    member_id: '' as string | number,
+    role: 'secretario' as 'admin' | 'secretario',
     status: 'active' as 'active' | 'inactive',
   });
 
@@ -26,13 +24,12 @@ export const AdminUsersPage: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-    adminApi.getMembers().then(setMembers).catch(console.error);
   }, []);
 
   const fetchUsers = () => {
     setLoading(true);
     adminApi
-      .getUsers()
+      .getUsers('staff')
       .then((res) => {
         setUsers(res || []);
         setLoading(false);
@@ -50,7 +47,6 @@ export const AdminUsersPage: React.FC = () => {
       email: '',
       password: '',
       role: 'secretario',
-      member_id: '',
       status: 'active',
     });
     setIsModalOpen(true);
@@ -62,8 +58,7 @@ export const AdminUsersPage: React.FC = () => {
       name: u.name,
       email: u.email,
       password: '',
-      role: u.role,
-      member_id: u.member_id || '',
+      role: (u.role === 'admin' ? 'admin' : 'secretario') as 'admin' | 'secretario',
       status: u.status,
     });
     setIsModalOpen(true);
@@ -75,7 +70,7 @@ export const AdminUsersPage: React.FC = () => {
     try {
       const payload: any = {
         ...formData,
-        member_id: formData.member_id ? Number(formData.member_id) : null,
+        member_id: null,
       };
       if (!payload.password) delete payload.password;
 
@@ -98,7 +93,7 @@ export const AdminUsersPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string | number) => {
-    if (!window.confirm('¿Desea eliminar este usuario?')) return;
+    if (!window.confirm('¿Desea eliminar esta cuenta de staff?')) return;
     try {
       await adminApi.deleteUser(id);
       fetchUsers();
@@ -111,32 +106,36 @@ export const AdminUsersPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h1 className="font-serif font-bold text-xl text-cicha-navy">Gestión de Usuarios y Roles</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif font-bold text-xl text-cicha-navy">Staff: Administradores & Secretarios</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-200 uppercase tracking-wider">
+              Exclusivo Admin
+            </span>
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Administración de cuentas con roles: Admin (total), Secretario (gestor) y Socio (portal exclusivo).
+            Gestión de credenciales de acceso para el equipo directivo y secretaría de la Cámara.
           </p>
         </div>
 
         <button
           onClick={handleOpenCreate}
-          className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+          className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
         >
-          <Plus className="w-4 h-4" /> Nuevo Usuario
+          <Plus className="w-4 h-4" /> Nuevo Administrador / Secretario
         </button>
       </div>
 
       {loading ? (
-        <Loader text="Cargando usuarios..." />
+        <Loader text="Cargando staff administrativo..." />
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-4">Usuario</th>
-                  <th className="py-3.5 px-4">Email</th>
-                  <th className="py-3.5 px-4">Rol Asignado</th>
-                  <th className="py-3.5 px-4">Empresa Socia Vinculada</th>
+                  <th className="py-3.5 px-4">Nombre y Apellido</th>
+                  <th className="py-3.5 px-4">Correo Electrónico (Acceso)</th>
+                  <th className="py-3.5 px-4">Nivel de Acceso / Rol</th>
                   <th className="py-3.5 px-4">Estado</th>
                   <th className="py-3.5 px-4 text-right">Acciones</th>
                 </tr>
@@ -148,20 +147,15 @@ export const AdminUsersPage: React.FC = () => {
                     <td className="py-3.5 px-4 text-slate-600">{u.email}</td>
                     <td className="py-3.5 px-4">
                       <Badge
-                        variant={
-                          u.role === 'admin' ? 'danger' : u.role === 'secretario' ? 'primary' : 'gold'
-                        }
+                        variant={u.role === 'admin' ? 'danger' : 'primary'}
                         className="uppercase font-bold"
                       >
-                        {u.role}
+                        {u.role === 'admin' ? 'Administrador' : 'Secretario'}
                       </Badge>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-500 font-medium">
-                      {u.member_company_name || (u.role === 'socio' ? 'Sin vincular' : '-')}
                     </td>
                     <td className="py-3.5 px-4">
                       <Badge variant={u.status === 'active' ? 'success' : 'secondary'}>
-                        {u.status}
+                        {u.status === 'active' ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -169,6 +163,7 @@ export const AdminUsersPage: React.FC = () => {
                         <button
                           onClick={() => handleOpenEdit(u)}
                           className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                          title="Editar"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -176,6 +171,7 @@ export const AdminUsersPage: React.FC = () => {
                           <button
                             onClick={() => handleDelete(u.id)}
                             className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="Eliminar"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -194,15 +190,16 @@ export const AdminUsersPage: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
+        title={editingUser ? 'Editar Cuenta de Staff' : 'Nuevo Administrador / Secretario'}
         maxWidth="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Nombre Completo *</label>
+            <label className="font-bold text-slate-700">Nombre y Apellido *</label>
             <input
               type="text"
               required
+              placeholder="Ej. Juan Pérez"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
@@ -210,10 +207,11 @@ export const AdminUsersPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Correo Electrónico *</label>
+            <label className="font-bold text-slate-700">Correo Electrónico (Usuario de Acceso) *</label>
             <input
               type="email"
               required
+              placeholder="admin@cicha.com.ar"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
@@ -236,15 +234,14 @@ export const AdminUsersPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Rol del Usuario *</label>
+              <label className="font-bold text-slate-700">Nivel de Acceso / Rol *</label>
               <select
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
               >
                 <option value="admin">Administrador (Acceso Total)</option>
-                <option value="secretario">Secretario (Gestión de Contenidos & Socios)</option>
-                <option value="socio">Socio (Portal Exclusivo Intranet)</option>
+                <option value="secretario">Secretario (Gestor de Contenidos & Socios)</option>
               </select>
             </div>
 
@@ -261,24 +258,6 @@ export const AdminUsersPage: React.FC = () => {
             </div>
           </div>
 
-          {formData.role === 'socio' && (
-            <div className="space-y-1.5 p-3 rounded-xl bg-amber-50/70 border border-amber-200">
-              <label className="font-bold text-amber-900">Vincular a Empresa Socia del Directorio:</label>
-              <select
-                value={formData.member_id}
-                onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-lg border border-amber-300 bg-white text-xs"
-              >
-                <option value="">-- Seleccionar Empresa Socia --</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.company_name} ({m.sector})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <button
               type="button"
@@ -292,7 +271,7 @@ export const AdminUsersPage: React.FC = () => {
               disabled={submitting}
               className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
-              {submitting ? 'Guardando...' : 'Guardar Usuario'}
+              {submitting ? 'Guardando...' : 'Guardar Cuenta'}
             </button>
           </div>
         </form>

@@ -34,6 +34,8 @@ export interface Settings {
   meta_keywords?: string;
   email_prefilled_subject?: string;
   email_prefilled_body?: string;
+  member_email_subject?: string;
+  member_email_body?: string;
   [key: string]: string | undefined;
 }
 
@@ -168,6 +170,7 @@ export interface EventItem {
 export interface Member {
   id: number;
   company_name: string;
+  representative_name?: string;
   slug: string;
   sector: string;
   description?: string;
@@ -254,7 +257,7 @@ export interface ContactMessage {
 export interface PartnerResource {
   id: number;
   title: string;
-  category: 'informe_mercado' | 'guia_legal' | 'minuta_asamblea' | 'circular_comercial';
+  category: string;
   description?: string;
   file_url: string;
   file_type: string;

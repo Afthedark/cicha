@@ -17,7 +17,7 @@ import {
   Sparkles,
   Target,
 } from 'lucide-react';
-import { publicApi } from '../../services/api';
+import { publicApi, resolveImageUrl } from '../../services/api';
 import type { HomeData, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
@@ -148,11 +148,13 @@ export const HomePage: React.FC = () => {
                     <div className="relative min-h-[300px] sm:min-h-[360px] lg:min-h-[420px] flex items-center">
                       {/* Banner Image / Background */}
                       {bnr.image_url ? (
-                        <div className="absolute inset-0 z-0">
+                        <div className="absolute inset-0 z-0 overflow-hidden">
                           <img
                             src={bnr.image_url}
                             alt={bnr.title}
-                            className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-1000"
+                            className={`w-full h-full object-cover object-center ${
+                              isActive ? 'animate-banner-zoom-in' : 'scale-100'
+                            }`}
                           />
                           {/* Rich Gradient Overlay for maximum text readability */}
                           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
@@ -276,11 +278,11 @@ export const HomePage: React.FC = () => {
                 </Link>
 
                 <Link
-                  to="/comercio-bilateral"
+                  to="/socios"
                   className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-cicha-sky-light/30 font-semibold text-sm backdrop-blur-sm transition-all flex items-center gap-2"
                 >
                   <TrendingUp className="w-4 h-4 text-cicha-sky" />
-                  Oportunidades Comerciales
+                  Directorio de Socios
                 </Link>
               </div>
 
@@ -336,28 +338,38 @@ export const HomePage: React.FC = () => {
             {/* Tarjeta de Misión */}
             <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
               <div className="w-2 rounded-full h-8 bg-[#00AEEF] absolute left-0 top-6" />
-              <div className="flex items-center gap-2 text-[#00AEEF]">
-                <Target className="w-5 h-5 text-[#00AEEF]" />
-                <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
-                  Misión
-                </h3>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[#00AEEF]">
+                  <Target className="w-5 h-5 text-[#00AEEF]" />
+                  <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                    Nuestra Misión
+                  </h3>
+                </div>
+                <p className="text-xs font-semibold text-[#00AEEF] tracking-wide">
+                  Fuerza creadora para el desarrollo bilateral equitativo
+                </p>
               </div>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
-                La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia- en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.
+                La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia - en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.
               </p>
             </div>
 
             {/* Tarjeta de Objeto */}
             <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
               <div className="w-2 rounded-full h-8 bg-[#F5A623] absolute left-0 top-6" />
-              <div className="flex items-center gap-2 text-[#F5A623]">
-                <ShieldCheck className="w-5 h-5 text-[#F5A623]" />
-                <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
-                  Objeto
-                </h3>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[#F5A623]">
+                  <ShieldCheck className="w-5 h-5 text-[#F5A623]" />
+                  <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                    Objeto de la Cámara
+                  </h3>
+                </div>
+                <p className="text-xs font-semibold text-[#F5A623] tracking-wide">
+                  Representación y articulación del empresariado heleno y bilateral
+                </p>
               </div>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
-                La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina.
+                La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina. Fomenta el intercambio comercial, industrial, tecnológico y cultural entre ambas naciones.
               </p>
             </div>
           </div>
@@ -377,51 +389,68 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {data?.alliances?.map((alliance) => (
-            <div
-              key={alliance.id}
-              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700">
-                    <Globe2 className="w-6 h-6" />
+          {data?.alliances?.map((alliance) => {
+            const resolvedLogo = resolveImageUrl(alliance.logo_url);
+            return (
+              <div
+                key={alliance.id}
+                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="w-16 h-16 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center p-2 shrink-0 shadow-2xs overflow-hidden">
+                      {resolvedLogo ? (
+                        <img
+                          src={resolvedLogo}
+                          alt={alliance.name}
+                          className="max-h-full max-w-full object-contain filter drop-shadow-xs group-hover:scale-105 transition-transform"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                            (e.target as HTMLElement).parentElement?.classList.add('fallback-icon');
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">
+                          <Globe2 className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                    {alliance.highlight_text && (
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 max-w-[170px] truncate text-right">
+                        {alliance.highlight_text}
+                      </span>
+                    )}
                   </div>
-                  {alliance.highlight_text && (
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200">
-                      {alliance.highlight_text}
-                    </span>
+
+                  <div>
+                    <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors">
+                      {alliance.name}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
+                      {alliance.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                    Conocer más <ChevronRight className="w-4 h-4" />
+                  </span>
+                  {alliance.website_url && (
+                    <a
+                      href={alliance.website_url.startsWith('http') ? alliance.website_url : `https://${alliance.website_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-blue-700 p-1"
+                      title="Sitio Oficial"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
                   )}
                 </div>
-
-                <div>
-                  <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors">
-                    {alliance.name}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
-                    {alliance.description}
-                  </p>
-                </div>
               </div>
-
-              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Conocer más <ChevronRight className="w-4 h-4" />
-                </span>
-                {alliance.website_url && (
-                  <a
-                    href={alliance.website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-blue-700 p-1"
-                    title="Sitio Oficial"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -443,10 +472,10 @@ export const HomePage: React.FC = () => {
           </div>
 
           <Link
-            to="/comercio-bilateral"
+            to="/asociarse"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white text-xs font-bold shadow-lg shadow-cicha-sky/20 transition-all shrink-0"
           >
-            Ver Todas las Oportunidades
+            Acceder como Socio
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -479,7 +508,7 @@ export const HomePage: React.FC = () => {
               <div className="pt-4 mt-4 border-t border-blue-900/80 flex items-center justify-between text-xs">
                 <span className="text-slate-400 font-medium">{opp.sector}</span>
                 <Link
-                  to={`/comercio-bilateral`}
+                  to={`/asociarse`}
                   className="text-cicha-sky hover:text-cicha-sky-light font-bold flex items-center gap-1"
                 >
                   Consultar <ChevronRight className="w-4 h-4" />

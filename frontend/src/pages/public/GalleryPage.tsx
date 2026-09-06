@@ -10,6 +10,10 @@ import {
   Filter,
   Layers,
   LayoutGrid,
+  Play,
+  Pause,
+  RotateCw,
+  Sparkles,
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
 import type { PhotoAlbum, GalleryPhoto } from '../../types';
@@ -25,10 +29,20 @@ export const GalleryPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'albums' | 'masonry'>('albums');
   const [loading, setLoading] = useState(true);
 
-  // Lightbox Modal State
+  // Lightbox Modal State with 3D Cube Transitions & Auto-Play Slideshow
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [lightboxPhotos, setLightboxPhotos] = useState<GalleryPhoto[]>([]);
   const [lightboxTitle, setLightboxTitle] = useState<string>('');
+  const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
+  const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
+  const [playSpeed, setPlaySpeed] = useState<'slow' | 'medium' | 'fast'>('medium');
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  const speedDurations = {
+    slow: 6500,
+    medium: 4000,
+    fast: 2200,
+  };
 
   useEffect(() => {
     fetchGallery();
@@ -54,6 +68,8 @@ export const GalleryPage: React.FC = () => {
 
   // Open Lightbox from an Album
   const openAlbumLightbox = (album: PhotoAlbum) => {
+    setIsAutoPlay(true);
+    setSlideDirection('next');
     if (!album.photos || album.photos.length === 0) {
       if (album.cover_image_url) {
         setLightboxPhotos([
@@ -82,13 +98,16 @@ export const GalleryPage: React.FC = () => {
 
   // Open Lightbox from Masonry feed
   const openPhotoLightbox = (photoIndex: number) => {
+    setIsAutoPlay(true);
+    setSlideDirection('next');
     setLightboxPhotos(allPhotos);
     setActivePhotoIndex(photoIndex);
     setLightboxTitle(allPhotos[photoIndex]?.album_title || 'Galería CICHA');
   };
 
-  // Lightbox navigation
+  // Lightbox navigation with directional 3D tracking
   const nextPhoto = () => {
+    setSlideDirection('next');
     if (activePhotoIndex !== null && activePhotoIndex < lightboxPhotos.length - 1) {
       setActivePhotoIndex(activePhotoIndex + 1);
     } else {
@@ -97,12 +116,26 @@ export const GalleryPage: React.FC = () => {
   };
 
   const prevPhoto = () => {
+    setSlideDirection('prev');
     if (activePhotoIndex !== null && activePhotoIndex > 0) {
       setActivePhotoIndex(activePhotoIndex - 1);
     } else {
       setActivePhotoIndex(lightboxPhotos.length - 1);
     }
   };
+
+  // Auto-Play Slideshow Effect (Pasa automáticamente con velocidad configurable si isAutoPlay es true y no hay hover)
+  useEffect(() => {
+    if (activePhotoIndex === null || !isAutoPlay || isHovered || lightboxPhotos.length <= 1) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      nextPhoto();
+    }, speedDurations[playSpeed]);
+
+    return () => clearInterval(interval);
+  }, [activePhotoIndex, isAutoPlay, isHovered, lightboxPhotos.length, playSpeed]);
 
   // Keyboard navigation for Lightbox
   useEffect(() => {
@@ -111,6 +144,10 @@ export const GalleryPage: React.FC = () => {
       if (e.key === 'Escape') setActivePhotoIndex(null);
       if (e.key === 'ArrowRight') nextPhoto();
       if (e.key === 'ArrowLeft') prevPhoto();
+      if (e.key === ' ') {
+        e.preventDefault();
+        setIsAutoPlay((prev) => !prev);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -215,13 +252,13 @@ export const GalleryPage: React.FC = () => {
             </p>
           </div>
         ) : viewMode === 'albums' ? (
-          /* 4. View Mode: ALBUMS GRID */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          /* 4. View Mode: ALBUMS GRID WITH 3D CUBE ELEVATION */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-container">
             {albums.map((alb) => (
               <div
                 key={alb.id}
                 onClick={() => openAlbumLightbox(alb)}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer group"
+                className="cube-card-3d bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer group"
               >
                 <div className="space-y-3">
                   {/* Album Cover */}
@@ -275,20 +312,23 @@ export const GalleryPage: React.FC = () => {
                 </div>
 
                 <div className="p-6 pt-0 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
-                  <span>Ver álbum completo</span>
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    Ver álbum con efecto 3D
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          /* 5. View Mode: MASONRY / FEED CONTINUO */
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          /* 5. View Mode: MASONRY / MOSAICO DINÁMICO 3D */
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 perspective-container">
             {allPhotos.map((photo, pIdx) => (
               <div
                 key={pIdx}
                 onClick={() => openPhotoLightbox(pIdx)}
-                className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl cursor-pointer group transition-all duration-300 break-inside-avoid bg-slate-100"
+                className="cube-card-3d relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer group break-inside-avoid bg-slate-100"
               >
                 <img
                   src={photo.image_url}
@@ -318,21 +358,85 @@ export const GalleryPage: React.FC = () => {
         )}
       </div>
 
-      {/* 6. Visor Lightbox a Pantalla Completa Inteligente */}
+      {/* 6. Visor Lightbox a Pantalla Completa 3D con Desplazamiento Automático */}
       {activePhoto && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 animate-fadeIn select-none">
           {/* Top Bar */}
           <div className="flex items-center justify-between text-white border-b border-white/10 pb-3">
-            <div>
-              <h3 className="font-serif font-bold text-sm sm:text-base text-white">
-                {lightboxTitle}
-              </h3>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-bold text-sm sm:text-base text-white truncate max-w-xs sm:max-w-md">
+                  {lightboxTitle}
+                </h3>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                  Cubo 3D
+                </span>
+              </div>
               <p className="text-xs text-slate-400">
                 Foto {(activePhotoIndex || 0) + 1} de {lightboxPhotos.length}
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Speed Selector Pill (Lento, Medio, Rápido) */}
+              {lightboxPhotos.length > 1 && (
+                <div className="flex items-center gap-0.5 bg-white/10 p-0.5 rounded-xl border border-white/10 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setPlaySpeed('slow')}
+                    className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                      playSpeed === 'slow'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                    title="Velocidad lenta (6.5s) con zoom suave"
+                  >
+                    Lento
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlaySpeed('medium')}
+                    className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                      playSpeed === 'medium'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                    title="Velocidad media (4.0s)"
+                  >
+                    Medio
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlaySpeed('fast')}
+                    className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                      playSpeed === 'fast'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                    title="Velocidad rápida (2.2s)"
+                  >
+                    Rápido
+                  </button>
+                </div>
+              )}
+
+              {/* Play / Pause Toggle Button */}
+              {lightboxPhotos.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setIsAutoPlay(!isAutoPlay)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm ${
+                    isAutoPlay
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white'
+                  }`}
+                  title={isAutoPlay ? 'Pausar reproducción automática' : 'Iniciar reproducción automática'}
+                >
+                  {isAutoPlay ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{isAutoPlay ? 'Auto' : 'Reproducir'}</span>
+                </button>
+              )}
+
               <a
                 href={activePhoto.image_url}
                 target="_blank"
@@ -347,32 +451,49 @@ export const GalleryPage: React.FC = () => {
               <button
                 onClick={() => setActivePhotoIndex(null)}
                 className="p-2 rounded-xl bg-white/10 hover:bg-rose-600 text-white transition-colors"
-                title="Cerrar visor"
+                title="Cerrar visor (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Main Photo Area with Navigation */}
-          <div className="relative flex-1 flex items-center justify-center my-4 overflow-hidden">
+          {/* Main Photo Area with 3D Cube Perspective Container */}
+          <div
+            className="relative flex-1 flex items-center justify-center my-4 overflow-hidden perspective-container"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
             {/* Prev Button */}
             {lightboxPhotos.length > 1 && (
               <button
                 onClick={prevPhoto}
-                className="absolute left-2 sm:left-6 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center z-10 backdrop-blur-sm border border-white/20 transition-all hover:scale-110"
+                className="absolute left-2 sm:left-6 w-12 h-12 rounded-full bg-black/60 hover:bg-blue-600 text-white flex items-center justify-center z-20 backdrop-blur-sm border border-white/20 transition-all hover:scale-110 shadow-xl"
                 title="Anterior (Flecha izquierda)"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
             )}
 
-            {/* Photo Center */}
-            <div className="max-w-5xl max-h-[75vh] flex items-center justify-center p-2">
+            {/* Photo Center con Animación de Giro 3D en Cubo y Efecto Zoom In/Out Ken-Burns */}
+            <div
+              key={`${activePhotoIndex}_${slideDirection}`}
+              className={`max-w-5xl max-h-[75vh] flex items-center justify-center p-2 ${
+                slideDirection === 'next' ? 'animate-cube-next' : 'animate-cube-prev'
+              }`}
+            >
               <img
                 src={activePhoto.image_url}
                 alt={activePhoto.caption || 'Foto ampliada'}
-                className="max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl"
+                className={`max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10 ${
+                  isAutoPlay
+                    ? playSpeed === 'slow'
+                      ? 'animate-zoom-pulse-slow'
+                      : playSpeed === 'fast'
+                      ? 'animate-zoom-pulse-fast'
+                      : 'animate-zoom-pulse'
+                    : ''
+                }`}
               />
             </div>
 
@@ -380,7 +501,7 @@ export const GalleryPage: React.FC = () => {
             {lightboxPhotos.length > 1 && (
               <button
                 onClick={nextPhoto}
-                className="absolute right-2 sm:right-6 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center z-10 backdrop-blur-sm border border-white/20 transition-all hover:scale-110"
+                className="absolute right-2 sm:right-6 w-12 h-12 rounded-full bg-black/60 hover:bg-blue-600 text-white flex items-center justify-center z-20 backdrop-blur-sm border border-white/20 transition-all hover:scale-110 shadow-xl"
                 title="Siguiente (Flecha derecha)"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -389,9 +510,9 @@ export const GalleryPage: React.FC = () => {
           </div>
 
           {/* Bottom Caption & Thumbnails */}
-          <div className="text-center text-white space-y-2 border-t border-white/10 pt-3">
+          <div className="text-center text-white space-y-2.5 border-t border-white/10 pt-3">
             {activePhoto.caption && (
-              <p className="text-xs sm:text-sm text-slate-300 font-serif italic max-w-xl mx-auto">
+              <p className="text-xs sm:text-sm text-slate-200 font-serif italic max-w-xl mx-auto drop-shadow-sm">
                 "{activePhoto.caption}"
               </p>
             )}
@@ -402,9 +523,14 @@ export const GalleryPage: React.FC = () => {
                 {lightboxPhotos.map((p, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setActivePhotoIndex(idx)}
-                    className={`w-10 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
-                      activePhotoIndex === idx ? 'border-cicha-sky scale-110' : 'border-transparent opacity-50 hover:opacity-100'
+                    onClick={() => {
+                      setSlideDirection(idx >= (activePhotoIndex || 0) ? 'next' : 'prev');
+                      setActivePhotoIndex(idx);
+                    }}
+                    className={`w-11 h-11 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
+                      activePhotoIndex === idx
+                        ? 'border-cicha-sky scale-110 shadow-lg ring-2 ring-blue-500/50'
+                        : 'border-transparent opacity-40 hover:opacity-100 hover:scale-105'
                     }`}
                   >
                     <img src={p.image_url} alt="Miniatura" className="w-full h-full object-cover" />

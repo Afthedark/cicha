@@ -83,10 +83,28 @@ export const AdminLayout: React.FC = () => {
       roles: ['admin', 'secretario'],
     },
     {
+      name: 'Cuentas de Socios',
+      path: '/admin/usuarios-socios',
+      icon: Users,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Contenidos Institucionales',
+      path: '/admin/institucional',
+      icon: FileText,
+      roles: ['admin', 'secretario'],
+    },
+    {
       name: 'Configuración & Gestión',
       path: '/admin/configuracion',
       icon: Settings,
       roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Staff & Administradores',
+      path: '/admin/usuarios',
+      icon: Shield,
+      roles: ['admin'],
     },
   ];
 

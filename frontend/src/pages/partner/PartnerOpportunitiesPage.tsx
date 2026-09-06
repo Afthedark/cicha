@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Mail, User, Clock, ArrowRight, ShieldCheck, FileCheck } from 'lucide-react';
-import { partnerApi } from '../../services/api';
-import type { CommercialOpportunity } from '../../types';
+import { Sparkles, Mail, User, Clock, ArrowRight, ShieldCheck, Filter } from 'lucide-react';
+import { partnerApi, adminApi } from '../../services/api';
+import type { CommercialOpportunity, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 export const PartnerOpportunitiesPage: React.FC = () => {
   const [opportunities, setOpportunities] = useState<CommercialOpportunity[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState<string>('all');
+  const [sector, setSector] = useState<string>('all');
+
+  useEffect(() => {
+    partnerApi
+      .getCategories('members')
+      .then((cats) => {
+        if (cats && cats.length > 0) {
+          setCategories(cats);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando categorías para oportunidades:', err);
+      });
+  }, []);
 
   useEffect(() => {
     fetchOpportunities();
-  }, [type]);
+  }, [type, sector]);
 
   const fetchOpportunities = () => {
     setLoading(true);
     partnerApi
-      .getOpportunities(type)
+      .getOpportunities(type, sector)
       .then((res) => {
         setOpportunities(res || []);
         setLoading(false);
@@ -43,25 +58,29 @@ export const PartnerOpportunitiesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Type filters */}
+      {/* Category / Sector Tabs (Dinámico desde Sectores & Categorías) */}
       <div className="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-        {[
-          { label: 'Todas', value: 'all' },
-          { label: 'Exportación', value: 'export' },
-          { label: 'Importación', value: 'import' },
-          { label: 'Inversión', value: 'investment' },
-          { label: 'Alianzas Tecnológicas', value: 'partnership' },
-        ].map((t) => (
+        <button
+          onClick={() => setSector('all')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            sector === 'all'
+              ? 'bg-cicha-navy text-white shadow-xs'
+              : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          Todas las Oportunidades
+        </button>
+        {categories.map((c) => (
           <button
-            key={t.value}
-            onClick={() => setType(t.value)}
+            key={c.id}
+            onClick={() => setSector(c.name)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              type === t.value
+              sector === c.name
                 ? 'bg-cicha-navy text-white shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
-            {t.label}
+            {c.name}
           </button>
         ))}
       </div>

@@ -10,68 +10,63 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-1. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
+1. **👥 Gestión Segmentada y Especializada de Cuentas de Acceso**:
+   - **Staff & Administradores (`/admin/usuarios`)**: Módulo exclusivo para el rol **`admin`** para crear y gestionar credenciales de administradores y secretarios del CMS.
+   - **Cuentas de Socios (`/admin/usuarios-socios`)**: Módulo administrable por **`admin`** y **`secretario`** para registrar cuentas de acceso directo al Portal de Socios.
+   - **Copiar Credenciales con 1 Clic**: Botón inteligente que detecta la URL actual del frontend (`/admin/login`) y copia al portapapeles el Nombre, Usuario (Email), Contraseña y Enlace de acceso en formato listo para compartir.
+   - **Mostrar / Ocultar Contraseña**: Toggle visual interactivo (`Eye` / `EyeOff`) en los formularios de creación y edición.
+
+2. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
+   - Sección administrable en **Configuración & Gestión** (`/admin/configuracion`): **"Correos Socios: Asunto & Mensaje Predeterminado"** (`member_email_subject` y `member_email_body`).
+   - Asunto predefinido: `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
+   - Aplicado de forma automática al presionar el correo de cualquier socio en **Socios Web Pública (`/socios`)** y en el **Directorio B2B Privado (`/portal-socios/directorio`)**.
+   - Administrable por roles **`admin`** y **`secretario`**.
+
+3. **📚 Biblioteca de Socios con Subida Dual (PDF y URL Externa)**:
+   - Soporte para subida directa de archivos PDF/documentos al servidor y/o registro de enlaces externos para normativas, acuerdos comerciales e informes bilaterales.
+
+4. **🏷️ Categorías Dinámicas y Sincronizadas en el Portal de Socios**:
+   - Filtros por sector y rubro en *Documentos & Informes*, *Oportunidades VIP*, *Club de Beneficios* y *Directorio B2B* conectados en tiempo real con el módulo **Sectores & Categorías** del CMS.
+
+5. **🔍 Búsqueda en Base de Datos a Nivel de Backend**:
+   - Endpoint optimizado `GET /api/admin/members?search=...` con búsqueda SQL `LIKE` sobre nombre de empresa, sector, representante y país.
+
+6. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
    - Pestaña de acceso directo en la barra de navegación del Header.
-   - **Feed Dual en 2 Columnas (Lado a Lado)**:
-     - **Facebook Oficial**: Widget interactivo que proyecta el muro y las publicaciones en vivo de la Cámara (`camarahelenoargentina`).
-     - **Instagram Oficial**: Feed visual de publicaciones de `@camarahelenoargentina` con botón directo para seguir la cuenta.
-   - Diseño optimizado y 100% responsivo para computadoras y teléfonos móviles.
+   - **Feed Dual en 2 Columnas (Lado a Lado)**: Facebook Oficial embebido e Instagram Oficial con enlace directo a `@camarahelenoargentina`.
 
-2. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
+7. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
    - Módulo independiente para artículos de análisis, notas de opinión y publicaciones técnicas de la Cámara.
-   - Administrable por roles **`admin`** y **`secretario`**: autor con cargo, tiempo de lectura, etiquetas (tags), categorías, estados (`published`, `draft`, `archived`) y destacado.
-   - Vista pública para visitantes con catálogo filtrable por temática, buscador en vivo y lectura completa con artículos recomendados.
+   - Administrable por **`admin`** y **`secretario`**: autor, tiempo de lectura, tags, categorías, estados (`published`, `draft`, `archived`) y destacado.
 
-3. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
-   - Registro visual y memoria fotográfica de encuentros, misiones comerciales, foros empresariales y visitas diplomáticas.
-   - Administrable por roles **`admin`** y **`secretario`**: creación de álbumes/grupos con título, descripción, fecha, categoría y subida de fotos por lotes.
-   - Vista pública interactiva con selector de visualización (*Por Álbumes / Eventos* vs *Mosaico Dinámico continuo*) y visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y botón de descarga.
+8. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
+   - Registro visual de encuentros y misiones con subida por lotes.
+   - Visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y descarga en alta calidad.
 
-4. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
+9. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
    - Gestión en CMS (`/admin/configuracion`): soporte para LinkedIn, Instagram, Facebook, X (Twitter), YouTube y **TikTok** oficial.
-   - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con sección centralizada simétrica, botones glassmorphism con resplandor celeste egeo (`#00AEEF`) y renderizado condicional inteligente.
+   - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con botones glassmorphism y resplandor celeste egeo (`#00AEEF`).
 
-5. **✉️ Correos Institucionales con Mensaje Dinámico Prellenado (`mailto:`)**:
-   - Parámetros administrables en el CMS: asunto (`email_prefilled_subject`) y cuerpo de mensaje (`email_prefilled_body`) predefinidos (*"hola vengo de la web de cicha"*).
-   - Generación dinámica de enlaces `mailto:` enriquecidos en Footer y Contacto.
-   - Cabecera del Header despejada y optimizada.
+10. **🏛️ Inicio Renovado con Alta Estética e Identidad Institucional**:
+    - Título institucional en azul diplomático con animación de entrada (`animate-zoom-center`).
+    - Trayectoria actualizada a **`+38`** años con contadores animados cíclicos (`CounterDisplay`).
+    - Tarjetas de cristal dedicadas para **MISIÓN** y **OBJETO** de la Cámara.
 
-6. **🏛️ Inicio Renovado con Alta Estética e Identidad Institucional**:
-   - **Título Institucional**: `"CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA"` en azul diplomático sobre las portadas, con animación expansiva de entrada desde el centro (`animate-zoom-center`).
-   - **Trayectoria & Representación**: Cifra histórica actualizada a **`+38`** años (1989), con **contadores animados cíclicos y elegantes** (`CounterDisplay`) en colores oficiales (blanco para países EEN, dorado para articulación público-privada, celeste y azul egeo).
-   - **Misión & Objeto Oficiales**: Formato en negrita destacando hitos clave (EUROCAMARA Mayo 2017, UCCEB 32 cámaras, EEN Unión Europea, reconocimientos 1989 y 1998), acompañados de tarjetas dedicadas de cristal para **MISIÓN** y **OBJETO**.
+11. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
+    - Requisito obligatorio de subida de logo/marca para personas jurídicas y físicas, validado en frontend y backend.
 
-7. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
-   - Requisito obligatorio de subida de logo/marca tanto para **Persona Jurídica (Empresa)** como para **Persona Física (Emprendimiento personal / Marca profesional)**, validado en frontend y backend (`PublicController.php`).
+12. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/configuracion`)**:
+    - Gestor visual para crear, editar, ordenar y activar/desactivar portadas con enlaces internos y externos.
 
-8. **🖼️ Gestión Dinámica de Portadas / Banners del Home (`/admin/configuracion`)**:
-   - Gestor visual para crear, editar, ordenar y activar/desactivar slides de cabecera con imágenes en alta resolución.
-   - Selector dinámico de rutas del sistema (`/asociarse`, `/comercio-bilateral`, `/blogs`, `/galeria`, `/redes-sociales`, etc.) y soporte para enlaces externos.
+13. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
+    - Traducción automática del 100% de la web con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
 
-9. **🏛️ Contenidos Institucionales 100% Administrables en CMS**:
-   - Misión, Objeto estatutario, las 12 Actividades Estatutarias Reglamentarias, los 5 pilares de Comercio Exterior & EEN y los 14 Beneficios de Socios.
-   - Edición en tiempo real desde el CMS de la **Sede Central** (*Julián Alvarez 1030*), **Teléfono Oficial** (*(+54 9 11) 6757.3851*) y **Correos Oficiales** (*camarahelenoargentina@gmail.com* e *info@camarahelenoargentina.org*).
-
-10. **⚡ Endpoint de Auto-Migración de Base de Datos con 1 Clic**:
-    - Endpoint HTTP seguro (`GET /api/admin/migrate?secret=...`) diseñado para hosting cPanel sin acceso a consola SSH ni terminal.
-
-11. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
-    - Traducción automática e instantánea del 100% de la web (incluyendo datos dinámicos provenientes de MySQL).
-    - Selector visual con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
-    - Integrado en **Portal Público**, **Intranet de Socios** y **Panel CMS**.
-
-12. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
-    - Matriz de permisos con 4 roles: `admin` (superusuario), `secretario` (gestor de contenidos y publicaciones), `socio` (intranet privada) y `visitante` (público general).
-    - Filtro de autorización en backend (`RoleFilter.php`) con protección HTTP `401 Unauthorized` y `403 Forbidden`.
-
-13. **🏛️ Portal Exclusivo de Socios (`/portal-socios`)**:
-    - Intranet privada para empresas socias de CICHA con biblioteca de informes de mercado bilateral, guías arancelarias y legales UE-Argentina, oportunidades comerciales VIP con datos de contacto directo de contrapartes, club de beneficios y directorio B2B.
+14. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
+    - Matriz de permisos con roles: `admin` (superusuario), `secretario` (gestor de contenidos y cuentas de socios), `socio` (intranet privada) y `visitante` (público general).
 
 ---
 
 ## 🏗️ Arquitectura del Proyecto
-
-El sistema está estructurado como un monorepo dividido en dos componentes principales:
 
 ```
 cicha/
@@ -82,7 +77,7 @@ cicha/
 │   ├── README.md            # Documentación técnica completa de la API
 │   └── ...
 ├── frontend/                # Aplicación SPA en React 19 + Vite 8 + TypeScript + Tailwind CSS v4
-│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (14)
+│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (15)
 │   ├── README.md            # Documentación técnica del Frontend
 │   └── ...
 └── README.md                # Guía general de inicio rápido del proyecto
@@ -131,10 +126,10 @@ En la pantalla de inicio de sesión ([http://localhost:5173/admin/login](http://
 
 | Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
 | :--- | :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Usuarios, Roles, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
-| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Blogs, Galería de Fotos, Noticias, Eventos, Oportunidades, Socios y Bandejas. |
+| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Staff & Administradores, Cuentas de Socios, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
+| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Cuentas de Socios, Blogs, Galería, Noticias, Eventos, Oportunidades, Socios, Recursos de Socios y Ajustes. |
 | **Empresa Socia** | `socio@cicha.com.ar` | `socio123` | Portal Exclusivo de Socios (`/portal-socios`) | Intranet: Informes de mercado, Oportunidades VIP, Club de beneficios y Directorio B2B. |
-| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda, noticias y formularios. |
+| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda, noticias, directorio y formularios. |
 
 ---
 

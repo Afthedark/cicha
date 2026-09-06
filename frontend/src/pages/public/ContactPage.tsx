@@ -9,6 +9,8 @@ import {
   CheckCircle,
   MessageSquare,
   Globe2,
+  ExternalLink,
+  Navigation,
 } from 'lucide-react';
 import { publicApi } from '../../services/api';
 import type { Settings } from '../../types';
@@ -290,6 +292,50 @@ export const ContactPage: React.FC = () => {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Google Maps Location Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div className="space-y-1">
+              <Badge variant="primary">Sede Central &bull; Ubicación</Badge>
+              <h2 className="font-serif font-bold text-2xl sm:text-3xl text-cicha-navy">
+                Encuéntrenos en Buenos Aires
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-1.5 pt-1">
+                <MapPin className="w-4 h-4 text-red-500 shrink-0" />
+                <span>{settings.address_street || 'Julián Álvarez 1030 (C1414)'}{settings.address_city ? `, ${settings.address_city}` : ', C.A.B.A., República Argentina'}</span>
+              </p>
+            </div>
+
+            <a
+              href="https://www.google.com/maps/place/C%C3%A1mara+de+Industria+y+Comercio+Heleno+Argentina/@-34.5958402,-58.4291945,19.5z/data=!4m6!3m5!1s0x95bccad4788592f5:0x1afe71fa83fc355a!8m2!3d-34.5961248!4d-58.429377!16s%2Fg%2F1q6j4tcbm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-cicha-navy hover:bg-[#003666] text-white font-bold text-xs shadow-md transition-all group shrink-0"
+            >
+              <Navigation className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+              <span>Abrir en Google Maps</span>
+              <ExternalLink className="w-3.5 h-3.5 text-white/70" />
+            </a>
+          </div>
+
+          {/* Interactive Responsive Map Container */}
+          <div className="relative w-full h-[400px] sm:h-[480px] lg:h-[520px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100">
+            <iframe
+              title="Ubicación oficial de la Cámara de Industria y Comercio Heleno Argentina"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1642.1129993339127!2d-58.4300207!3d-34.5961248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccad4788592f5%3A0x1afe71fa83fc355a!2sC%C3%A1mara%20de%20Industria%20y%20Comercio%20Heleno%20Argentina!5e0!3m2!1ses!2sar!4v1710000000000!5m2!1ses!2sar"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full"
+            />
           </div>
         </div>
       </section>

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Globe, Plus, Edit2, Trash2, ExternalLink } from 'lucide-react';
-import { adminApi } from '../../services/api';
+import { adminApi, resolveImageUrl } from '../../services/api';
 import type { Alliance } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { ImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminAlliancesPage: React.FC = () => {
   const [alliances, setAlliances] = useState<Alliance[]>([]);
@@ -17,6 +18,7 @@ export const AdminAlliancesPage: React.FC = () => {
     category: 'institucional',
     description: '',
     website_url: '',
+    logo_url: '',
     highlight_text: '',
     order_num: 0,
     is_active: 1,
@@ -49,6 +51,7 @@ export const AdminAlliancesPage: React.FC = () => {
       category: 'institucional',
       description: '',
       website_url: '',
+      logo_url: '',
       highlight_text: '',
       order_num: alliances.length + 1,
       is_active: 1,
@@ -63,6 +66,7 @@ export const AdminAlliancesPage: React.FC = () => {
       category: alliance.category || 'institucional',
       description: alliance.description || '',
       website_url: alliance.website_url || '',
+      logo_url: alliance.logo_url || '',
       highlight_text: alliance.highlight_text || '',
       order_num: alliance.order_num || 0,
       is_active: alliance.is_active ? 1 : 0,
@@ -75,7 +79,7 @@ export const AdminAlliancesPage: React.FC = () => {
     setSubmitting(true);
     try {
       if (editingAlliance) {
-        await adminApi.updateAlliance(editingAlliance.id, formData);
+        await adminApi.updateAlliance(Number(editingAlliance.id), formData);
       } else {
         await adminApi.createAlliance(formData);
       }
@@ -88,13 +92,13 @@ export const AdminAlliancesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Desea eliminar esta alianza?')) return;
+  const handleDelete = async (id: number | string) => {
+    if (!window.confirm('¿Está seguro de eliminar esta alianza o red estratégica?')) return;
     try {
-      await adminApi.deleteAlliance(id);
+      await adminApi.deleteAlliance(Number(id));
       fetchAlliances();
     } catch (err) {
-      alert('Error al eliminar');
+      alert('Error al eliminar alianza.');
     }
   };
 
@@ -128,44 +132,58 @@ export const AdminAlliancesPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {alliances.map((all) => (
-                  <tr key={all.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{all.name}</div>
-                      <div className="text-[11px] text-slate-500 line-clamp-1">{all.description}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {all.highlight_text && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
-                          {all.highlight_text}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-blue-600">
-                      {all.website_url && (
-                        <a href={all.website_url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
-                          {all.website_url} <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(all)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(all.id)}
-                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {alliances.map((all) => {
+                  const resolvedLogo = resolveImageUrl(all.logo_url);
+                  return (
+                    <tr key={all.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shrink-0 p-1 flex items-center justify-center overflow-hidden shadow-2xs">
+                            {resolvedLogo ? (
+                              <img src={resolvedLogo} alt={all.name} className="max-h-full max-w-full object-contain" />
+                            ) : (
+                              <Globe className="w-5 h-5 text-blue-600" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900">{all.name}</div>
+                            <div className="text-[11px] text-slate-500 line-clamp-1">{all.description}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {all.highlight_text && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                            {all.highlight_text}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-blue-600">
+                        {all.website_url && (
+                          <a href={all.website_url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
+                            {all.website_url} <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleOpenEdit(all)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(all.id)}
+                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -211,6 +229,16 @@ export const AdminAlliancesPage: React.FC = () => {
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
             />
           </div>
+
+          {/* Logo Uploader */}
+          <ImageUploader
+            label="Logotipo de la Alianza / Red"
+            value={formData.logo_url}
+            onChange={(url) => setFormData({ ...formData, logo_url: url })}
+            helperText="Logo institucional PNG con transparencia o SVG"
+            previewHeight="h-28"
+            aspectRatio="square"
+          />
 
           <div className="space-y-1.5">
             <label className="font-bold text-slate-700">Descripción</label>

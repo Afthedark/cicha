@@ -7,6 +7,7 @@ use App\Models\PartnerBenefitModel;
 use App\Models\CommercialOpportunityModel;
 use App\Models\MemberModel;
 use App\Models\EventModel;
+use App\Models\CategoryModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PartnerController extends ResourceController
@@ -95,10 +96,14 @@ class PartnerController extends ResourceController
     {
         $oppModel = new CommercialOpportunityModel();
         $type = $this->request->getGet('type');
+        $sector = $this->request->getGet('sector');
 
         $builder = $oppModel->where('status', 'open');
         if ($type && $type !== 'all') {
             $builder->where('type', $type);
+        }
+        if ($sector && $sector !== 'all') {
+            $builder->like('sector', $sector);
         }
 
         // Returns full opportunities with direct contact data for socios
@@ -113,7 +118,14 @@ class PartnerController extends ResourceController
     public function getBenefits()
     {
         $benefitModel = new PartnerBenefitModel();
-        $benefits = $benefitModel->where('is_active', 1)->orderBy('created_at', 'DESC')->findAll();
+        $category = $this->request->getGet('category');
+
+        $builder = $benefitModel->where('is_active', 1);
+        if ($category && $category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        $benefits = $builder->orderBy('created_at', 'DESC')->findAll();
 
         return $this->respond([
             'status' => 200,
@@ -144,6 +156,23 @@ class PartnerController extends ResourceController
         return $this->respond([
             'status' => 200,
             'data'   => $members
+        ]);
+    }
+
+    public function getCategories()
+    {
+        $model = new CategoryModel();
+        $type = $this->request->getGet('type');
+
+        $builder = $model->orderBy('name', 'ASC');
+        if ($type) {
+            $builder->where('type', $type);
+        }
+
+        $categories = $builder->findAll();
+        return $this->respond([
+            'status' => 200,
+            'data'   => $categories
         ]);
     }
 }

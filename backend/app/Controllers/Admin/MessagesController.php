@@ -43,14 +43,16 @@ class MessagesController extends ResourceController
         $model = new ContactMessageModel();
         if (!$model->find($id)) return $this->failNotFound('Mensaje no encontrado');
 
-        $input = $this->request->getRawInput();
-        if (empty($input)) $input = $this->request->getVar();
+        $input = $this->request->getJSON(true) ?: ($this->request->getRawInput() ?: $this->request->getVar());
+        if (empty($input)) $input = [];
 
         $data = [];
         if (isset($input['is_read'])) $data['is_read'] = $input['is_read'] ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];
 
-        $model->update($id, $data);
+        if (!empty($data)) {
+            $model->update($id, $data);
+        }
         return $this->respond(['status' => 200, 'message' => 'Estado del mensaje actualizado']);
     }
 

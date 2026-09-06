@@ -63,7 +63,7 @@ export const AdminInstitutionalPage: React.FC = () => {
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <h1 className="font-serif font-bold text-xl text-cicha-navy">Contenidos Institucionales</h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Edición de la Misión, Objeto, Historia y Redes estratégicas de CICHA.
+          Edición de Historia, Trayectoria y Redes estratégicas de CICHA.
         </p>
       </div>
 
@@ -71,35 +71,37 @@ export const AdminInstitutionalPage: React.FC = () => {
         <Loader text="Cargando secciones..." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.map((sec) => (
-            <div
-              key={sec.id}
-              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                    Clave: {sec.section_key}
-                  </span>
-                  <button
-                    onClick={() => handleOpenEdit(sec)}
-                    className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1 text-xs font-bold"
-                  >
-                    <Edit2 className="w-4 h-4 text-blue-600" />
-                    Editar
-                  </button>
-                </div>
+          {sections
+            .filter((sec) => sec.section_key !== 'mision' && sec.section_key !== 'objeto')
+            .map((sec) => (
+              <div
+                key={sec.id}
+                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                      Clave: {sec.section_key}
+                    </span>
+                    <button
+                      onClick={() => handleOpenEdit(sec)}
+                      className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1 text-xs font-bold"
+                    >
+                      <Edit2 className="w-4 h-4 text-blue-600" />
+                      Editar
+                    </button>
+                  </div>
 
-                <h2 className="font-serif font-bold text-lg text-cicha-navy">{sec.title}</h2>
-                {sec.subtitle && (
-                  <p className="text-xs font-semibold text-amber-600">{sec.subtitle}</p>
-                )}
-                <p className="text-xs text-slate-600 leading-relaxed line-clamp-4">
-                  {sec.content}
-                </p>
+                  <h2 className="font-serif font-bold text-lg text-cicha-navy">{sec.title}</h2>
+                  {sec.subtitle && (
+                    <p className="text-xs font-semibold text-amber-600">{sec.subtitle}</p>
+                  )}
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-4">
+                    {sec.content}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 

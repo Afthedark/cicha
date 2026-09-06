@@ -26,7 +26,7 @@ import { ImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminSettingsPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<'settings' | 'banners' | 'users' | 'institutional' | 'authorities' | 'alliances'>('banners');
+  const [activeTab, setActiveTab] = useState<'settings' | 'banners' | 'institutional' | 'authorities' | 'alliances'>('banners');
   const [loading, setLoading] = useState(true);
 
   // Settings state
@@ -49,19 +49,7 @@ export const AdminSettingsPage: React.FC = () => {
     is_active: 1,
   });
 
-  // Users state
-  const [users, setUsers] = useState<User[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userForm, setUserForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'secretario' as 'admin' | 'secretario' | 'socio',
-    member_id: '' as string | number,
-    status: 'active' as 'active' | 'inactive',
-  });
 
   // Institutional state
   const [sections, setSections] = useState<InstitutionalSection[]>([]);
@@ -110,7 +98,6 @@ export const AdminSettingsPage: React.FC = () => {
     const promises: Promise<any>[] = [
       adminApi.getSettings(),
       adminApi.getBanners().catch(() => []),
-      isAdmin ? adminApi.getUsers().catch(() => []) : Promise.resolve([]),
       adminApi.getMembers().catch(() => []),
       adminApi.getInstitutional().catch(() => []),
       adminApi.getAuthorities().catch(() => []),
@@ -118,10 +105,9 @@ export const AdminSettingsPage: React.FC = () => {
     ];
 
     Promise.all(promises)
-      .then(([set, bnrs, usrs, mems, secs, auths, allis]) => {
+      .then(([set, bnrs, mems, secs, auths, allis]) => {
         setSettings(set || {});
         setBanners(bnrs || []);
-        setUsers(usrs || []);
         setMembers(mems || []);
         setSections(secs || []);
         setAuthorities(auths || []);
@@ -207,67 +193,6 @@ export const AdminSettingsPage: React.FC = () => {
       alert(typeof msg === 'string' ? msg : JSON.stringify(msg));
     } finally {
       setSavingSettings(false);
-    }
-  };
-
-  // User Handlers
-  const handleOpenCreateUser = () => {
-    setEditingUser(null);
-    setUserForm({
-      name: '',
-      email: '',
-      password: '',
-      role: 'secretario',
-      member_id: '',
-      status: 'active',
-    });
-    setIsUserModalOpen(true);
-  };
-
-  const handleOpenEditUser = (u: User) => {
-    setEditingUser(u);
-    setUserForm({
-      name: u.name,
-      email: u.email,
-      password: '',
-      role: u.role,
-      member_id: u.member_id || '',
-      status: u.status,
-    });
-    setIsUserModalOpen(true);
-  };
-
-  const handleSubmitUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const payload: any = {
-        ...userForm,
-        member_id: userForm.member_id ? Number(userForm.member_id) : null,
-      };
-      if (!payload.password) delete payload.password;
-
-      if (editingUser) {
-        await adminApi.updateUser(editingUser.id, payload);
-      } else {
-        await adminApi.createUser(payload);
-      }
-      setIsUserModalOpen(false);
-      fetchData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al guardar usuario.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteUser = async (id: string | number) => {
-    if (!window.confirm('¿Desea eliminar este usuario?')) return;
-    try {
-      await adminApi.deleteUser(id);
-      fetchData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al eliminar');
     }
   };
 
@@ -434,13 +359,6 @@ export const AdminSettingsPage: React.FC = () => {
           >
             <Plus className="w-4 h-4" /> Nueva Portada
           </button>
-        ) : activeTab === 'users' ? (
-          <button
-            onClick={handleOpenCreateUser}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> Nuevo Usuario
-          </button>
         ) : activeTab === 'authorities' ? (
           <button
             onClick={handleOpenCreateAuth}
@@ -484,20 +402,6 @@ export const AdminSettingsPage: React.FC = () => {
           Ajustes Generales
         </button>
 
-        {isAdmin && (
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
-              activeTab === 'users'
-                ? 'border-blue-600 text-blue-700'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            Usuarios & Roles ({users.length})
-          </button>
-        )}
-
         <button
           onClick={() => setActiveTab('institutional')}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
@@ -507,7 +411,7 @@ export const AdminSettingsPage: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" />
-          Misión & Estatutos ({sections.length})
+          Historia & Estatutos ({sections.filter((s) => s.section_key !== 'mision' && s.section_key !== 'objeto').length})
         </button>
 
         <button
@@ -727,11 +631,11 @@ export const AdminSettingsPage: React.FC = () => {
                 />
               </div>
 
-              {/* Prefilled Email Subject & Body */}
+              {/* Prefilled Email Subject & Body (Correos Institucionales) */}
               <div className="space-y-1.5 sm:col-span-2 pt-3 border-t border-slate-100">
                 <label className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-blue-600" />
-                  Asunto Predeterminado al presionar Correos de la Web (Subject)
+                  Asunto Predeterminado al presionar Correos Institucionales de la Web (Subject)
                 </label>
                 <input
                   type="text"
@@ -741,24 +645,70 @@ export const AdminSettingsPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
                 />
                 <p className="text-[11px] text-slate-400">
-                  Asunto que se completará automáticamente en el correo del usuario cuando haga clic en un email de la web.
+                  Asunto que se completará automáticamente al presionar los correos institucionales de contacto de CICHA.
                 </p>
               </div>
 
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="font-bold text-slate-800 text-xs">
-                  Mensaje / Cuerpo Predeterminado al presionar Correos de la Web (Body)
+                  Mensaje / Cuerpo Predeterminado al presionar Correos Institucionales (Body)
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={settings.email_prefilled_body || ''}
                   onChange={(e) => setSettings({ ...settings, email_prefilled_body: e.target.value })}
                   placeholder="Ej. Hola, vengo de la web de CICHA y me gustaría solicitar información sobre..."
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
                 />
                 <p className="text-[11px] text-slate-400">
-                  Texto precargado en el cuerpo del correo listo para que el usuario escriba su consulta.
+                  Texto precargado en el cuerpo del correo institucional listo para que el usuario escriba su consulta.
                 </p>
+              </div>
+
+              {/* Correos Socios: Mensaje Predeterminado (Directorio Web & B2B) */}
+              <div className="space-y-1.5 sm:col-span-2 pt-4 border-t-2 border-blue-100 bg-blue-50/50 p-3.5 rounded-2xl">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-lg bg-blue-600 text-white">
+                    <Mail className="w-3.5 h-3.5" />
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-xs">Correos Socios: Asunto & Mensaje Predeterminado</h4>
+                    <p className="text-[11px] text-slate-500">
+                      Configuración del asunto y cuerpo que se abrirá al hacer clic en el correo de cualquier socio en <strong>Socios Web Pública</strong> y <strong>Directorio B2B Privado</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 text-xs">
+                      Asunto Predeterminado para Correos de Socios (Subject) *
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.member_email_subject !== undefined ? settings.member_email_subject : 'MENSAJE POR MEDIO DE LA PAGINA DE CICHA'}
+                      onChange={(e) => setSettings({ ...settings, member_email_subject: e.target.value })}
+                      placeholder="MENSAJE POR MEDIO DE LA PAGINA DE CICHA"
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-blue-900 focus:ring-2 focus:ring-blue-600"
+                    />
+                    <p className="text-[10.5px] text-slate-500">
+                      Asunto predeterminado: <em>MENSAJE POR MEDIO DE LA PAGINA DE CICHA</em>
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 text-xs">
+                      Mensaje / Cuerpo Opcional para Correos de Socios (Body)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={settings.member_email_body || ''}
+                      onChange={(e) => setSettings({ ...settings, member_email_body: e.target.value })}
+                      placeholder="Ej. Estimados, nos comunicamos a través del Directorio de Socios de CICHA..."
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs focus:ring-2 focus:ring-blue-600"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -911,82 +861,28 @@ export const AdminSettingsPage: React.FC = () => {
             </button>
           </div>
         </form>
-      ) : activeTab === 'users' ? (
-        /* Users Tab */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
-                <tr>
-                  <th className="py-3.5 px-4">Usuario</th>
-                  <th className="py-3.5 px-4">Email</th>
-                  <th className="py-3.5 px-4">Rol</th>
-                  <th className="py-3.5 px-4">Empresa Socia</th>
-                  <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{u.name}</td>
-                    <td className="py-3.5 px-4 text-slate-600">{u.email}</td>
-                    <td className="py-3.5 px-4">
-                      <Badge
-                        variant={u.role === 'admin' ? 'danger' : u.role === 'secretario' ? 'primary' : 'gold'}
-                        className="uppercase"
-                      >
-                        {u.role}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-500">{u.member_company_name || '-'}</td>
-                    <td className="py-3.5 px-4">
-                      <Badge variant={u.status === 'active' ? 'success' : 'secondary'}>{u.status}</Badge>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEditUser(u)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        {Number(u.id) !== 1 && (
-                          <button
-                            onClick={() => handleDeleteUser(u.id)}
-                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       ) : activeTab === 'institutional' ? (
         /* Institutional Sections Tab */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.map((sec) => (
-            <div key={sec.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                  {sec.section_key}
-                </span>
-                <button
-                  onClick={() => handleOpenEditSection(sec)}
-                  className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 font-bold text-xs flex items-center gap-1"
-                >
-                  <Edit2 className="w-3.5 h-3.5" /> Editar
-                </button>
+          {sections
+            .filter((sec) => sec.section_key !== 'mision' && sec.section_key !== 'objeto')
+            .map((sec) => (
+              <div key={sec.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    {sec.section_key}
+                  </span>
+                  <button
+                    onClick={() => handleOpenEditSection(sec)}
+                    className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 font-bold text-xs flex items-center gap-1"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" /> Editar
+                  </button>
+                </div>
+                <h3 className="font-serif font-bold text-base text-cicha-navy">{sec.title}</h3>
+                <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{sec.content}</p>
               </div>
-              <h3 className="font-serif font-bold text-base text-cicha-navy">{sec.title}</h3>
-              <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{sec.content}</p>
-            </div>
-          ))}
+            ))}
         </div>
       ) : activeTab === 'authorities' ? (
         /* Authorities Tab */
@@ -1110,113 +1006,6 @@ export const AdminSettingsPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* User Modal */}
-      <Modal
-        isOpen={isUserModalOpen}
-        onClose={() => setIsUserModalOpen(false)}
-        title={editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
-        maxWidth="lg"
-      >
-        <form onSubmit={handleSubmitUser} className="space-y-4 text-xs">
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Nombre Completo *</label>
-            <input
-              type="text"
-              required
-              value={userForm.name}
-              onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Correo Electrónico *</label>
-            <input
-              type="email"
-              required
-              value={userForm.email}
-              onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">
-              Contraseña {editingUser && '(En blanco para mantener)'}
-            </label>
-            <input
-              type="password"
-              required={!editingUser}
-              value={userForm.password}
-              onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-              placeholder={editingUser ? '••••••••' : 'Mínimo 6 caracteres'}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Rol *</label>
-              <select
-                value={userForm.role}
-                onChange={(e) => setUserForm({ ...userForm, role: e.target.value as any })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
-              >
-                <option value="admin">Administrador (Total)</option>
-                <option value="secretario">Secretario (Operativo)</option>
-                <option value="socio">Socio (Intranet)</option>
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Estado</label>
-              <select
-                value={userForm.status}
-                onChange={(e) => setUserForm({ ...userForm, status: e.target.value as any })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
-              >
-                <option value="active">Activo</option>
-                <option value="inactive">Inactivo</option>
-              </select>
-            </div>
-          </div>
-
-          {userForm.role === 'socio' && (
-            <div className="space-y-1.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
-              <label className="font-bold text-amber-900">Vincular a Empresa Socia:</label>
-              <select
-                value={userForm.member_id}
-                onChange={(e) => setUserForm({ ...userForm, member_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-amber-300 bg-white"
-              >
-                <option value="">-- Seleccionar Empresa --</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.company_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setIsUserModalOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
-            >
-              {submitting ? 'Guardando...' : 'Guardar Usuario'}
-            </button>
-          </div>
-        </form>
-      </Modal>
 
       {/* Section Modal */}
       {editingSection && (
@@ -1545,7 +1334,7 @@ export const AdminSettingsPage: React.FC = () => {
                 onChange={(e) => {
                   const val = e.target.value;
                   if (val === 'custom') {
-                    if (['/asociarse', '/comercio-bilateral', '/institucional', '/noticias', '/eventos', '/socios', '/contacto', '/portal-socios', ''].includes(bannerForm.button_url)) {
+                    if (['/asociarse', '/institucional', '/noticias', '/eventos', '/socios', '/contacto', '/portal-socios', ''].includes(bannerForm.button_url)) {
                       setBannerForm({ ...bannerForm, button_url: 'https://' });
                     }
                   } else {
@@ -1557,7 +1346,6 @@ export const AdminSettingsPage: React.FC = () => {
                 <option value="">-- Sin Botón / Enlace --</option>
                 <optgroup label="Secciones Principales del Portal">
                   <option value="/asociarse">Membresía / Asociarse (/asociarse)</option>
-                  <option value="/comercio-bilateral">Comercio Bilateral & EEN (/comercio-bilateral)</option>
                   <option value="/institucional">Institucional & Autoridades (/institucional)</option>
                   <option value="/noticias">Noticias & Artículos (/noticias)</option>
                   <option value="/eventos">Agenda de Eventos (/eventos)</option>
@@ -1565,7 +1353,7 @@ export const AdminSettingsPage: React.FC = () => {
                   <option value="/contacto">Contacto Institucional (/contacto)</option>
                 </optgroup>
                 <optgroup label="Portal Exclusivo de Socios">
-                  <option value="/portal-socios">Intranet / Portal de Socios (/portal-socios)</option>
+                  <option value="/portal-socios">Portal de Socios (/portal-socios)</option>
                 </optgroup>
                 <option value="custom">🌐 Otro enlace personalizado o URL externa...</option>
               </select>
@@ -1574,7 +1362,6 @@ export const AdminSettingsPage: React.FC = () => {
               {![
                 '',
                 '/asociarse',
-                '/comercio-bilateral',
                 '/institucional',
                 '/noticias',
                 '/eventos',
