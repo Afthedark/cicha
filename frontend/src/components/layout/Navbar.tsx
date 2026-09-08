@@ -13,7 +13,7 @@ import {
   Gift,
   Users,
 } from 'lucide-react';
-import cichaLogo from '../../assets/images/logo_sin_texto.png';
+import cichaLogo from '../../assets/images/logo_oficial.jpeg';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
 
@@ -75,26 +75,18 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-300 shadow-md">
       {/* 1. TOP BAR: Identity, Slogan, Bilateral Flags & Official Accreditations */}
-      <div className="bg-gradient-to-r from-white via-sky-50/40 to-white border-b border-slate-200/80 py-3 sm:py-3.5 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-r from-white via-sky-50/40 to-white border-b border-slate-200/80 py-2.5 sm:py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-5">
           
           {/* Left: Logo + Typography + Slogan + Flags + Accreditations */}
           <div className="flex items-center gap-3 sm:gap-4 md:gap-5 min-w-0">
             {/* Brand Logo & Name */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group">
+            <Link to="/" className="flex items-center shrink-0 group">
               <img
                 src={cichaLogo}
-                alt="CICHA"
-                className="h-9 sm:h-11 md:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+                alt="CICHA - Cámara de Industria y Comercio Heleno Argentina"
+                className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-102"
               />
-              <div className="flex flex-col">
-                <span className="text-sm sm:text-base md:text-lg font-black tracking-tight text-[#004b87] leading-none">
-                  CICHA
-                </span>
-                <span className="hidden sm:inline text-[9.5px] sm:text-[10px] md:text-[10.5px] font-bold text-slate-600 tracking-wider uppercase leading-tight mt-1 max-w-[240px] md:max-w-none truncate md:overflow-visible">
-                  Cámara de Industria y Comercio Heleno Argentina
-                </span>
-              </div>
             </Link>
 
             {/* Slogan */}
