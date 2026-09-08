@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Globe2,
   Phone,
   Mail,
   MapPin,
   Clock,
   ShieldCheck,
-  Building2,
   ExternalLink,
   ChevronRight,
 } from 'lucide-react';
@@ -69,13 +67,13 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link to="/institucional" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                <Link to="/la-camara" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
                   <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
-                  Misión, Objeto e Historia
+                  La Cámara: Misión, Objeto e Historia
                 </Link>
               </li>
               <li>
-                <Link to="/institucional#autoridades" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                <Link to="/la-camara#autoridades" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
                   <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Comisión Directiva y Autoridades
                 </Link>
@@ -119,39 +117,7 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 3: Alliances & Networks */}
-          <div className="space-y-3">
-            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2">
-              Redes & Alianzas
-            </h4>
-            <div className="space-y-2.5 text-xs">
-              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
-                <p className="font-bold text-white flex items-center justify-between">
-                  EUROCAMARA Argentina
-                  <ExternalLink className="w-3.5 h-3.5 text-[#00AEEF]" />
-                </p>
-                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Miembro Activo desde Mayo 2017</p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
-                <p className="font-bold text-white flex items-center justify-between">
-                  Enterprise Europe Network
-                  <Globe2 className="w-3.5 h-3.5 text-[#00AEEF]" />
-                </p>
-                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Nodo Oficial en Argentina (Unión Europea)</p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/10 border border-white/20 hover:border-[#00AEEF] transition-colors">
-                <p className="font-bold text-white flex items-center justify-between">
-                  UCCEB (32 Cámaras)
-                  <Building2 className="w-3.5 h-3.5 text-[#F5A623]" />
-                </p>
-                <p className="text-[11px] text-[#D4EEFC] mt-0.5">Unión de Cámaras Comerciales Extranjeras Binacionales</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Column 4: Contact info */}
+          {/* Column 3: Contact info */}
           <div className="space-y-3">
             <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2">
               Sede & Contacto
@@ -195,6 +161,39 @@ export const Footer: React.FC = () => {
                 <span>{settings.office_hours || 'Lun a Vie 09:00 a 18:00 hs (ART)'}</span>
               </p>
             </div>
+          </div>
+
+          {/* Column 4: Map & Location */}
+          <div className="space-y-3">
+            <h4 className="font-serif font-bold text-white text-base tracking-wider uppercase border-b-2 border-[#00AEEF]/50 pb-2 flex items-center justify-between">
+              <span>Mapa & Ubicación</span>
+              <a
+                href="https://www.google.com/maps/place/C%C3%A1mara+de+Industria+y+Comercio+Heleno+Argentina/@-34.5958402,-58.4291945,19.5z/data=!4m6!3m5!1s0x95bccad4788592f5:0x1afe71fa83fc355a!8m2!3d-34.5961248!4d-58.429377!16s%2Fg%2F1q6j4tcbm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-normal text-[#D4EEFC] hover:text-white flex items-center gap-1 transition-colors normal-case"
+                title="Abrir en Google Maps"
+              >
+                <span>Ver mapa</span>
+                <ExternalLink className="w-3 h-3 text-[#00AEEF]" />
+              </a>
+            </h4>
+            <div className="relative w-full h-40 rounded-xl overflow-hidden border border-white/25 shadow-lg bg-black/20">
+              <iframe
+                title="Ubicación oficial de la Cámara de Industria y Comercio Heleno Argentina"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1642.1129993339127!2d-58.4300207!3d-34.5961248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccad4788592f5%3A0x1afe71fa83fc355a!2sC%C3%A1mara%20de%20Industria%20y%20Comercio%20Heleno%20Argentina!5e0!3m2!1ses!2sar!4v1710000000000!5m2!1ses!2sar"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+            </div>
+            <p className="text-[11px] text-white/80 leading-tight">
+              Sede Central en C.A.B.A., República Argentina.
+            </p>
           </div>
         </div>
 

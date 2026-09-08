@@ -15,9 +15,19 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
     - Dorado Metálico: `#F5A623` / `#D4AF37`
   - Tipografías: *Inter* para lectura corporativa y *Cinzel* para títulos solemnes institucionales.
   - Micro-animaciones:
+    - `@keyframes glowBlinkWhite`: resplandor blanco sutil y elegante con efecto de parpadeo suave sobre el título principal en Inicio.
     - `@keyframes zoomFromCenter`: animación expansiva del título principal institucional desde el centro.
     - Contadores dinámicos cíclicos (`CounterDisplay`) con curva cúbica suave (`easeOut`) e intervalos periódicos.
     - Efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS.
+- **🏛️ Módulo "La Cámara" (`/la-camara`)**:
+  - Denominación oficial unificada en el menú principal (`Navbar.tsx`) y en el `Footer.tsx`.
+  - Enrutamiento optimizado con redirección desde `/institucional` a `/la-camara`.
+  - Visualización jerárquica en 3 bloques dinámicos ordenados por `order_num`: Presidencia Honoraria, Comisión Directiva y Comisión Revisora de Cuentas (Órgano de Fiscalización).
+- **⚙️ Gestión Unificada de Comisión Directiva & Autoridades (`AdminSettingsPage.tsx`)**:
+  - Pestaña de administración centralizada en **Configuración & Gestión** (`/admin/configuracion?tab=authorities`).
+  - Filtros interactivos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora*, *Presidencia Honoraria*).
+  - Selector de categoría (`directiva`, `revisora`, `honorario`, `comite`) con ayuda contextual y validación de orden de visualización.
+  - Redirección automática de rutas previas (`/admin/autoridades` y `/admin/alianzas` a `/admin/configuracion`).
 - **👥 Gestión Especializada de Usuarios y Socios**:
   - **Staff & Administradores (`AdminUsersPage.tsx`)**: Exclusivo para administradores para dar de alta roles `admin` y `secretario`.
   - **Cuentas de Socios (`AdminPartnerUsersPage.tsx`)**: Gestionable por administradores y secretarios para dar de alta accesos al Portal de Socios de forma directa y limpia.
@@ -69,9 +79,9 @@ frontend/src/
 │   └── AuthContext.tsx      # Gestión de autenticación, JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 ├── pages/
 │   ├── public/              # 12 Vistas del Portal Público (Visitante)
-│   │   ├── HomePage.tsx                           # Inicio con contadores cíclicos y Misión/Objeto
-│   │   ├── InstitutionalPage.tsx
-│   │   ├── TradeBilateralPage.tsx
+│   │   ├── HomePage.tsx                           # Inicio con título iluminado, contadores y Misión/Objeto
+│   │   ├── InstitutionalPage.tsx                  # La Cámara (/la-camara) con nómina jerárquica
+│   │   ├── PresentationPage.tsx                   # Presentación institucional
 │   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
 │   │   ├── BlogsPage.tsx & BlogDetailPage.tsx
 │   │   ├── GalleryPage.tsx
@@ -98,12 +108,10 @@ frontend/src/
 │       ├── AdminPartnerResourcesPage.tsx          # Subida dual de PDF / URL
 │       ├── AdminUsersPage.tsx                     # Staff & Administradores (Exclusivo Admin)
 │       ├── AdminPartnerUsersPage.tsx              # Cuentas de Socios (Admin & Secretario)
-│       ├── AdminAuthoritiesPage.tsx
-│       ├── AdminInstitutionalPage.tsx
-│       ├── AdminAlliancesPage.tsx
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       └── AdminSettingsPage.tsx                  # Correos Socios, Portadas, Redes y Sede
+│       ├── AdminInstitutionalPage.tsx             # Contenidos Institucionales
+│       └── AdminSettingsPage.tsx                  # Comisión Directiva, Correos Socios, Portadas, Redes y Sede
 ├── services/
 │   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi (con búsqueda backend)
 └── types/

@@ -126,9 +126,9 @@ export const HomePage: React.FC = () => {
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-cicha-turquoise/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10 space-y-6 sm:space-y-8">
-          {/* TITLE ABOVE TOP BANNERS CON ANIMACIÓN EXPANSIVA DESDE EL CENTRO */}
+          {/* TITLE ABOVE TOP BANNERS CON CONTRASTE BLANCO RESPLANDECIENTE Y ANIMACIÓN DE PARPADEO */}
           <div className="text-center py-2 sm:py-3">
-            <h2 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#071E38] tracking-wider uppercase drop-shadow-[0_2px_4px_rgba(255,255,255,0.4)] px-2 animate-zoom-center inline-block">
+            <h2 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white tracking-wider uppercase px-2 animate-glow-blink-white inline-block">
               CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA
             </h2>
           </div>
@@ -317,7 +317,7 @@ export const HomePage: React.FC = () => {
                     <p className="text-xs text-slate-300 mt-1 font-medium">Años de Trayectoria Bilateral (1989)</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-blue-400/40 transition-all flex flex-col justify-center">
-                    <CounterDisplay target={32} className="text-3xl font-extrabold text-blue-400 font-serif" />
+                    <CounterDisplay target={38} className="text-3xl font-extrabold text-blue-400 font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Cámaras Binacionales en UCCEB</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-white/40 transition-all flex flex-col justify-center">

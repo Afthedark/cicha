@@ -158,11 +158,11 @@ La API cuenta con una arquitectura de seguridad por capas:
 158: | `CRUD` | `/admin/applications` | Bandeja y estados de solicitudes de afiliación | `admin`, `secretario` |
 159: | `CRUD` | `/admin/messages` | Bandeja y seguimiento de mensajes de contacto | `admin`, `secretario` |
 160: | `POST` | `/admin/upload` | Subida de archivos e imágenes a `/public/uploads/` | `admin`, `secretario` |
-161: | `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva | `admin`, `secretario` |
-162: | `CRUD` | `/admin/alliances` | Gestión de convenios y redes | `admin`, `secretario` |
-163: | `GET/PUT`| `/admin/institutional`| Edición de Misión, Objeto y Estatutos | `admin`, `secretario` |
-164: | `GET/POST`| `/admin/settings` | Configuración global: sede, contactos, redes sociales (TikTok, YouTube), SEO y **plantillas de Correos Socios** (`member_email_subject`, `member_email_body`) | `admin`, `secretario` |
-165: | `CRUD` | `/admin/users` | Administración de cuentas de usuario (`?role=admin,secretario` o `?role=socio`). Los secretarios pueden gestionar exclusivamente usuarios con rol `socio`. | `admin` (Staff), `admin`/`secretario` (Socios) |
+| `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva, Comisión Revisora, Presidencia Honoraria y Comités con soporte de categorías (`category`) y orden numérico (`order_num`) | `admin`, `secretario` |
+| `CRUD` | `/admin/alliances` | Gestión de convenios y redes (EUROCAMARA, EEN, UCCEB) | `admin`, `secretario` |
+| `GET/PUT`| `/admin/institutional`| Edición de Misión, Objeto y Estatutos de La Cámara | `admin`, `secretario` |
+| `GET/POST`| `/admin/settings` | Configuración global: sede, contactos, redes sociales (TikTok, YouTube), SEO y **plantillas de Correos Socios** (`member_email_subject`, `member_email_body`) | `admin`, `secretario` |
+| `CRUD` | `/admin/users` | Administración de cuentas de usuario (`?role=admin,secretario` o `?role=socio`). Los secretarios pueden gestionar exclusivamente usuarios con rol `socio`. | `admin` (Staff), `admin`/`secretario` (Socios) |
 166: 
 167: ---
 168: 

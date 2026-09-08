@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
   const publicNavLinks = [
     { name: 'Inicio', path: '/' },
     { name: 'Presentación', path: '/presentacion' },
-    { name: 'Institucional', path: '/institucional' },
+    { name: 'La Cámara', path: '/la-camara' },
     { name: 'Noticias', path: '/noticias' },
     { name: 'Blogs', path: '/blogs' },
     { name: 'Post Redes', path: '/redes-sociales' },

@@ -37,16 +37,28 @@ class AuthoritiesController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
+        $category = $input['category'] ?? '';
+        if (empty($category)) {
+            $roleTitle = $input['role_title'] ?? '';
+            if (stripos($roleTitle, 'revisor') !== false) {
+                $category = 'revisora';
+            } elseif (stripos($roleTitle, 'honorario') !== false) {
+                $category = 'honorario';
+            } else {
+                $category = 'directiva';
+            }
+        }
+
         $data = [
             'name'         => $input['name'] ?? '',
             'role_title'   => $input['role_title'] ?? '',
-            'category'     => $input['category'] ?? 'directiva',
+            'category'     => $category,
             'company'      => $input['company'] ?? '',
             'bio'          => $input['bio'] ?? '',
             'photo_url'    => $input['photo_url'] ?? '',
             'linkedin_url' => $input['linkedin_url'] ?? '',
             'order_num'    => (int) ($input['order_num'] ?? 0),
-            'is_active'    => !empty($input['is_active']) ? 1 : 0,
+            'is_active'    => isset($input['is_active']) ? ((int) $input['is_active'] ? 1 : 0) : 1,
         ];
 
         $model = new AuthorityModel();

@@ -113,12 +113,16 @@ export function App() {
             }
           />
           <Route
-            path="/institucional"
+            path="/la-camara"
             element={
               <PublicLayout>
                 <InstitutionalPage />
               </PublicLayout>
             }
+          />
+          <Route
+            path="/institucional"
+            element={<Navigate to="/la-camara" replace />}
           />
           <Route
             path="/comercio-bilateral"
@@ -249,11 +253,7 @@ export function App() {
             {/* Configuration & Institutional Management (Roles: admin, secretario) */}
             <Route
               path="autoridades"
-              element={
-                <RoleRoute allowedRoles={['admin', 'secretario']}>
-                  <AdminAuthoritiesPage />
-                </RoleRoute>
-              }
+              element={<Navigate to="/admin/configuracion?tab=authorities" replace />}
             />
             <Route
               path="institucional"
@@ -265,11 +265,7 @@ export function App() {
             />
             <Route
               path="alianzas"
-              element={
-                <RoleRoute allowedRoles={['admin', 'secretario']}>
-                  <AdminAlliancesPage />
-                </RoleRoute>
-              }
+              element={<Navigate to="/admin/configuracion?tab=alliances" replace />}
             />
             <Route
               path="configuracion"

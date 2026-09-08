@@ -49,6 +49,35 @@ export const InstitutionalPage: React.FC = () => {
   const historia = getSection('historia');
   const redes = getSection('redes_estrategicas');
 
+  // Helper sort function
+  const sortByOrder = (a: Authority, b: Authority) => (a.order_num ?? 0) - (b.order_num ?? 0);
+
+  // 1. Presidencia Honoraria
+  const honorarios = authorities
+    .filter((a) => a.category === 'honorario' || a.role_title.toLowerCase().includes('honorario'))
+    .sort(sortByOrder);
+  const honorarioIds = new Set(honorarios.map((a) => a.id));
+
+  // 2. Comisión Revisora de Cuentas
+  const revisores = authorities
+    .filter((a) => a.category === 'revisora' || a.role_title.toLowerCase().includes('revisor'))
+    .sort(sortByOrder);
+  const revisorIds = new Set(revisores.map((a) => a.id));
+
+  // 3. Comisión Directiva (Mesa Ejecutiva y Vocales)
+  const comisionDirectiva = authorities
+    .filter((a) => !honorarioIds.has(a.id) && !revisorIds.has(a.id))
+    .sort(sortByOrder);
+
+  const presidente = comisionDirectiva
+    .filter((a) => a.role_title.trim().toLowerCase() === 'presidente')
+    .sort(sortByOrder);
+  const presidenteIds = new Set(presidente.map((a) => a.id));
+
+  const mesaEjecutivaYVocales = comisionDirectiva
+    .filter((a) => !presidenteIds.has(a.id))
+    .sort(sortByOrder);
+
   return (
     <div className="space-y-16 pb-20">
       {/* 1. Header Banner / Portada Institucional */}
@@ -145,7 +174,7 @@ export const InstitutionalPage: React.FC = () => {
       </section>
 
       {/* 2. Board of Directors / Authorities (Comité Directivo & Comisión Revisora) */}
-      <section id="autoridades" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <section id="autoridades" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <Badge variant="primary">Liderazgo Institucional</Badge>
           <h2 className="font-serif font-bold text-2xl sm:text-3xl text-cicha-navy">
@@ -156,104 +185,135 @@ export const InstitutionalPage: React.FC = () => {
           </p>
         </div>
 
-        {/* 2.1 Presidente Honorario & Presidente */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {authorities
-            .filter((a) => a.category === 'honorario' || a.role_title === 'Presidente')
-            .map((auth) => (
-              <div
-                key={auth.id}
-                className="bg-gradient-to-br from-white via-slate-50 to-blue-50/30 rounded-3xl p-6 sm:p-8 border-2 border-amber-400/80 shadow-md flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left"
-              >
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-cicha-sky shadow-md bg-slate-100 shrink-0">
-                  {auth.photo_url ? (
-                    <img src={auth.photo_url} alt={auth.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-900 text-white font-serif font-bold text-2xl">
-                      {auth.name.charAt(0)}
+        {/* 2.1 Presidencia Honoraria & Presidencia Institucional */}
+        {(honorarios.length > 0 || presidente.length > 0) && (
+          <div className="space-y-4">
+            <h3 className="font-serif font-bold text-lg text-cicha-navy border-b-2 border-amber-400/80 pb-2 flex items-center justify-between">
+              <span>Presidencia Honoraria & Presidencia</span>
+              <span className="text-xs font-sans text-amber-700 font-bold uppercase tracking-wider">Alta Dirección</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[...honorarios, ...presidente].map((auth) => {
+                const photo = resolveImageUrl(auth.photo_url);
+                const isHon = auth.category === 'honorario' || auth.role_title.toLowerCase().includes('honorario');
+                return (
+                  <div
+                    key={auth.id}
+                    className={`bg-gradient-to-br from-white via-slate-50 to-blue-50/40 rounded-3xl p-6 sm:p-8 border-2 ${
+                      isHon ? 'border-amber-400' : 'border-blue-600'
+                    } shadow-md flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left hover:shadow-lg transition-all`}
+                  >
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-cicha-sky shadow-md bg-slate-100 shrink-0">
+                      {photo ? (
+                        <img src={photo} alt={auth.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-900 text-white font-serif font-bold text-2xl">
+                          {auth.name.charAt(0)}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="space-y-2 flex-1">
-                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950">
-                    {auth.role_title}
-                  </span>
-                  <h3 className="font-serif font-bold text-xl text-cicha-navy">{auth.name}</h3>
-                  {auth.company && (
-                    <p className="text-xs font-bold text-blue-800 tracking-wide">{auth.company}</p>
-                  )}
-                  {auth.bio && <p className="text-xs text-slate-600 leading-relaxed">{auth.bio}</p>}
-                </div>
-              </div>
-            ))}
-        </div>
-
-        {/* 2.2 Mesa Ejecutiva & Vocales */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-lg text-cicha-navy border-b border-slate-200 pb-2">
-            Mesa Ejecutiva y Vocales
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {authorities
-              .filter(
-                (a) =>
-                  a.category === 'directiva' &&
-                  a.role_title !== 'Presidente'
-              )
-              .map((auth) => (
-                <div
-                  key={auth.id}
-                  className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-start gap-4 group"
-                >
-                  {/* Photo or Initials Avatar */}
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-sm">
-                    {auth.photo_url ? (
-                      <img src={auth.photo_url} alt={auth.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-900 font-serif font-bold text-lg">
-                        {auth.name.charAt(0)}
-                      </div>
-                    )}
+                    <div className="space-y-2 flex-1">
+                      <span
+                        className={`text-[10px] font-extrabold uppercase px-3 py-1 rounded-full ${
+                          isHon ? 'bg-amber-500 text-slate-950' : 'bg-blue-600 text-white'
+                        }`}
+                      >
+                        {auth.role_title}
+                      </span>
+                      <h4 className="font-serif font-bold text-xl text-cicha-navy">{auth.name}</h4>
+                      {auth.company && (
+                        <p className="text-xs font-bold text-blue-800 tracking-wide">{auth.company}</p>
+                      )}
+                      {auth.bio && <p className="text-xs text-slate-600 leading-relaxed">{auth.bio}</p>}
+                    </div>
                   </div>
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <span className="text-[11px] font-bold text-blue-700 block truncate">{auth.role_title}</span>
-                    <h4 className="font-serif font-bold text-base text-cicha-navy group-hover:text-blue-700 transition-colors truncate">
-                      {auth.name}
-                    </h4>
-                    {auth.company && (
-                      <p className="text-xs font-semibold text-amber-700 truncate">{auth.company}</p>
-                    )}
-                    {auth.bio && <p className="text-xs text-slate-500 line-clamp-2 mt-1">{auth.bio}</p>}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* 2.2 Comisión Directiva: Mesa Ejecutiva & Vocales */}
+        {mesaEjecutivaYVocales.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-serif font-bold text-lg text-cicha-navy border-b-2 border-blue-600/50 pb-2 flex items-center justify-between">
+              <span>Comisión Directiva</span>
+              <span className="text-xs font-sans text-blue-700 font-bold uppercase tracking-wider">Mesa Ejecutiva & Vocales</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mesaEjecutivaYVocales.map((auth) => {
+                const photo = resolveImageUrl(auth.photo_url);
+                return (
+                  <div
+                    key={auth.id}
+                    className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-start gap-4 group hover:border-blue-300"
+                  >
+                    {/* Photo or Initials Avatar */}
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-sm">
+                      {photo ? (
+                        <img src={photo} alt={auth.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-900 font-serif font-bold text-lg">
+                          {auth.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <span className="text-[11px] font-bold text-blue-700 block truncate">{auth.role_title}</span>
+                      <h4 className="font-serif font-bold text-base text-cicha-navy group-hover:text-blue-700 transition-colors truncate">
+                        {auth.name}
+                      </h4>
+                      {auth.company && (
+                        <p className="text-xs font-semibold text-amber-700 truncate">{auth.company}</p>
+                      )}
+                      {auth.bio && <p className="text-xs text-slate-500 line-clamp-2 mt-1">{auth.bio}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 2.3 Comisión Revisora de Cuentas */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-lg text-cicha-navy border-b border-slate-200 pb-2">
-            Comisión Revisora de Cuentas
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {authorities
-              .filter((a) => a.category === 'revisora')
-              .map((auth) => (
-                <div
-                  key={auth.id}
-                  className="bg-slate-50 rounded-2xl p-5 border border-slate-200 shadow-sm space-y-1.5"
-                >
-                  <span className="text-[10px] font-bold uppercase text-slate-500 block">
-                    {auth.role_title}
-                  </span>
-                  <h4 className="font-serif font-bold text-sm text-cicha-navy">{auth.name}</h4>
-                  {auth.company && (
-                    <p className="text-xs text-blue-800 font-semibold">{auth.company}</p>
-                  )}
-                </div>
-              ))}
+        {revisores.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-serif font-bold text-lg text-cicha-navy border-b-2 border-purple-500/50 pb-2 flex items-center justify-between">
+              <span>Comisión Revisora de Cuentas</span>
+              <span className="text-xs font-sans text-purple-700 font-bold uppercase tracking-wider">Órgano de Fiscalización</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {revisores.map((auth) => {
+                const photo = resolveImageUrl(auth.photo_url);
+                return (
+                  <div
+                    key={auth.id}
+                    className="bg-slate-50 hover:bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex items-start gap-3.5 hover:border-purple-300"
+                  >
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs">
+                      {photo ? (
+                        <img src={photo} alt={auth.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-900 text-white font-serif font-bold text-base">
+                          {auth.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <span className="text-[10px] font-bold uppercase text-purple-700 block leading-tight truncate">
+                        {auth.role_title}
+                      </span>
+                      <h4 className="font-serif font-bold text-sm text-cicha-navy leading-snug truncate">{auth.name}</h4>
+                      {auth.company && (
+                        <p className="text-xs text-blue-800 font-semibold truncate">{auth.company}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* 3. Strategic Alliances Detail (Redes y Alianzas Multilaterales) */}

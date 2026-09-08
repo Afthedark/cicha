@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Settings as SettingsIcon,
   Shield,
@@ -16,7 +17,7 @@ import {
   Image as ImageIcon,
   ExternalLink,
 } from 'lucide-react';
-import { adminApi } from '../../services/api';
+import { adminApi, resolveImageUrl } from '../../services/api';
 import type { Settings, User, Authority, InstitutionalSection, Alliance, Member, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
@@ -26,7 +27,19 @@ import { ImageUploader } from '../../components/common/ImageUploader';
 
 export const AdminSettingsPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<'settings' | 'banners' | 'institutional' | 'authorities' | 'alliances'>('banners');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab') as 'settings' | 'banners' | 'institutional' | 'authorities' | 'alliances' | null;
+  const [activeTab, setActiveTab] = useState<'settings' | 'banners' | 'institutional' | 'authorities' | 'alliances'>(
+    tabParam && ['settings', 'banners', 'institutional', 'authorities', 'alliances'].includes(tabParam)
+      ? tabParam
+      : 'banners'
+  );
+
+  useEffect(() => {
+    if (tabParam && ['settings', 'banners', 'institutional', 'authorities', 'alliances'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
   const [loading, setLoading] = useState(true);
 
   // Settings state
@@ -58,17 +71,19 @@ export const AdminSettingsPage: React.FC = () => {
 
   // Authorities state
   const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [authCategoryFilter, setAuthCategoryFilter] = useState<string>('all');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [editingAuth, setEditingAuth] = useState<Authority | null>(null);
   const [authForm, setAuthForm] = useState({
     name: '',
     role_title: '',
-    category: 'directiva' as any,
+    category: 'directiva' as string,
     company: '',
     bio: '',
     photo_url: '',
     linkedin_url: '',
     order_num: 1,
+    is_active: 1,
   });
 
   // Alliances state
@@ -233,6 +248,7 @@ export const AdminSettingsPage: React.FC = () => {
       photo_url: '',
       linkedin_url: '',
       order_num: authorities.length + 1,
+      is_active: 1,
     });
     setIsAuthModalOpen(true);
   };
@@ -242,12 +258,13 @@ export const AdminSettingsPage: React.FC = () => {
     setAuthForm({
       name: auth.name,
       role_title: auth.role_title,
-      category: auth.category,
+      category: auth.category || 'directiva',
       company: auth.company || '',
       bio: auth.bio || '',
       photo_url: auth.photo_url || '',
       linkedin_url: auth.linkedin_url || '',
       order_num: auth.order_num || 1,
+      is_active: auth.is_active ? 1 : 0,
     });
     setIsAuthModalOpen(true);
   };
@@ -379,7 +396,10 @@ export const AdminSettingsPage: React.FC = () => {
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-3 border-b border-slate-200">
         <button
-          onClick={() => setActiveTab('banners')}
+          onClick={() => {
+            setActiveTab('banners');
+            setSearchParams({ tab: 'banners' });
+          }}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'banners'
               ? 'border-blue-600 text-blue-700'
@@ -391,7 +411,10 @@ export const AdminSettingsPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('settings')}
+          onClick={() => {
+            setActiveTab('settings');
+            setSearchParams({ tab: 'settings' });
+          }}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'settings'
               ? 'border-blue-600 text-blue-700'
@@ -403,7 +426,10 @@ export const AdminSettingsPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('institutional')}
+          onClick={() => {
+            setActiveTab('institutional');
+            setSearchParams({ tab: 'institutional' });
+          }}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'institutional'
               ? 'border-blue-600 text-blue-700'
@@ -415,7 +441,10 @@ export const AdminSettingsPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('authorities')}
+          onClick={() => {
+            setActiveTab('authorities');
+            setSearchParams({ tab: 'authorities' });
+          }}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'authorities'
               ? 'border-blue-600 text-blue-700'
@@ -427,7 +456,10 @@ export const AdminSettingsPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('alliances')}
+          onClick={() => {
+            setActiveTab('alliances');
+            setSearchParams({ tab: 'alliances' });
+          }}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'alliances'
               ? 'border-blue-600 text-blue-700'
@@ -886,56 +918,166 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
       ) : activeTab === 'authorities' ? (
         /* Authorities Tab */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
-                <tr>
-                  <th className="py-3.5 px-4">Orden</th>
-                  <th className="py-3.5 px-4">Nombre</th>
-                  <th className="py-3.5 px-4">Cargo</th>
-                  <th className="py-3.5 px-4">Empresa</th>
-                  <th className="py-3.5 px-4 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {authorities.map((auth) => (
-                  <tr key={auth.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-slate-400">#{auth.order_num}</td>
-                    <td className="py-3.5 px-4 font-bold text-slate-900">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                          {auth.photo_url ? (
-                            <img src={auth.photo_url} alt={auth.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="font-serif text-xs font-bold text-slate-600">{auth.name.charAt(0)}</span>
-                          )}
-                        </div>
-                        <span>{auth.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-blue-700 font-semibold">{auth.role_title}</td>
-                    <td className="py-3.5 px-4 text-slate-500">{auth.company || '-'}</td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEditAuth(auth)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteAuth(auth.id)}
-                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 className="font-serif font-bold text-base text-cicha-navy">Comisión Directiva & Autoridades</h2>
+              <p className="text-xs text-slate-500">Gestión de cargos, comisiones y autoridades institucionales.</p>
+            </div>
+            <button
+              onClick={handleOpenCreateAuth}
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" /> Agregar Autoridad
+            </button>
+          </div>
+
+          {/* Quick Category Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 text-xs">
+            <button
+              onClick={() => setAuthCategoryFilter('all')}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                authCategoryFilter === 'all'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              Todos ({authorities.length})
+            </button>
+            <button
+              onClick={() => setAuthCategoryFilter('directiva')}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                authCategoryFilter === 'directiva'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-blue-800 hover:bg-blue-100/70'
+              }`}
+            >
+              Comisión Directiva ({authorities.filter((a) => a.category === 'directiva' || (!a.category && !a.role_title.toLowerCase().includes('revisor') && !a.role_title.toLowerCase().includes('honorario'))).length})
+            </button>
+            <button
+              onClick={() => setAuthCategoryFilter('revisora')}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                authCategoryFilter === 'revisora'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-purple-800 hover:bg-purple-100/70'
+              }`}
+            >
+              Comisión Revisora de Cuentas ({authorities.filter((a) => a.category === 'revisora' || a.role_title.toLowerCase().includes('revisor')).length})
+            </button>
+            <button
+              onClick={() => setAuthCategoryFilter('honorario')}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                authCategoryFilter === 'honorario'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-amber-900 hover:bg-amber-100/70'
+              }`}
+            >
+              Presidencia Honoraria ({authorities.filter((a) => a.category === 'honorario' || a.role_title.toLowerCase().includes('honorario')).length})
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3.5 px-4">Orden</th>
+                    <th className="py-3.5 px-4">Nombre</th>
+                    <th className="py-3.5 px-4">Cargo / Rol</th>
+                    <th className="py-3.5 px-4">Categoría / Estructura</th>
+                    <th className="py-3.5 px-4">Empresa</th>
+                    <th className="py-3.5 px-4">Estado</th>
+                    <th className="py-3.5 px-4 text-right">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {authorities
+                    .filter((auth) => {
+                      if (authCategoryFilter === 'all') return true;
+                      if (authCategoryFilter === 'revisora') {
+                        return auth.category === 'revisora' || auth.role_title.toLowerCase().includes('revisor');
+                      }
+                      if (authCategoryFilter === 'honorario') {
+                        return auth.category === 'honorario' || auth.role_title.toLowerCase().includes('honorario');
+                      }
+                      if (authCategoryFilter === 'directiva') {
+                        return (
+                          (auth.category === 'directiva' || !auth.category) &&
+                          !auth.role_title.toLowerCase().includes('revisor') &&
+                          !auth.role_title.toLowerCase().includes('honorario')
+                        );
+                      }
+                      return auth.category === authCategoryFilter;
+                    })
+                    .sort((a, b) => (a.order_num ?? 0) - (b.order_num ?? 0))
+                    .map((auth) => {
+                    const resolvedPhoto = resolveImageUrl(auth.photo_url);
+                    const getCatBadge = (cat?: string) => {
+                      switch (cat) {
+                        case 'honorario':
+                          return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">Presidencia Honoraria</span>;
+                        case 'revisora':
+                          return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-300">Comisión Revisora</span>;
+                        case 'comite':
+                          return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">Comité Asesor</span>;
+                        default:
+                          return <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">Comisión Directiva</span>;
+                      }
+                    };
+
+                    return (
+                      <tr key={auth.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-slate-400">#{auth.order_num}</td>
+                        <td className="py-3.5 px-4 font-bold text-slate-900">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                              {resolvedPhoto ? (
+                                <img src={resolvedPhoto} alt={auth.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="font-serif text-xs font-bold text-slate-600">{auth.name.charAt(0)}</span>
+                              )}
+                            </div>
+                            <span>{auth.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-blue-700 font-semibold">{auth.role_title}</td>
+                        <td className="py-3.5 px-4">{getCatBadge(auth.category)}</td>
+                        <td className="py-3.5 px-4 text-slate-500">{auth.company || '-'}</td>
+                        <td className="py-3.5 px-4">
+                          {auth.is_active ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                              Inactivo
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleOpenEditAuth(auth)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                              title="Editar autoridad"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAuth(auth.id)}
+                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Eliminar autoridad"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       ) : (
@@ -1075,46 +1217,90 @@ export const AdminSettingsPage: React.FC = () => {
       >
         <form onSubmit={handleSubmitAuth} className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Nombre *</label>
+            <label className="font-bold text-slate-700">Nombre y Apellido *</label>
             <input
               type="text"
               required
               value={authForm.name}
               onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              placeholder="Ej: Ing. Jorge Cotsiopoulos"
             />
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Cargo *</label>
+              <label className="font-bold text-slate-700">Cargo / Rol *</label>
               <input
                 type="text"
                 required
                 value={authForm.role_title}
                 onChange={(e) => setAuthForm({ ...authForm, role_title: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                placeholder="Presidente, Vocal Titular, Revisor..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
               />
             </div>
+
             <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Empresa</label>
+              <label className="font-bold text-slate-700">Categoría / Estructura *</label>
+              <select
+                value={authForm.category}
+                onChange={(e) => setAuthForm({ ...authForm, category: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              >
+                <option value="directiva">Comisión Directiva (Mesa Ejecutiva & Vocales)</option>
+                <option value="revisora">Comisión Revisora de Cuentas (Órgano de Fiscalización)</option>
+                <option value="honorario">Presidencia Honoraria</option>
+                <option value="comite">Comité Asesor / Especial</option>
+              </select>
+              <p className="text-[10.5px] text-slate-500">
+                {authForm.category === 'revisora'
+                  ? '🛡️ Se mostrará en la sección "Comisión Revisora de Cuentas" con su línea divisoria y bloque de fiscalización.'
+                  : authForm.category === 'honorario'
+                  ? '⭐ Se mostrará en la sección "Presidencia Honoraria & Presidencia".'
+                  : '🏛️ Se mostrará en la sección oficial de "Comisión Directiva".'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Empresa / Entidad</label>
               <input
                 type="text"
                 value={authForm.company}
                 onChange={(e) => setAuthForm({ ...authForm, company: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                placeholder="Ej: ARTEMISION SRL"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Orden de Visualización *</label>
+              <input
+                type="number"
+                min={1}
+                required
+                value={authForm.order_num === 0 ? '' : authForm.order_num}
+                onChange={(e) => setAuthForm({ ...authForm, order_num: e.target.value === '' ? 0 : parseInt(e.target.value, 10) || 1 })}
+                placeholder="1, 2, 3..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              />
+              <p className="text-[10.5px] text-slate-500">Número menor (ej. 1, 2, 3) se muestra primero dentro de su categoría.</p>
             </div>
           </div>
 
           {/* Director Photo Uploader */}
-          <ImageUploader
-            label="Foto de Perfil Profesional"
-            value={authForm.photo_url}
-            onChange={(url) => setAuthForm({ ...authForm, photo_url: url })}
-            helperText="Foto de retrato institucional (se guardará en /backend/public/uploads/)"
-            previewHeight="h-36"
-            aspectRatio="square"
-          />
+          <div className="space-y-1.5">
+            <ImageUploader
+              label="Foto de Perfil Profesional"
+              value={authForm.photo_url}
+              onChange={(url) => setAuthForm({ ...authForm, photo_url: url })}
+              helperText="Foto de retrato institucional (se guardará en /backend/public/uploads/)"
+              previewHeight="h-32"
+              aspectRatio="square"
+            />
+          </div>
 
           <div className="space-y-1.5">
             <label className="font-bold text-slate-700">Biografía / Perfil Breve</label>
@@ -1122,21 +1308,35 @@ export const AdminSettingsPage: React.FC = () => {
               rows={2}
               value={authForm.bio}
               onChange={(e) => setAuthForm({ ...authForm, bio: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              placeholder="Descripción de trayectoria profesional y funciones..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
             />
           </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700 select-none">
+              <input
+                type="checkbox"
+                checked={Boolean(authForm.is_active)}
+                onChange={(e) => setAuthForm({ ...authForm, is_active: e.target.checked ? 1 : 0 })}
+                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+              />
+              <span>Autoridad Activa y Visible en el Portal Web</span>
+            </label>
+          </div>
+
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => setIsAuthModalOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+              className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors disabled:opacity-50"
             >
               {submitting ? 'Guardando...' : 'Guardar Autoridad'}
             </button>
@@ -1321,6 +1521,7 @@ export const AdminSettingsPage: React.FC = () => {
                     '',
                     '/asociarse',
                     '/comercio-bilateral',
+                    '/la-camara',
                     '/institucional',
                     '/noticias',
                     '/eventos',
@@ -1334,7 +1535,7 @@ export const AdminSettingsPage: React.FC = () => {
                 onChange={(e) => {
                   const val = e.target.value;
                   if (val === 'custom') {
-                    if (['/asociarse', '/institucional', '/noticias', '/eventos', '/socios', '/contacto', '/portal-socios', ''].includes(bannerForm.button_url)) {
+                    if (['/asociarse', '/la-camara', '/institucional', '/noticias', '/eventos', '/socios', '/contacto', '/portal-socios', ''].includes(bannerForm.button_url)) {
                       setBannerForm({ ...bannerForm, button_url: 'https://' });
                     }
                   } else {
@@ -1346,7 +1547,7 @@ export const AdminSettingsPage: React.FC = () => {
                 <option value="">-- Sin Botón / Enlace --</option>
                 <optgroup label="Secciones Principales del Portal">
                   <option value="/asociarse">Membresía / Asociarse (/asociarse)</option>
-                  <option value="/institucional">Institucional & Autoridades (/institucional)</option>
+                  <option value="/la-camara">La Cámara & Autoridades (/la-camara)</option>
                   <option value="/noticias">Noticias & Artículos (/noticias)</option>
                   <option value="/eventos">Agenda de Eventos (/eventos)</option>
                   <option value="/socios">Directorio de Socios (/socios)</option>
@@ -1362,6 +1563,7 @@ export const AdminSettingsPage: React.FC = () => {
               {![
                 '',
                 '/asociarse',
+                '/la-camara',
                 '/institucional',
                 '/noticias',
                 '/eventos',

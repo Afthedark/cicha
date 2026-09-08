@@ -10,58 +10,74 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-1. **👥 Gestión Segmentada y Especializada de Cuentas de Acceso**:
+1. **🏛️ Módulo "La Cámara" (`/la-camara` & `/institucional`)**:
+   - Denominación oficial unificada como **"La Cámara"** en la barra de navegación del Header y en el Footer.
+   - Enrutamiento optimizado: URL canónica `/la-camara` con redirección automática desde `/institucional`.
+   - Visualización jerárquica en 3 bloques dinámicos y ordenados estrictamente por `order_num`:
+     1. **Presidencia Honoraria & Presidencia** (Tarjetas VIP de alta distinción).
+     2. **Comisión Directiva** (Mesa Ejecutiva y Vocales con línea divisoria azul y badge representativo).
+     3. **Comisión Revisora de Cuentas** (Órgano de Fiscalización con línea divisoria violeta y tarjetas con empresa).
+
+2. **⚙️ Gestión Unificada de Autoridades en Configuración & Gestión (`/admin/configuracion`)**:
+   - Pestaña **"Comisión Directiva"** (`?tab=authorities`):
+     - Filtros rápidos interactivos: *Todos (15)*, *Comisión Directiva (10)*, *Comisión Revisora de Cuentas (4)* y *Presidencia Honoraria (1)*.
+     - Selector de estructura con guía en vivo: `directiva`, `revisora`, `honorario`, `comite`.
+     - Control exacto de **Orden de Visualización (`order_num`)** sincronizado de menor a mayor.
+     - Redirección automática de rutas previas (`/admin/autoridades` y `/admin/alianzas` hacia `/admin/configuracion`).
+
+3. **✨ Inicio Renovado con Título en Blanco Puro y Resplandor Animado**:
+   - Título principal: **`CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA`** en blanco puro (`text-white`) de alto contraste.
+   - Efecto animado sutil y elegante de resplandor blanco parpadeante (`.animate-glow-blink-white`).
+   - Trayectoria actualizada a **`+38`** años con contadores animados cíclicos (`CounterDisplay`).
+   - Tarjetas de cristal dedicadas para **MISIÓN** y **OBJETO** estatutario de la Cámara.
+
+4. **👥 Gestión Segmentada y Especializada de Cuentas de Acceso**:
    - **Staff & Administradores (`/admin/usuarios`)**: Módulo exclusivo para el rol **`admin`** para crear y gestionar credenciales de administradores y secretarios del CMS.
    - **Cuentas de Socios (`/admin/usuarios-socios`)**: Módulo administrable por **`admin`** y **`secretario`** para registrar cuentas de acceso directo al Portal de Socios.
    - **Copiar Credenciales con 1 Clic**: Botón inteligente que detecta la URL actual del frontend (`/admin/login`) y copia al portapapeles el Nombre, Usuario (Email), Contraseña y Enlace de acceso en formato listo para compartir.
    - **Mostrar / Ocultar Contraseña**: Toggle visual interactivo (`Eye` / `EyeOff`) en los formularios de creación y edición.
 
-2. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
+5. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
    - Sección administrable en **Configuración & Gestión** (`/admin/configuracion`): **"Correos Socios: Asunto & Mensaje Predeterminado"** (`member_email_subject` y `member_email_body`).
    - Asunto predefinido: `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
    - Aplicado de forma automática al presionar el correo de cualquier socio en **Socios Web Pública (`/socios`)** y en el **Directorio B2B Privado (`/portal-socios/directorio`)**.
    - Administrable por roles **`admin`** y **`secretario`**.
 
-3. **📚 Biblioteca de Socios con Subida Dual (PDF y URL Externa)**:
+6. **📚 Biblioteca de Socios con Subida Dual (PDF y URL Externa)**:
    - Soporte para subida directa de archivos PDF/documentos al servidor y/o registro de enlaces externos para normativas, acuerdos comerciales e informes bilaterales.
 
-4. **🏷️ Categorías Dinámicas y Sincronizadas en el Portal de Socios**:
+7. **🏷️ Categorías Dinámicas y Sincronizadas en el Portal de Socios**:
    - Filtros por sector y rubro en *Documentos & Informes*, *Oportunidades VIP*, *Club de Beneficios* y *Directorio B2B* conectados en tiempo real con el módulo **Sectores & Categorías** del CMS.
 
-5. **🔍 Búsqueda en Base de Datos a Nivel de Backend**:
+8. **🔍 Búsqueda en Base de Datos a Nivel de Backend**:
    - Endpoint optimizado `GET /api/admin/members?search=...` con búsqueda SQL `LIKE` sobre nombre de empresa, sector, representante y país.
 
-6. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
+9. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
    - Pestaña de acceso directo en la barra de navegación del Header.
    - **Feed Dual en 2 Columnas (Lado a Lado)**: Facebook Oficial embebido e Instagram Oficial con enlace directo a `@camarahelenoargentina`.
 
-7. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
-   - Módulo independiente para artículos de análisis, notas de opinión y publicaciones técnicas de la Cámara.
-   - Administrable por **`admin`** y **`secretario`**: autor, tiempo de lectura, tags, categorías, estados (`published`, `draft`, `archived`) y destacado.
+10. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
+    - Módulo independiente para artículos de análisis, notas de opinión y publicaciones técnicas de la Cámara.
+    - Administrable por **`admin`** y **`secretario`**: autor, tiempo de lectura, tags, categorías, estados (`published`, `draft`, `archived`) y destacado.
 
-8. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
-   - Registro visual de encuentros y misiones con subida por lotes.
-   - Visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y descarga en alta calidad.
+11. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
+    - Registro visual de encuentros y misiones con subida por lotes.
+    - Visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y descarga en alta calidad.
 
-9. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
-   - Gestión en CMS (`/admin/configuracion`): soporte para LinkedIn, Instagram, Facebook, X (Twitter), YouTube y **TikTok** oficial.
-   - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con botones glassmorphism y resplandor celeste egeo (`#00AEEF`).
+12. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
+    - Gestión en CMS (`/admin/configuracion`): soporte para LinkedIn, Instagram, Facebook, X (Twitter), YouTube y **TikTok** oficial.
+    - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con botones glassmorphism y resplandor celeste egeo (`#00AEEF`).
 
-10. **🏛️ Inicio Renovado con Alta Estética e Identidad Institucional**:
-    - Título institucional en azul diplomático con animación de entrada (`animate-zoom-center`).
-    - Trayectoria actualizada a **`+38`** años con contadores animados cíclicos (`CounterDisplay`).
-    - Tarjetas de cristal dedicadas para **MISIÓN** y **OBJETO** de la Cámara.
-
-11. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
+13. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
     - Requisito obligatorio de subida de logo/marca para personas jurídicas y físicas, validado en frontend y backend.
 
-12. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/configuracion`)**:
-    - Gestor visual para crear, editar, ordenar y activar/desactivar portadas con enlaces internos y externos.
+14. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/configuracion`)**:
+    - Gestor visual para crear, editar, ordenar y activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas.
 
-13. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
+15. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
     - Traducción automática del 100% de la web con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
 
-14. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
+16. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
     - Matriz de permisos con roles: `admin` (superusuario), `secretario` (gestor de contenidos y cuentas de socios), `socio` (intranet privada) y `visitante` (público general).
 
 ---
