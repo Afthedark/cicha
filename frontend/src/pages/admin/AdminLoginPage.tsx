@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, ShieldCheck, ArrowRight, ArrowLeft, Users, Shield, Briefcase } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 export const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@cicha.com.ar');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -36,11 +37,6 @@ export const AdminLoginPage: React.FC = () => {
     }
   };
 
-  const setDemoAccount = (roleEmail: string, rolePass: string) => {
-    setEmail(roleEmail);
-    setPassword(rolePass);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-cicha-navy via-cicha-navy-dark to-cicha-navy-deep flex flex-col justify-center items-center p-4 sm:p-6 text-white font-sans relative">
       <div className="absolute top-6 left-6">
@@ -63,40 +59,6 @@ export const AdminLoginPage: React.FC = () => {
             <p className="text-xs text-blue-300 mt-0.5">
               Cámara de Industria y Comercio Heleno Argentina
             </p>
-          </div>
-        </div>
-
-        {/* Quick Demo Credentials Switcher */}
-        <div className="space-y-1.5 p-3 rounded-2xl bg-white/5 border border-white/10 text-[11px]">
-          <p className="text-slate-400 font-semibold text-center mb-2">Cuentas de demostración disponibles:</p>
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              type="button"
-              onClick={() => setDemoAccount('admin@cicha.com.ar', 'admin123')}
-              className={`p-1.5 rounded-lg font-bold text-center transition-all ${
-                email === 'admin@cicha.com.ar' ? 'bg-rose-600 text-white' : 'bg-white/10 text-slate-300 hover:bg-white/15'
-              }`}
-            >
-              Admin Total
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoAccount('secretaria@cicha.com.ar', 'sec123')}
-              className={`p-1.5 rounded-lg font-bold text-center transition-all ${
-                email === 'secretaria@cicha.com.ar' ? 'bg-blue-600 text-white' : 'bg-white/10 text-slate-300 hover:bg-white/15'
-              }`}
-            >
-              Secretaría
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoAccount('socio@cicha.com.ar', 'socio123')}
-              className={`p-1.5 rounded-lg font-bold text-center transition-all ${
-                email === 'socio@cicha.com.ar' ? 'bg-amber-500 text-slate-950' : 'bg-white/10 text-slate-300 hover:bg-white/15'
-              }`}
-            >
-              Socio
-            </button>
           </div>
         </div>
 
@@ -126,13 +88,27 @@ export const AdminLoginPage: React.FC = () => {
               <Lock className="w-3.5 h-3.5 text-blue-400" />
               Contraseña
             </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-blue-900 text-white text-xs focus:bg-slate-900 focus:ring-2 focus:ring-amber-400 focus:outline-none"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-slate-900/60 border border-blue-900 text-white text-xs focus:bg-slate-900 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-amber-400 transition-colors focus:outline-none"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
 
           <button

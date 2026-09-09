@@ -376,13 +376,6 @@ export const AdminSettingsPage: React.FC = () => {
           >
             <Plus className="w-4 h-4" /> Nueva Portada
           </button>
-        ) : activeTab === 'authorities' ? (
-          <button
-            onClick={handleOpenCreateAuth}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> Nueva Autoridad
-          </button>
         ) : activeTab === 'alliances' ? (
           <button
             onClick={handleOpenCreateAlliance}
