@@ -76,7 +76,7 @@ const languages: Language[] = [
 ];
 
 export const GoogleTranslate: React.FC<{
-  variant?: 'diplomatic' | 'compact' | 'light';
+  variant?: 'diplomatic' | 'compact' | 'light' | 'celeste';
   align?: 'left' | 'right';
 }> = ({ variant = 'diplomatic', align = 'right' }) => {
   const [currentLang, setCurrentLang] = useState<string>('es');
@@ -170,6 +170,8 @@ export const GoogleTranslate: React.FC<{
         return 'bg-white hover:bg-slate-50 text-slate-700 hover:text-[#004b87] border border-slate-200/90 shadow-2xs hover:border-slate-300';
       case 'compact':
         return 'bg-white/10 hover:bg-white/20 text-white border border-white/20';
+      case 'celeste':
+        return 'bg-[#00AEEF] hover:bg-[#009dd4] text-white border border-[#00AEEF]/60 shadow-xs hover:shadow-sm';
       case 'diplomatic':
       default:
         return 'bg-blue-950/80 hover:bg-blue-900 text-slate-200 hover:text-white border border-blue-800/80 shadow-xs';

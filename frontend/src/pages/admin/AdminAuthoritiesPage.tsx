@@ -12,6 +12,7 @@ export const AdminAuthoritiesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAuth, setEditingAuth] = useState<Authority | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -118,6 +119,38 @@ export const AdminAuthoritiesPage: React.FC = () => {
     }
   };
 
+  const matchesFilter = (auth: Authority) => {
+    const title = (auth.role_title || '').toLowerCase();
+    if (categoryFilter === 'directiva') {
+      return auth.category === 'directiva' || (!auth.category && !title.includes('revisor') && !title.includes('honorario'));
+    }
+    if (categoryFilter === 'revisora') {
+      return auth.category === 'revisora' || title.includes('revisor');
+    }
+    if (categoryFilter === 'honorario') {
+      return auth.category === 'honorario' || title.includes('honorario');
+    }
+    return true;
+  };
+
+  const filteredAuthorities = authorities.filter(matchesFilter);
+
+  const countCategory = (cat: string) =>
+    authorities.filter((a) => {
+      const t = (a.role_title || '').toLowerCase();
+      if (cat === 'directiva') return a.category === 'directiva' || (!a.category && !t.includes('revisor') && !t.includes('honorario'));
+      if (cat === 'revisora') return a.category === 'revisora' || t.includes('revisor');
+      if (cat === 'honorario') return a.category === 'honorario' || t.includes('honorario');
+      return true;
+    }).length;
+
+  const FILTERS: { key: string; label: string }[] = [
+    { key: 'all', label: `Todos (${authorities.length})` },
+    { key: 'directiva', label: `Comisión Directiva (${countCategory('directiva')})` },
+    { key: 'revisora', label: `Comisión Revisora de Cuentas (${countCategory('revisora')})` },
+    { key: 'honorario', label: `Presidencia Honoraria (${countCategory('honorario')})` },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -136,79 +169,104 @@ export const AdminAuthoritiesPage: React.FC = () => {
       {loading ? (
         <Loader text="Cargando autoridades..." />
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
-                <tr>
-                  <th className="py-3.5 px-4">Orden</th>
-                  <th className="py-3.5 px-4">Nombre</th>
-                  <th className="py-3.5 px-4">Cargo / Rol</th>
-                  <th className="py-3.5 px-4">Categoría / Estructura</th>
-                  <th className="py-3.5 px-4">Empresa / Entidad</th>
-                  <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {authorities.map((auth) => {
-                  const resolvedPhoto = resolveImageUrl(auth.photo_url);
-                  return (
-                    <tr key={auth.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-400">#{auth.order_num}</td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
-                            {resolvedPhoto ? (
-                              <img src={resolvedPhoto} alt={auth.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-blue-900 text-white font-bold">
-                                {auth.name.charAt(0)}
-                              </div>
-                            )}
-                          </div>
-                          <span className="font-bold text-slate-900">{auth.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-blue-700">{auth.role_title}</td>
-                      <td className="py-3.5 px-4">{getCategoryBadge(auth.category)}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{auth.company || '-'}</td>
-                      <td className="py-3.5 px-4">
-                        {auth.is_active ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                            <XCircle className="w-3 h-3 text-slate-400" /> Inactivo
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenEdit(auth)}
-                            className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
-                            title="Editar"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(auth.id)}
-                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        <>
+          {/* Quick Category Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 text-xs">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setCategoryFilter(f.key)}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                  categoryFilter === f.key
+                    ? f.key === 'all'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : f.key === 'directiva'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : f.key === 'revisora'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'bg-amber-500 text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
-        </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3.5 px-4">Orden</th>
+                    <th className="py-3.5 px-4">Nombre</th>
+                    <th className="py-3.5 px-4">Cargo / Rol</th>
+                    <th className="py-3.5 px-4">Categoría / Estructura</th>
+                    <th className="py-3.5 px-4">Empresa / Entidad</th>
+                    <th className="py-3.5 px-4">Estado</th>
+                    <th className="py-3.5 px-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredAuthorities.map((auth) => {
+                    const resolvedPhoto = resolveImageUrl(auth.photo_url);
+                    return (
+                      <tr key={auth.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-slate-400">#{auth.order_num}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                              {resolvedPhoto ? (
+                                <img src={resolvedPhoto} alt={auth.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-blue-900 text-white font-bold">
+                                  {auth.name.charAt(0)}
+                                </div>
+                              )}
+                            </div>
+                            <span className="font-bold text-slate-900">{auth.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-blue-700">{auth.role_title}</td>
+                        <td className="py-3.5 px-4">{getCategoryBadge(auth.category)}</td>
+                        <td className="py-3.5 px-4 text-slate-600">{auth.company || '-'}</td>
+                        <td className="py-3.5 px-4">
+                          {auth.is_active ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                              <XCircle className="w-3 h-3 text-slate-400" /> Inactivo
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleOpenEdit(auth)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                              title="Editar"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(auth.id)}
+                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Authority Modal */}

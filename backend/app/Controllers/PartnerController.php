@@ -151,7 +151,9 @@ class PartnerController extends ResourceController
                 ->groupEnd();
         }
 
-        $members = $builder->orderBy('company_name', 'ASC')->findAll();
+        $members = $builder->orderBy('order_num', 'ASC')
+            ->orderBy('company_name', 'ASC')
+            ->findAll();
 
         return $this->respond([
             'status' => 200,

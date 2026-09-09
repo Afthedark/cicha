@@ -23,20 +23,28 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Denominación oficial unificada en el menú principal (`Navbar.tsx`) y en el `Footer.tsx`.
   - Enrutamiento optimizado con redirección desde `/institucional` a `/la-camara`.
   - Visualización jerárquica en 3 bloques dinámicos ordenados por `order_num`: Presidencia Honoraria, Comisión Directiva y Comisión Revisora de Cuentas (Órgano de Fiscalización).
-- **⚙️ Gestión Unificada de Comisión Directiva & Autoridades (`AdminSettingsPage.tsx`)**:
-  - Pestaña de administración centralizada en **Configuración & Gestión** (`/admin/configuracion?tab=authorities`).
-  - Filtros interactivos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora*, *Presidencia Honoraria*).
-  - Selector de categoría (`directiva`, `revisora`, `honorario`, `comite`) con ayuda contextual y validación de orden de visualización.
-  - Redirección automática de rutas previas (`/admin/autoridades` y `/admin/alianzas` a `/admin/configuracion`).
+- **🗂️ Módulos Institucionales Independientes en el Menú del CMS**:
+  Los módulos que antes vivían como pestañas de una única página de "Configuración & Gestión" ahora son páginas propias en el menú lateral administrativo:
+  - **Portadas / Banners Home** (`/admin/portadas`, `AdminBannersPage.tsx`): gestión visual del slider del Home (crear, editar, ordenar, activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas).
+  - **Historia & Estatutos** (`/admin/institucional`, `AdminInstitutionalPage.tsx`): edición de Historia, Trayectoria y secciones estatutarias (excluye Misión y Objeto).
+  - **Comisión Directiva** (`/admin/autoridades`, `AdminAuthoritiesPage.tsx`): gestión de cargos con filtros rápidos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora de Cuentas*, *Presidencia Honoraria*), orden de visualización y estado.
+  - **Alianzas Estratégicas** (`/admin/alianzas`, `AdminAlliancesPage.tsx`): CRUD de alianzas/redes con columna `#Orden`, categoría, estado y campo editable de **posición**.
+  - **Ajustes Generales** (`/admin/configuracion`, `AdminSettingsPage.tsx`): formulario único de datos institucionales, contactos, correos predefinidos, logotipo y redes sociales.
 - **👥 Gestión Especializada de Usuarios y Socios**:
   - **Staff & Administradores (`AdminUsersPage.tsx`)**: Exclusivo para administradores para dar de alta roles `admin` y `secretario`.
   - **Cuentas de Socios (`AdminPartnerUsersPage.tsx`)**: Gestionable por administradores y secretarios para dar de alta accesos al Portal de Socios de forma directa y limpia.
   - **Mostrar / Ocultar Contraseña**: Toggle interactivo con iconos `Eye` / `EyeOff` en los inputs de clave.
   - **Copiar Credenciales Inteligente**: Botón que detecta automáticamente `window.location.origin + '/admin/login'` y copia al portapapeles el usuario, contraseña y enlace con feedback visual.
+- **🔐 Login Seguro sin Credenciales de Demostración (`AdminLoginPage.tsx`)**:
+  - Se retiraron los botones de "Cuentas de demostración disponibles" y las credenciales precargadas; los campos inician vacíos.
+  - **Mostrar / Ocultar Contraseña**: toggle con iconos `Eye` / `EyeOff` dentro del campo de clave.
 - **✉️ Asunto Predeterminado Administrable ("Correos Socios")**:
   - Bloque administrable en Ajustes Generales (`AdminSettingsPage.tsx`): `member_email_subject` y `member_email_body`.
   - Configurado por defecto con `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
   - Aplicado automáticamente en los enlaces de correo de **Socios Web Pública (`MembersDirectoryPage.tsx`)** y **Directorio B2B Privado (`PartnerDirectoryPage.tsx`)**.
+- **🔢 Orden y Numeración en el Directorio de Socios (`AdminMembersPage.tsx`)**:
+  - Columna **Nº** de numeración visible en el CMS y campo editable **"Orden / Posición en el Directorio"** en el alta/edición de socios.
+  - El orden configurado (`order_num`) se refleja en la **Web Pública `/socios`** (`MembersDirectoryPage.tsx`) y en el **Directorio B2B** del Portal de Socios.
 - **📚 Biblioteca de Socios con Subida Dual (PDF y URL)**:
   - Soporte de subida de archivos físicos PDF o enlaces directos a normativas y guías en `AdminPartnerResourcesPage.tsx`.
 - **🏷️ Categorías Dinámicas en Portal de Socios**:
@@ -53,6 +61,10 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Botones estilizados con efecto glassmorphism, resplandor celeste egeo (`#00AEEF`) e íconos interactivos: LinkedIn, Instagram, Facebook, X (Twitter), YouTube y TikTok.
 - **🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`)**:
   - Traducción automática e instantánea del 100% del portal con banderas vectoriales SVG (Español, Griego e Inglés).
+  - Botón selector en el header público con estilo **celeste egeo** (`#00AEEF`) mediante la variante `celeste`.
+- **🖼️ Header Institucional Renovado (`Navbar.tsx`)**:
+  - Logotipo oficial actualizado (`logo oficial 3.png`).
+  - Banderas bilaterales de Grecia y Argentina de mayor tamaño (`w-7 h-5`).
 - **Iconografía**: `lucide-react`.
 - **Cliente HTTP**: `axios` con soporte dual de cabeceras de autorización (`Authorization` y `X-Authorization`).
 - **Enrutamiento**: `react-router-dom` con protección granular por roles (`RoleRoute`).
@@ -71,7 +83,7 @@ frontend/src/
 │   │   ├── ImageUploader.tsx
 │   │   └── GoogleTranslate.tsx
 │   └── layout/
-│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor, logo sin texto y accesos
+│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor celeste, banderas y logo oficial
 │       ├── Footer.tsx       # Pie de página institucional, redes sociales centradas, alianzas y mailto dinámico
 │       ├── PartnerLayout.tsx# Intranet privada exclusiva para empresas socias
 │       └── AdminLayout.tsx  # CMS administrativo con menú dinámico por rol
@@ -96,22 +108,25 @@ frontend/src/
 │   │   ├── PartnerOpportunitiesPage.tsx           # Oportunidades VIP con categorías dinámicas
 │   │   ├── PartnerBenefitsPage.tsx                # Club de Beneficios
 │   │   └── PartnerDirectoryPage.tsx               # Directorio B2B con Correos Socios dinámico
-│   └── admin/               # 15 Vistas del CMS Administrativo
+│   └── admin/               # Vistas del CMS Administrativo
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
 │       ├── AdminArticlesPage.tsx
 │       ├── AdminBlogsPage.tsx
 │       ├── AdminGalleryPage.tsx
 │       ├── AdminEventsPage.tsx
-│       ├── AdminMembersPage.tsx                   # Búsqueda en backend optimizada
+│       ├── AdminMembersPage.tsx                   # Búsqueda backend optimizada + numeración y orden de Directorio
 │       ├── AdminOpportunitiesPage.tsx
 │       ├── AdminPartnerResourcesPage.tsx          # Subida dual de PDF / URL
-│       ├── AdminUsersPage.tsx                     # Staff & Administradores (Exclusivo Admin)
-│       ├── AdminPartnerUsersPage.tsx              # Cuentas de Socios (Admin & Secretario)
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       ├── AdminInstitutionalPage.tsx             # Contenidos Institucionales
-│       └── AdminSettingsPage.tsx                  # Comisión Directiva, Correos Socios, Portadas, Redes y Sede
+│       ├── AdminUsersPage.tsx                     # Staff & Administradores (Exclusivo Admin)
+│       ├── AdminPartnerUsersPage.tsx              # Cuentas de Socios (Admin & Secretario)
+│       ├── AdminBannersPage.tsx                   # Portadas / Banners Home (/admin/portadas)
+│       ├── AdminAuthoritiesPage.tsx               # Comisión Directiva (/admin/autoridades)
+│       ├── AdminInstitutionalPage.tsx             # Historia & Estatutos (/admin/institucional)
+│       ├── AdminAlliancesPage.tsx                 # Alianzas Estratégicas (/admin/alianzas)
+│       └── AdminSettingsPage.tsx                  # Ajustes Generales (contacto, correos, redes, logotipo)
 ├── services/
 │   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi (con búsqueda backend)
 └── types/
@@ -159,7 +174,7 @@ npm run preview
 
 ## 🔑 Cuentas de Acceso y Demostración
 
-En la pantalla de login ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)), se dispone de botones de acceso rápido para probar los 3 perfiles:
+En la pantalla de login ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) las credenciales se ingresan manualmente (los botones de "Cuentas de demostración disponibles" fueron retirados del formulario). Cuentas de ejemplo:
 
 | Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
 | :--- | :--- | :--- | :--- | :--- |

@@ -18,12 +18,13 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
      2. **Comisión Directiva** (Mesa Ejecutiva y Vocales con línea divisoria azul y badge representativo).
      3. **Comisión Revisora de Cuentas** (Órgano de Fiscalización con línea divisoria violeta y tarjetas con empresa).
 
-2. **⚙️ Gestión Unificada de Autoridades en Configuración & Gestión (`/admin/configuracion`)**:
-   - Pestaña **"Comisión Directiva"** (`?tab=authorities`):
-     - Filtros rápidos interactivos: *Todos (15)*, *Comisión Directiva (10)*, *Comisión Revisora de Cuentas (4)* y *Presidencia Honoraria (1)*.
-     - Selector de estructura con guía en vivo: `directiva`, `revisora`, `honorario`, `comite`.
-     - Control exacto de **Orden de Visualización (`order_num`)** sincronizado de menor a mayor.
-     - Redirección automática de rutas previas (`/admin/autoridades` y `/admin/alianzas` hacia `/admin/configuracion`).
+2. **🗂️ Módulos Institucionales Independientes en el Menú del CMS**:
+   Los módulos que antes eran pestañas de "Configuración & Gestión" ahora son páginas propias en el menú lateral administrativo:
+   - **Portadas / Banners Home** (`/admin/portadas`): gestor visual de las portadas del Home (crear, editar, ordenar y activar/desactivar con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas).
+   - **Historia & Estatutos** (`/admin/institucional`): edición de secciones históricas y estatutarias de la Cámara.
+   - **Comisión Directiva** (`/admin/autoridades`): gestión de cargos con filtros rápidos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora de Cuentas*, *Presidencia Honoraria*), orden de visualización y estado.
+   - **Alianzas Estratégicas** (`/admin/alianzas`): CRUD de alianzas/redes con columna `#Orden`, categoría, estado y campo editable de **posición**.
+   - **Ajustes Generales** (`/admin/configuracion`): datos institucionales, contactos, correos predefinidos, logotipo y redes sociales.
 
 3. **✨ Inicio Renovado con Título en Blanco Puro y Resplandor Animado**:
    - Título principal: **`CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA`** en blanco puro (`text-white`) de alto contraste.
@@ -34,11 +35,12 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 4. **👥 Gestión Segmentada y Especializada de Cuentas de Acceso**:
    - **Staff & Administradores (`/admin/usuarios`)**: Módulo exclusivo para el rol **`admin`** para crear y gestionar credenciales de administradores y secretarios del CMS.
    - **Cuentas de Socios (`/admin/usuarios-socios`)**: Módulo administrable por **`admin`** y **`secretario`** para registrar cuentas de acceso directo al Portal de Socios.
+   - **Login sin Cuentas de Demostración (`/admin/login`)**: se retiraron los botones de "Cuentas de demostración disponibles" y las credenciales precargadas; los campos inician vacíos.
+   - **Mostrar / Ocultar Contraseña**: Toggle visual interactivo (`Eye` / `EyeOff`) tanto en el login como en los formularios de creación y edición de usuarios.
    - **Copiar Credenciales con 1 Clic**: Botón inteligente que detecta la URL actual del frontend (`/admin/login`) y copia al portapapeles el Nombre, Usuario (Email), Contraseña y Enlace de acceso en formato listo para compartir.
-   - **Mostrar / Ocultar Contraseña**: Toggle visual interactivo (`Eye` / `EyeOff`) en los formularios de creación y edición.
 
 5. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
-   - Sección administrable en **Configuración & Gestión** (`/admin/configuracion`): **"Correos Socios: Asunto & Mensaje Predeterminado"** (`member_email_subject` y `member_email_body`).
+   - Sección administrable en **Ajustes Generales** (`/admin/configuracion`): **"Correos Socios: Asunto & Mensaje Predeterminado"** (`member_email_subject` y `member_email_body`).
    - Asunto predefinido: `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
    - Aplicado de forma automática al presionar el correo de cualquier socio en **Socios Web Pública (`/socios`)** y en el **Directorio B2B Privado (`/portal-socios/directorio`)**.
    - Administrable por roles **`admin`** y **`secretario`**.
@@ -71,14 +73,22 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 13. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
     - Requisito obligatorio de subida de logo/marca para personas jurídicas y físicas, validado en frontend y backend.
 
-14. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/configuracion`)**:
-    - Gestor visual para crear, editar, ordenar y activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas.
+14. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/portadas`)**:
+    - Módulo independiente (página propia en el menú del CMS) para crear, editar, ordenar y activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas.
 
 15. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
     - Traducción automática del 100% de la web con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
 
 16. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
     - Matriz de permisos con roles: `admin` (superusuario), `secretario` (gestor de contenidos y cuentas de socios), `socio` (intranet privada) y `visitante` (público general).
+
+17. **🔢 Orden y Numeración en el Directorio de Socios (`/admin/socios`)**:
+    - Columna **Nº** de numeración y campo **"Orden / Posición en el Directorio"** editable en el alta/edición de cada socio.
+    - El orden persistido (`order_num`) se replica en la **Web Pública (`/socios`)** y en el **Directorio B2B** del Portal de Socios.
+
+18. **🖼️ Header Institucional Renovado**:
+    - Logotipo oficial actualizado (`logo oficial 3.png`).
+    - Banderas bilaterales de Grecia y Argentina más grandes y botón selector de idioma en **celeste egeo** (`#00AEEF`).
 
 ---
 
@@ -93,7 +103,7 @@ cicha/
 │   ├── README.md            # Documentación técnica completa de la API
 │   └── ...
 ├── frontend/                # Aplicación SPA en React 19 + Vite 8 + TypeScript + Tailwind CSS v4
-│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (15)
+│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (17)
 │   ├── README.md            # Documentación técnica del Frontend
 │   └── ...
 └── README.md                # Guía general de inicio rápido del proyecto
@@ -138,7 +148,7 @@ npm run dev
 
 ## 👥 Roles y Cuentas de Demostración
 
-En la pantalla de inicio de sesión ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) dispone de botones de acceso rápido para probar los 3 roles:
+En la pantalla de inicio de sesión ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) las credenciales se ingresan manualmente (ya no hay botones de acceso rápido ni credenciales precargadas). Cuentas de ejemplo:
 
 | Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
 | :--- | :--- | :--- | :--- | :--- |

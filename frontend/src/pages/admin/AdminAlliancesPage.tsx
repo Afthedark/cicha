@@ -125,9 +125,12 @@ export const AdminAlliancesPage: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
                 <tr>
+                  <th className="py-3.5 px-4">Orden</th>
                   <th className="py-3.5 px-4">Alianza / Red</th>
+                  <th className="py-3.5 px-4">Categoría</th>
                   <th className="py-3.5 px-4">Destacado / Rol</th>
                   <th className="py-3.5 px-4">Sitio Web</th>
+                  <th className="py-3.5 px-4">Estado</th>
                   <th className="py-3.5 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -136,6 +139,7 @@ export const AdminAlliancesPage: React.FC = () => {
                   const resolvedLogo = resolveImageUrl(all.logo_url);
                   return (
                     <tr key={all.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-slate-400">#{all.order_num}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shrink-0 p-1 flex items-center justify-center overflow-hidden shadow-2xs">
@@ -151,6 +155,17 @@ export const AdminAlliancesPage: React.FC = () => {
                           </div>
                         </div>
                       </td>
+                      <td className="py-3.5 px-4 text-slate-600 font-medium capitalize">
+                        {all.category === 'institucional'
+                          ? 'Institucional'
+                          : all.category === 'red_europea'
+                          ? 'Red Europea'
+                          : all.category === 'binacional'
+                          ? 'Binacional'
+                          : all.category === 'comercial'
+                          ? 'Comercial'
+                          : all.category}
+                      </td>
                       <td className="py-3.5 px-4">
                         {all.highlight_text && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
@@ -163,6 +178,17 @@ export const AdminAlliancesPage: React.FC = () => {
                           <a href={all.website_url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
                             {all.website_url} <ExternalLink className="w-3 h-3" />
                           </a>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {all.is_active ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            Activo
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                            Inactivo
+                          </span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-right">
@@ -209,25 +235,55 @@ export const AdminAlliancesPage: React.FC = () => {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Texto Destacado</label>
-            <input
-              type="text"
-              value={formData.highlight_text}
-              onChange={(e) => setFormData({ ...formData, highlight_text: e.target.value })}
-              placeholder="Ej. Miembro Activo desde Mayo 2017"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Categoría</label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
+              >
+                <option value="institucional">Institucional</option>
+                <option value="red_europea">Red Europea</option>
+                <option value="binacional">Binacional</option>
+                <option value="comercial">Comercial</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Texto Destacado</label>
+              <input
+                type="text"
+                value={formData.highlight_text}
+                onChange={(e) => setFormData({ ...formData, highlight_text: e.target.value })}
+                placeholder="Ej. Miembro Activo desde Mayo 2017"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Sitio Web Oficial</label>
-            <input
-              type="url"
-              value={formData.website_url}
-              onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Sitio Web Oficial</label>
+              <input
+                type="url"
+                value={formData.website_url}
+                onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Orden de Visualización (Posición) *</label>
+              <input
+                type="number"
+                min={1}
+                required
+                value={formData.order_num === 0 ? '' : formData.order_num}
+                onChange={(e) => setFormData({ ...formData, order_num: e.target.value === '' ? 0 : parseInt(e.target.value, 10) || 1 })}
+                placeholder="1, 2, 3..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              />
+              <p className="text-[10.5px] text-slate-500">Número menor (ej. 1, 2, 3) se muestra primero en la sección de alianzas.</p>
+            </div>
           </div>
 
           {/* Logo Uploader */}
@@ -248,6 +304,19 @@ export const AdminAlliancesPage: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
             />
+          </div>
+
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+            <span className="font-bold text-slate-700">Estado de la Alianza</span>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={Boolean(formData.is_active)}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked ? 1 : 0 })}
+                className="w-4 h-4 rounded text-blue-600"
+              />
+              <span className="font-semibold text-slate-700">Alianza Activa y Visible en el Portal</span>
+            </label>
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">

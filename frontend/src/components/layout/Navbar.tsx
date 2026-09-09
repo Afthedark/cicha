@@ -13,7 +13,7 @@ import {
   Gift,
   Users,
 } from 'lucide-react';
-import cichaLogo from '../../assets/images/logo_oficial.jpeg';
+import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
 
@@ -99,10 +99,10 @@ export const Navbar: React.FC = () => {
             {/* Bilateral Flags (Greece & Argentina) */}
             <div className="hidden md:flex items-center gap-2 pl-1 shrink-0">
               <div title="Grecia" className="flex items-center">
-                <GreeceFlag className="w-5.5 h-4 shadow-2xs rounded-xs" />
+                <GreeceFlag className="w-7 h-5 shadow-2xs rounded-xs" />
               </div>
               <div title="Argentina" className="flex items-center">
-                <ArgentinaFlag className="w-5.5 h-4 shadow-2xs rounded-xs" />
+                <ArgentinaFlag className="w-7 h-5 shadow-2xs rounded-xs" />
               </div>
             </div>
 
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Language Selector */}
             <div className="notranslate">
-              <GoogleTranslate variant="light" align="right" />
+              <GoogleTranslate variant="celeste" align="right" />
             </div>
 
             {/* Asociarse CTA Button */}

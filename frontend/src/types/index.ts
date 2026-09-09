@@ -182,6 +182,7 @@ export interface Member {
   country: string;
   is_featured: number | boolean;
   status: 'active' | 'inactive';
+  order_num?: number;
 }
 
 export interface CommercialOpportunity {

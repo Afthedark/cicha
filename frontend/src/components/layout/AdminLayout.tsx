@@ -23,6 +23,8 @@ import {
   FileDown,
   BookOpen,
   Images,
+  Image as ImageIcon,
+  Landmark,
 } from 'lucide-react';
 import { GoogleTranslate } from '../common/GoogleTranslate';
 
@@ -89,13 +91,31 @@ export const AdminLayout: React.FC = () => {
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Contenidos Institucionales',
+      name: 'Portadas / Banners Home',
+      path: '/admin/portadas',
+      icon: ImageIcon,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Historia & Estatutos',
       path: '/admin/institucional',
       icon: FileText,
       roles: ['admin', 'secretario'],
     },
     {
-      name: 'Configuración & Gestión',
+      name: 'Comisión Directiva',
+      path: '/admin/autoridades',
+      icon: Landmark,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Alianzas Estratégicas',
+      path: '/admin/alianzas',
+      icon: Globe,
+      roles: ['admin', 'secretario'],
+    },
+    {
+      name: 'Ajustes Generales',
       path: '/admin/configuracion',
       icon: Settings,
       roles: ['admin', 'secretario'],

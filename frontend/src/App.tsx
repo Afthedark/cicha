@@ -38,6 +38,7 @@ import { AdminGalleryPage } from './pages/admin/AdminGalleryPage';
 import { AdminEventsPage } from './pages/admin/AdminEventsPage';
 import { AdminMembersPage } from './pages/admin/AdminMembersPage';
 import { AdminOpportunitiesPage } from './pages/admin/AdminOpportunitiesPage';
+import { AdminBannersPage } from './pages/admin/AdminBannersPage';
 import { AdminAuthoritiesPage } from './pages/admin/AdminAuthoritiesPage';
 import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
 import { AdminAlliancesPage } from './pages/admin/AdminAlliancesPage';
@@ -250,23 +251,11 @@ export function App() {
             <Route path="solicitudes" element={<AdminApplicationsPage />} />
             <Route path="mensajes" element={<AdminMessagesPage />} />
 
-            {/* Configuration & Institutional Management (Roles: admin, secretario) */}
-            <Route
-              path="autoridades"
-              element={<Navigate to="/admin/configuracion?tab=authorities" replace />}
-            />
-            <Route
-              path="institucional"
-              element={
-                <RoleRoute allowedRoles={['admin', 'secretario']}>
-                  <AdminInstitutionalPage />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="alianzas"
-              element={<Navigate to="/admin/configuracion?tab=alliances" replace />}
-            />
+            {/* Institutional Management Modules */}
+            <Route path="portadas" element={<AdminBannersPage />} />
+            <Route path="autoridades" element={<AdminAuthoritiesPage />} />
+            <Route path="institucional" element={<AdminInstitutionalPage />} />
+            <Route path="alianzas" element={<AdminAlliancesPage />} />
             <Route
               path="configuracion"
               element={
@@ -275,8 +264,6 @@ export function App() {
                 </RoleRoute>
               }
             />
-
-            {/* Partner Users Accounts (Roles: admin, secretario) */}
             <Route
               path="usuarios-socios"
               element={

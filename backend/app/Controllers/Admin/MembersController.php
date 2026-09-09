@@ -23,7 +23,7 @@ class MembersController extends ResourceController
                 ->groupEnd();
         }
 
-        $members = $memberModel->orderBy('company_name', 'ASC')->findAll();
+        $members = $memberModel->orderBy('order_num', 'ASC')->orderBy('id', 'ASC')->findAll();
         return $this->respond(['status' => 200, 'data' => $members]);
     }
 
@@ -50,6 +50,15 @@ class MembersController extends ResourceController
 
         $slug = url_title($input['company_name'] ?? 'empresa', '-', true) . '-' . time();
 
+        $memberModel = new MemberModel();
+
+        if (!isset($input['order_num'])) {
+            $lastOrder = $memberModel->select('order_num')->orderBy('order_num', 'DESC')->first();
+            $defaultOrder = ($lastOrder['order_num'] ?? 0) + 1;
+        } else {
+            $defaultOrder = (int) $input['order_num'];
+        }
+
         $data = [
             'company_name'        => $input['company_name'] ?? '',
             'representative_name' => $input['representative_name'] ?? '',
@@ -64,9 +73,9 @@ class MembersController extends ResourceController
             'country'             => $input['country'] ?? 'Argentina',
             'is_featured'         => !empty($input['is_featured']) ? 1 : 0,
             'status'              => $input['status'] ?? 'active',
+            'order_num'           => $defaultOrder,
         ];
 
-        $memberModel = new MemberModel();
         $id = $memberModel->insert($data);
 
         return $this->respondCreated(['status' => 201, 'message' => 'Socio registrado con éxito', 'id' => $id]);
@@ -95,6 +104,7 @@ class MembersController extends ResourceController
         if (isset($input['country'])) $data['country'] = $input['country'];
         if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];
+        if (isset($input['order_num'])) $data['order_num'] = (int) $input['order_num'];
 
         if (!empty($data)) {
             $memberModel->update($id, $data);

@@ -226,7 +226,7 @@ class PublicController extends ResourceController
                 ->groupEnd();
         }
 
-        $members = $builder->orderBy('is_featured', 'DESC')
+        $members = $builder->orderBy('order_num', 'ASC')
             ->orderBy('company_name', 'ASC')
             ->findAll();
 

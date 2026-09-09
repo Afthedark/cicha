@@ -59,12 +59,14 @@ Tablas generadas en la base de datos:
 - `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
 - `banners`: Portadas y slides dinámicos del Home con selector de rutas.
 - `events`: Agenda de foros, webinars y rondas de negocios.
-- `members`: Directorio de empresas socias de CICHA.
+- `members`: Directorio de empresas socias de CICHA (incluye la columna `order_num` para ordenar por posición en el directorio).
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
 - `partner_resources`: Biblioteca de informes sectoriales, guías y minutas con control de descargas.
 - `partner_benefits`: Convenios corporativos y club de beneficios para socios.
 - `membership_applications`: Bandeja de solicitudes de afiliación con gestión de estados.
 - `contact_messages`: Bandeja de mensajes de contacto y consultas.
+
+> **Actualización reciente:** la migración `AddOrderNumToMembersTable` (2026-09-08) agrega la columna `order_num` a la tabla `members`, rellenando los socios existentes en orden alfabético. A partir de allí, el orden de posición del Directorio se configura desde el CMS.
 
 ### 3. Auto-Migración con 1 Clic para Producción (Sin SSH)
 Para entornos de hosting cPanel sin consola de comandos:
@@ -121,7 +123,7 @@ La API cuenta con una arquitectura de seguridad por capas:
 121: | `GET` | `/public/gallery` | Álbumes fotográficos activos, mosaico de fotos y categorías | Público |
 122: | `GET` | `/public/gallery/{slug}` | Detalle de álbum con todas sus fotografías en alta resolución | Público |
 123: | `GET` | `/public/events` | Agenda de eventos con filtros (próximos, anteriores) | Público |
-124: | `GET` | `/public/members` | Catálogo de empresas socias filtrable por sector y búsqueda (`?search=...`) | Público |
+124: | `GET` | `/public/members` | Catálogo de empresas socias filtrable por sector y búsqueda (`?search=...`), **ordenado por posición (`order_num`)** configurada en el CMS | Público |
 125: | `GET` | `/public/opportunities` | Oportunidades comerciales abiertas | Público |
 126: | `GET` | `/public/alliances` | Convenios y alianzas estratégicas (Eurocámara, EEN, UCCEB) | Público |
 127: | `GET` | `/public/settings` | Configuración pública, teléfonos, emails, redes sociales (incluyendo TikTok y YouTube) y parámetros de correos a socios (`member_email_subject`, `member_email_body`) | Público |
@@ -137,7 +139,7 @@ La API cuenta con una arquitectura de seguridad por capas:
 137: | `POST` | `/partner/resources/{id}/download` | Registra la descarga e incrementa el contador |
 138: | `GET` | `/partner/opportunities` | Oportunidades comerciales VIP con datos de contacto directo de contrapartes |
 139: | `GET` | `/partner/benefits` | Club de beneficios y convenios con descuentos exclusivos |
-140: | `GET` | `/partner/directory` | Directorio privado B2B para networking directo con correos prellenados |
+140: | `GET` | `/partner/directory` | Directorio privado B2B para networking directo con correos prellenados, ordenado por posición (`order_num`) definida en el CMS |
 141: 
 142: ### 4. CMS Administrativo (`/api/admin`)
 143: *Requiere JWT con rol `admin` o `secretario`.*
@@ -151,7 +153,7 @@ La API cuenta con una arquitectura de seguridad por capas:
 151: | `DELETE`| `/admin/gallery/photos/{id}`| Eliminación de una foto de álbum | `admin`, `secretario` |
 152: | `CRUD` | `/admin/banners` | Gestión de portadas y slides del Home | `admin`, `secretario` |
 153: | `CRUD` | `/admin/events` | Gestión de agenda de eventos | `admin`, `secretario` |
-154: | `CRUD` | `/admin/members` | Gestión de empresas socias con buscador backend (`?search=...`) | `admin`, `secretario` |
+154: | `CRUD` | `/admin/members` | Gestión de empresas socias con buscador backend (`?search=...`) y soporte de **posición/orden (`order_num`)** persistida y aplicada al Directorio | `admin`, `secretario` |
 155: | `CRUD` | `/admin/opportunities` | Gestión de oportunidades comerciales | `admin`, `secretario` |
 156: | `CRUD` | `/admin/partner-resources` | Gestión de biblioteca de socios (soporte dual PDF local o Enlace URL externo) | `admin`, `secretario` |
 157: | `CRUD` | `/admin/partner-benefits` | Gestión de convenios y beneficios de socios | `admin`, `secretario` |
