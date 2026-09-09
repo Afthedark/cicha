@@ -1382,15 +1382,30 @@ export const AdminSettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Sitio Web Oficial</label>
-            <input
-              type="url"
-              value={allianceForm.website_url}
-              onChange={(e) => setAllianceForm({ ...allianceForm, website_url: e.target.value })}
-              placeholder="https://eurocamara.com.ar"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Sitio Web Oficial</label>
+              <input
+                type="url"
+                value={allianceForm.website_url}
+                onChange={(e) => setAllianceForm({ ...allianceForm, website_url: e.target.value })}
+                placeholder="https://eurocamara.com.ar"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Orden de Visualización (Posición) *</label>
+              <input
+                type="number"
+                min={1}
+                required
+                value={allianceForm.order_num === 0 ? '' : allianceForm.order_num}
+                onChange={(e) => setAllianceForm({ ...allianceForm, order_num: e.target.value === '' ? 0 : parseInt(e.target.value, 10) || 1 })}
+                placeholder="1, 2, 3..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+              />
+              <p className="text-[10.5px] text-slate-500">Número menor (ej. 1, 2, 3) se muestra primero en la sección de alianzas.</p>
+            </div>
           </div>
 
           {/* Alliance Logo Uploader */}
