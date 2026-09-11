@@ -43,12 +43,6 @@ export const PresentationPage: React.FC = () => {
 
 La Cámara de Industria y Comercio Helénico-Argentina, está reconocida por Decreto Presidencial del gobierno griego del 18 de septiembre de 1998 y por decreto del gobierno argentino el 1 de noviembre de 1989.
 
-Desde mayo de 2017 es miembro activo y parte de la Comisión Directiva de la EUROCAMARA Argentina, y es nudo de las redes EEN (Enterprise Network Europe), EBN (Enterprise Bussines Network) de la Unión Europea. También es miembro del comité de negociación para la celebración del acuerdo UE-MERCOSUR, y el ingreso de Argentina a la OCDE (organización para la Cooperación y el Desarrollo Económico), el TEAM EUROPE de la Embajada de la UE dedicado a instalar inversiones europeas en Argentina, etc.
-
-Desde hace más de dos décadas es miembro activo de la UCCEB (Unión de Cámaras Comerciales Extranjeras Binacionales), que hoy consta de 38 miembros y que, a través de sus miembros, comercializan entre el 95 y el 97% del comercio exterior de Argentina.
-
-La Cámara de Industria y Comercio Helénico-Argentina mantiene vínculos tanto con la Embajada de Grecia en Argentina como con la Embajada de Argentina en Grecia. Además tiene colaboración directa con la Cancillería Argentina, el Ministerio de Relaciones Exteriores de Grecia, y las varias Cámaras Comerciales de Grecia. La Cámara de Industria y Comercio Helénico-Argentina tiene aproximadamente 50 empresas miembros, tanto de Grecia como de Argentina.
-
 La Cámara de Industria y Comercio Helénico-Argentina (C.I.C.H.A.) cada día cobra más importancia y su misión se define de la siguiente manera:
 La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argentina - en un entorno empresarial que contribuya al desarrollo de nuestra sociedad, enmarcado por la justicia y la igualdad de oportunidades. Impulsar el desarrollo de negocios sostenibles, el comercio bilateral, las inversiones genuinamente productivas, el fomento de la empresa privada y la economía de mercado, todo ello enmarcado desde la responsabilidad, la ética y la transparencia. La organización de Foros para el conocimiento y la facilitación del diálogo entre el sector público y privado.`;
 
@@ -76,7 +70,7 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
           </h1>
           <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
             {presentacionSec?.subtitle ||
-              'Historia, Reconocimiento Oficial, Ecosistema Bilateral y Redes Estratégicas Internacionales'}
+              'Historia, Reconocimiento Oficial, Trayectoria Bilateral y Misión Estratégica'}
           </p>
         </div>
       </section>
@@ -86,7 +80,7 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
           <Loader text="Cargando presentación institucional..." size="lg" />
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           {/* 2. Highlight Card - Aristóteles Onassis & Fundacional */}
           <div className="bg-gradient-to-br from-[#071E38] via-[#0B2E59] to-[#071E38] rounded-3xl p-8 sm:p-12 text-white border border-blue-800/80 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -132,76 +126,26 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
             </div>
           </div>
 
-          {/* 3. Text & Strategic Networks Matrix */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Main Text Content */}
-            <div className="lg:col-span-8 bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm space-y-6 text-slate-700 leading-relaxed text-sm sm:text-base">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif font-bold text-xl text-cicha-navy">
-                    Marco Institucional y de Relaciones Exteriores
-                  </h3>
-                  <p className="text-xs text-slate-500">Documento de Presentación de la Cámara</p>
-                </div>
+          {/* 3. Main Text Content - Clean Full Width */}
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-6 text-slate-700 leading-relaxed text-sm sm:text-base">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold shadow-xs">
+                <FileText className="w-5 h-5" />
               </div>
+              <div>
+                <h3 className="font-serif font-bold text-xl text-cicha-navy">
+                  Marco Institucional y Trayectoria Bilateral
+                </h3>
+                <p className="text-xs text-slate-500">Documento de Presentación de la Cámara</p>
+              </div>
+            </div>
 
+            <div className="space-y-4">
               {paragraphs.map((para, index) => (
                 <p key={index} className="text-justify leading-relaxed">
                   {para}
                 </p>
               ))}
-            </div>
-
-            {/* Strategic Badges / Sidebar */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <h4 className="font-serif font-bold text-base text-cicha-navy flex items-center gap-2">
-                  <Network className="w-4 h-4 text-blue-600" />
-                  Redes & Alianzas Clave
-                </h4>
-
-                <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                    <div className="font-bold text-blue-900">EUROCAMARA Argentina</div>
-                    <p className="text-slate-600">Miembro activo y parte de la Comisión Directiva desde mayo 2017.</p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                    <div className="font-bold text-blue-900">Redes EEN & EBN (Unión Europea)</div>
-                    <p className="text-slate-600">Nudo de la red Enterprise Europe Network y Enterprise Business Network.</p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                    <div className="font-bold text-blue-900">Comités Internacionales</div>
-                    <p className="text-slate-600">Comité negociación UE-MERCOSUR, ingreso de Argentina a la OCDE y TEAM EUROPE de la UE.</p>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                    <div className="font-bold text-blue-900">UCCEB (38 Cámaras Binacionales)</div>
-                    <p className="text-slate-600">Miembro por más de 20 años; sus cámaras representan el 95%-97% del comercio exterior del país.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Diplomatic Relations & Member Companies */}
-              <div className="bg-gradient-to-br from-blue-900 to-cicha-navy text-white rounded-3xl p-6 border border-blue-800 shadow-md space-y-3">
-                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                  <Globe2 className="w-4 h-4" /> Vínculos de Estado
-                </div>
-                <h4 className="font-serif font-bold text-base text-white">
-                  Colaboración Bilateral Continua
-                </h4>
-                <p className="text-xs text-slate-200 leading-relaxed">
-                  Vínculos formales con la Embajada de Grecia en Argentina, Embajada de Argentina en Grecia, Cancillería Argentina, Ministerio de Relaciones Exteriores de Grecia y diversas Cámaras Comerciales helénicas.
-                </p>
-                <div className="pt-2 flex items-center justify-between text-xs text-amber-300 font-bold border-t border-white/10">
-                  <span>Empresas Miembros</span>
-                  <span>~50 Socios Bilaterales</span>
-                </div>
-              </div>
             </div>
           </div>
 

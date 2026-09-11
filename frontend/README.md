@@ -19,55 +19,75 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
     - `@keyframes zoomFromCenter`: animación expansiva del título principal institucional desde el centro.
     - Contadores dinámicos cíclicos (`CounterDisplay`) con curva cúbica suave (`easeOut`) e intervalos periódicos.
     - Efectos de glassmorphism con soporte WebKit Safari (`-webkit-backdrop-filter`) y diseño 100% responsivo para móviles e iOS.
-- **🏛️ Módulo "La Cámara" (`/la-camara`)**:
-  - Denominación oficial unificada en el menú principal (`Navbar.tsx`) y en el `Footer.tsx`.
-  - Enrutamiento optimizado con redirección desde `/institucional` a `/la-camara`.
-  - Visualización jerárquica en 3 bloques dinámicos ordenados por `order_num`: Presidencia Honoraria, Comisión Directiva y Comisión Revisora de Cuentas (Órgano de Fiscalización).
-- **🗂️ Módulos Institucionales Independientes en el Menú del CMS**:
-  Los módulos que antes vivían como pestañas de una única página de "Configuración & Gestión" ahora son páginas propias en el menú lateral administrativo:
-  - **Portadas / Banners Home** (`/admin/portadas`, `AdminBannersPage.tsx`): gestión visual del slider del Home (crear, editar, ordenar, activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas).
-  - **Historia & Estatutos** (`/admin/institucional`, `AdminInstitutionalPage.tsx`): edición de Historia, Trayectoria y secciones estatutarias (excluye Misión y Objeto).
-  - **Comisión Directiva** (`/admin/autoridades`, `AdminAuthoritiesPage.tsx`): gestión de cargos con filtros rápidos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora de Cuentas*, *Presidencia Honoraria*), orden de visualización y estado.
-  - **Alianzas Estratégicas** (`/admin/alianzas`, `AdminAlliancesPage.tsx`): CRUD de alianzas/redes con columna `#Orden`, categoría, estado y campo editable de **posición**.
-  - **Ajustes Generales** (`/admin/configuracion`, `AdminSettingsPage.tsx`): formulario único de datos institucionales, contactos, correos predefinidos, logotipo y redes sociales.
-- **👥 Gestión Especializada de Usuarios y Socios**:
-  - **Staff & Administradores (`AdminUsersPage.tsx`)**: Exclusivo para administradores para dar de alta roles `admin` y `secretario`.
-  - **Cuentas de Socios (`AdminPartnerUsersPage.tsx`)**: Gestionable por administradores y secretarios para dar de alta accesos al Portal de Socios de forma directa y limpia.
-  - **Mostrar / Ocultar Contraseña**: Toggle interactivo con iconos `Eye` / `EyeOff` en los inputs de clave.
-  - **Copiar Credenciales Inteligente**: Botón que detecta automáticamente `window.location.origin + '/admin/login'` y copia al portapapeles el usuario, contraseña y enlace con feedback visual.
-- **🔐 Login Seguro sin Credenciales de Demostración (`AdminLoginPage.tsx`)**:
-  - Se retiraron los botones de "Cuentas de demostración disponibles" y las credenciales precargadas; los campos inician vacíos.
-  - **Mostrar / Ocultar Contraseña**: toggle con iconos `Eye` / `EyeOff` dentro del campo de clave.
-- **✉️ Asunto Predeterminado Administrable ("Correos Socios")**:
-  - Bloque administrable en Ajustes Generales (`AdminSettingsPage.tsx`): `member_email_subject` y `member_email_body`.
-  - Configurado por defecto con `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
-  - Aplicado automáticamente en los enlaces de correo de **Socios Web Pública (`MembersDirectoryPage.tsx`)** y **Directorio B2B Privado (`PartnerDirectoryPage.tsx`)**.
-- **🔢 Orden y Numeración en el Directorio de Socios (`AdminMembersPage.tsx`)**:
-  - Columna **Nº** de numeración visible en el CMS y campo editable **"Orden / Posición en el Directorio"** en el alta/edición de socios.
-  - El orden configurado (`order_num`) se refleja en la **Web Pública `/socios`** (`MembersDirectoryPage.tsx`) y en el **Directorio B2B** del Portal de Socios.
-- **📚 Biblioteca de Socios con Subida Dual (PDF y URL)**:
-  - Soporte de subida de archivos físicos PDF o enlaces directos a normativas y guías en `AdminPartnerResourcesPage.tsx`.
-- **🏷️ Categorías Dinámicas en Portal de Socios**:
-  - Filtros sincronizados en tiempo real en todos los módulos de la intranet de socios consumiendo la taxonomía del CMS.
-- **📱 Módulo "Post Redes Sociales" (`/redes-sociales`)**:
-  - Feed dual en 2 columnas en paralelo (lado a lado) con widgets en vivo de Facebook e Instagram.
-- **📰 Módulo de Blogs**:
-  - Catálogo de artículos con filtros por categoría y buscador en tiempo real.
-  - Vista de lectura completa con tiempo estimado de lectura, etiquetas y publicaciones relacionadas.
-- **📷 Módulo de Galería de Fotos Inteligente**:
-  - Selector de vistas (*Por Álbumes* vs *Mosaico Dinámico continuo*).
-  - Visor **Lightbox a Pantalla Completa** con navegación interactiva por teclado (`←`, `→`, `Esc`), tira de miniaturas inferior y botón de descarga.
-- **🌐 Ecosistema de Redes Sociales en Footer**:
-  - Botones estilizados con efecto glassmorphism, resplandor celeste egeo (`#00AEEF`) e íconos interactivos: LinkedIn, Instagram, Facebook, X (Twitter), YouTube y TikTok.
-- **🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`)**:
-  - Traducción automática e instantánea del 100% del portal con banderas vectoriales SVG (Español, Griego e Inglés).
-  - Botón selector en el header público con estilo **celeste egeo** (`#00AEEF`) mediante la variante `celeste`.
-- **🖼️ Header Institucional Renovado (`Navbar.tsx`)**:
-  - Logotipo oficial actualizado (`logo oficial 3.png`).
-  - Banderas bilaterales de Grecia y Argentina de mayor tamaño (`w-7 h-5`).
-- **Iconografía**: `lucide-react`.
-- **Cliente HTTP**: `axios` con soporte dual de cabeceras de autorización (`Authorization` y `X-Authorization`).
-- **Enrutamiento**: `react-router-dom` con protección granular por roles (`RoleRoute`).
+
+---
+
+## 🌟 Principales Módulos y Nuevas Características
+
+### 1. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
+- **CMS Admin (`/admin/decretos`)**: CRUD completo para `admin` y `secretario` con selector de logo/escudo oficial (preview interactivo), subida dual de archivo PDF (hasta 30MB) o enlace URL, número de decreto/expediente, descripción, fecha de emisión y switch de visibilidad.
+- **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional de decretos en tarjetas con el logo/escudo destacado a la izquierda, buscador en tiempo real y botones para descargar PDF o abrir enlace oficial.
+
+### 2. 📑 Módulo de "Actas de Socios" (`PartnerMinutesPage.tsx`)
+- **Espacio Colaborativo Inter-Socios (`/portal-socios/actas`)**: Permite a las empresas socias compartir actas de reuniones y asambleas.
+- **Subida Dual**: Soporte para cargar documentos PDF nativos o pegar enlaces directos a carpetas en la nube (Google Drive, OneDrive, Dropbox).
+- **Control de Autoría**: Muestra el socio/empresa emisor con fecha/hora y permite eliminar únicamente al autor original o a administradores.
+
+### 3. 🗂️ Sidebar del CMS Reorganizado en 5 Grupos Temáticos (`AdminLayout.tsx`)
+- Menú de administración modularizado y agrupado lógicamente:
+  - **RESUMEN GENERAL**: Panel Principal (`/admin/dashboard`).
+  - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners (`AdminBannersPage.tsx`), Historia & Estatutos (`AdminInstitutionalPage.tsx`), Comisión Directiva (`AdminAuthoritiesPage.tsx`), Noticias & Comunicados (`AdminArticlesPage.tsx`), Blogs Editoriales (`AdminBlogsPage.tsx`), Galería de Fotos (`AdminGalleryPage.tsx`), Agenda de Eventos (`AdminEventsPage.tsx`), Directorio de Socios (`AdminMembersPage.tsx`), Alianzas Estratégicas (`AdminAlliancesPage.tsx`).
+  - **PORTAL DE SOCIOS & INTRANET**: Decretos Oficiales (`AdminDecreesPage.tsx`), Recursos & Informes (`AdminPartnerResourcesPage.tsx`), Oportunidades VIP (`AdminOpportunitiesPage.tsx`), Club de Beneficios (`AdminPartnerBenefitsPage.tsx`).
+  - **GESTIÓN & CONTACTO**: Solicitudes de Afiliación (`AdminApplicationsPage.tsx`), Mensajes de Contacto (`AdminMessagesPage.tsx`).
+  - **SISTEMA & STAFF**: Ajustes Generales (`AdminSettingsPage.tsx`), Cuentas de Socios (`AdminPartnerUsersPage.tsx`), Staff & Administradores (`AdminUsersPage.tsx`).
+- Menú lateral sticky con scroll dedicado y sincronización completa con el Drawer móvil.
+
+### 4. ✨ Header Bicapa del Portal de Socios (`PartnerLayout.tsx`)
+- **Franja Superior (Blanca)**: Logo oficial (`logo oficial 3.png`), badge `Portal Socios`, slogan oficial, banderas diplomáticas de Argentina y Grecia, reconocimientos de gobiernos (1989 / 1998), sellos de EUROCAMARA y EEN, selector de idiomas, tarjeta de socio activo con badge dorado **"Socio Verificado"**, enlace a Web Pública y botón Salir.
+- **Franja Inferior (Azul Egeo `#004b87`)**: Barra de navegación con indicador activo dorado (`after:bg-amber-400`) para los 7 módulos del socio (*Panel Socio, Documentos & Informes, Actas, Decretos, Oportunidades VIP, Club de Beneficios, Directorio B2B*).
+- Drawer menú móvil adaptado.
+
+### 5. 📅 Calendario de Eventos Reutilizable (`EventCalendar.tsx`)
+- Componente interactivo de calendario mensual con navegación de meses, badges de eventos por fecha, selector de categorías y panel de detalles.
+- **Inicio (`HomePage.tsx`)**: Integrado como tarjeta independiente y estilizada de **Agenda Bilateral**, desacoplada de la tarjeta de *Trayectoria & Representación*.
+- **Eventos (`EventsPage.tsx`)**: Disposición en 2 columnas: listado de encuentros a la izquierda y calendario interactivo a la derecha.
+
+### 6. 🔘 Botón Dorado "Acceso Administración Web CMS" en Footer (`Footer.tsx`)
+- Botón/badge destacado en degradado dorado (`from-amber-400 to-amber-500`) con icono de candado/seguridad para acceso directo al CMS (`/admin/login`).
+
+### 7. 🏛️ Vista Institucional "Presentación" Refinada (`PresentationPage.tsx`)
+- Presentación institucional en formato *Full-Width*, centrada en la trayectoria histórica de la Cámara y el marco bilateral.
+
+### 8. 🏢 Directorio de Socios con Tarjetas Horizontales (`MembersDirectoryPage.tsx`)
+- Tarjetas horizontales de alta legibilidad con logo independiente a la izquierda de gran tamaño (64x64px), marco blanco con borde suave y animación interactiva `group-hover:scale-110`.
+
+### 9. 🔘 Botón Dorado "Ingreso Socios" en Navbar Público (`Navbar.tsx`)
+- Botón destacado en dorado institucional (`bg-gradient-to-r from-amber-400 to-amber-500`) con enlace a `/admin/login`.
+
+### 10. 🛡️ Aislamiento Estricto de Seguridad para Super Administradores
+- Restricción en `AdminUsersPage.tsx` para que administradores estándar no puedan ver ni editar los datos del Super Admin.
+
+### 11. 🏛️ Módulo "La Cámara" (`/la-camara`)
+- Denominación oficial unificada en el menú principal (`Navbar.tsx`) y en el `Footer.tsx`.
+- Enrutamiento optimizado con redirección desde `/institucional` a `/la-camara`.
+- Visualización jerárquica en 3 bloques dinámicos ordenados por `order_num`: Presidencia Honoraria, Comisión Directiva y Comisión Revisora de Cuentas.
+
+### 12. 👥 Gestión Especializada de Usuarios y Socios
+- **Staff & Administradores (`AdminUsersPage.tsx`)**: Para gestionar administradores y secretarios.
+- **Cuentas de Socios (`AdminPartnerUsersPage.tsx`)**: Para registrar accesos al Portal de Socios.
+- **Mostrar / Ocultar Contraseña**: Toggle interactivo con iconos `Eye` / `EyeOff`.
+- **Copiar Credenciales Inteligente**: Botón que copia usuario, clave y enlace de acceso listo para enviar.
+
+### 13. ✉️ Asunto Predeterminado Administrable ("Correos Socios")
+- Bloque administrable en Ajustes Generales: `member_email_subject` y `member_email_body`.
+- Configurado por defecto con `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
+
+### 14. 📱 Módulo "Post Redes Sociales" (`/redes-sociales`)
+- Feed dual en 2 columnas en paralelo con widgets de Facebook e Instagram oficial.
+
+### 15. 📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`).
+### 16. 📷 Módulo de Galería de Fotos Inteligente con Lightbox a Pantalla Completa (`/galeria` y `/admin/galeria`).
+### 17. 🌐 Traductor Automático en Tiempo Real (`GoogleTranslate.tsx`) con selector celeste egeo y banderas vectoriales SVG.
 
 ---
 
@@ -76,109 +96,61 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 ```
 frontend/src/
 ├── components/
-│   ├── common/              # Modales, Badges de estado, Loaders, ImageUploader, GoogleTranslate
+│   ├── common/              # Modales, Badges, Loaders, EventCalendar, GoogleTranslate, DocumentUploader
 │   │   ├── Badge.tsx
 │   │   ├── Modal.tsx
 │   │   ├── Loader.tsx
+│   │   ├── EventCalendar.tsx# Componente de calendario interactivo
+│   │   ├── DocumentUploader.tsx # Subida dual PDF nativo o enlace URL externo
 │   │   ├── ImageUploader.tsx
 │   │   └── GoogleTranslate.tsx
 │   └── layout/
-│       ├── Navbar.tsx       # Cabecera pública con barra diplomática, traductor celeste, banderas y logo oficial
-│       ├── Footer.tsx       # Pie de página institucional, redes sociales centradas, alianzas y mailto dinámico
-│       ├── PartnerLayout.tsx# Intranet privada exclusiva para empresas socias
-│       └── AdminLayout.tsx  # CMS administrativo con menú dinámico por rol
+│       ├── Navbar.tsx       # Cabecera pública con botón dorado Ingreso Socios y traductor celeste
+│       ├── Footer.tsx       # Pie institucional con botón dorado "Acceso Administración Web CMS"
+│       ├── PartnerLayout.tsx# Cabecera bicapa e intranet exclusiva para socios
+│       └── AdminLayout.tsx  # CMS con navegación lateral organizada en 5 grupos temáticos
 ├── context/
-│   └── AuthContext.tsx      # Gestión de autenticación, JWT y helpers de rol (isAdmin, isSecretary, isSocio)
+│   └── AuthContext.tsx      # Autenticación JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 ├── pages/
-│   ├── public/              # 12 Vistas del Portal Público (Visitante)
-│   │   ├── HomePage.tsx                           # Inicio con título iluminado, contadores y Misión/Objeto
+│   ├── public/              # 12 Vistas del Portal Público
+│   │   ├── HomePage.tsx                           # Inicio con tarjetas independientes de Trayectoria y Agenda
 │   │   ├── InstitutionalPage.tsx                  # La Cámara (/la-camara) con nómina jerárquica
-│   │   ├── PresentationPage.tsx                   # Presentación institucional
+│   │   ├── PresentationPage.tsx                   # Presentación institucional Full-Width
 │   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
 │   │   ├── BlogsPage.tsx & BlogDetailPage.tsx
 │   │   ├── GalleryPage.tsx
 │   │   ├── SocialFeedPage.tsx                     # Feed Dual Facebook & Instagram
-│   │   ├── EventsPage.tsx
-│   │   ├── MembersDirectoryPage.tsx               # Directorio con Correos Socios dinámico
-│   │   ├── MembershipApplyPage.tsx                # Solicitud con logo obligatorio
+│   │   ├── EventsPage.tsx                         # Agenda de eventos con calendario interactivo
+│   │   ├── MembersDirectoryPage.tsx               # Directorio con tarjetas horizontales y logos grandes
+│   │   ├── MembershipApplyPage.tsx
+│   │   ├── TradeBilateralPage.tsx
 │   │   └── ContactPage.tsx
-│   ├── partner/             # 5 Vistas del Portal Exclusivo de Socios
+│   ├── partner/             # 7 Módulos Exclusivos del Portal de Socios
 │   │   ├── PartnerDashboardPage.tsx
-│   │   ├── PartnerResourcesPage.tsx               # Descargas de informes PDF y URLs
-│   │   ├── PartnerOpportunitiesPage.tsx           # Oportunidades VIP con categorías dinámicas
+│   │   ├── PartnerResourcesPage.tsx               # Documentos & Informes
+│   │   ├── PartnerMinutesPage.tsx                 # Actas & Resoluciones (PDF / URL)
+│   │   ├── PartnerDecreesPage.tsx                 # Decretos Oficiales (PDF / URL)
+│   │   ├── PartnerOpportunitiesPage.tsx           # Oportunidades VIP
 │   │   ├── PartnerBenefitsPage.tsx                # Club de Beneficios
-│   │   └── PartnerDirectoryPage.tsx               # Directorio B2B con Correos Socios dinámico
-│   └── admin/               # Vistas del CMS Administrativo
+│   │   └── PartnerDirectoryPage.tsx               # Directorio B2B
+│   └── admin/               # 18 Módulos Administrativos del CMS
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
 │       ├── AdminArticlesPage.tsx
 │       ├── AdminBlogsPage.tsx
 │       ├── AdminGalleryPage.tsx
 │       ├── AdminEventsPage.tsx
-│       ├── AdminMembersPage.tsx                   # Búsqueda backend optimizada + numeración y orden de Directorio
+│       ├── AdminMembersPage.tsx
 │       ├── AdminOpportunitiesPage.tsx
-│       ├── AdminPartnerResourcesPage.tsx          # Subida dual de PDF / URL
+│       ├── AdminPartnerResourcesPage.tsx
+│       ├── AdminPartnerUsersPage.tsx
 │       ├── AdminApplicationsPage.tsx
 │       ├── AdminMessagesPage.tsx
-│       ├── AdminUsersPage.tsx                     # Staff & Administradores (Exclusivo Admin)
-│       ├── AdminPartnerUsersPage.tsx              # Cuentas de Socios (Admin & Secretario)
-│       ├── AdminBannersPage.tsx                   # Portadas / Banners Home (/admin/portadas)
-│       ├── AdminAuthoritiesPage.tsx               # Comisión Directiva (/admin/autoridades)
-│       ├── AdminInstitutionalPage.tsx             # Historia & Estatutos (/admin/institucional)
-│       ├── AdminAlliancesPage.tsx                 # Alianzas Estratégicas (/admin/alianzas)
-│       └── AdminSettingsPage.tsx                  # Ajustes Generales (contacto, correos, redes, logotipo)
-├── services/
-│   └── api.ts               # Clientes API: publicApi, partnerApi, adminApi (con búsqueda backend)
-└── types/
-    └── index.ts             # Modelos e interfaces TypeScript (Settings, User, Member, etc.)
+│       ├── AdminBannersPage.tsx
+│       ├── AdminInstitutionalPage.tsx
+│       ├── AdminDecreesPage.tsx                   # Gestión de Decretos Oficiales
+│       ├── AdminAuthoritiesPage.tsx
+│       ├── AdminAlliancesPage.tsx
+│       ├── AdminSettingsPage.tsx
+│       └── AdminUsersPage.tsx                     # Gestión de Staff con protección Super Admin
 ```
-
----
-
-## 🚀 Instalación y Ejecución
-
-### 1. Instalar Dependencias
-En la carpeta `frontend/`:
-
-```bash
-npm install
-```
-
-### 2. Variables de Entorno (Opcional)
-Por defecto, el frontend se conecta a la API en `http://127.0.0.1:8080/index.php/api` (o a `https://api.cicha.com.ar/index.php/api` según `api.ts`). Si se requiere modificar la URL:
-
-```ini
-VITE_API_URL=http://127.0.0.1:8080/index.php/api
-```
-
-### 3. Iniciar el Servidor de Desarrollo
-```bash
-npm run dev
-```
-
-El portal estará disponible en: [http://localhost:5173/](http://localhost:5173/)
-
-### 4. Compilación para Producción
-Para verificar tipos de TypeScript y generar el paquete optimizado (`dist/`):
-
-```bash
-npm run build
-```
-
-Para previsualizar la versión de producción localmente:
-```bash
-npm run preview
-```
-
----
-
-## 🔑 Cuentas de Acceso y Demostración
-
-En la pantalla de login ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) las credenciales se ingresan manualmente (los botones de "Cuentas de demostración disponibles" fueron retirados del formulario). Cuentas de ejemplo:
-
-| Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
-| :--- | :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Staff & Administradores, Cuentas de Socios, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
-| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Cuentas de Socios, Blogs, Galería, Noticias, Eventos, Oportunidades, Socios, Recursos de Socios y Ajustes. |
-| **Empresa Socia** | `socio@cicha.com.ar` | `socio123` | Portal Exclusivo de Socios (`/portal-socios`) | Intranet: Informes de mercado, Oportunidades VIP, Club de beneficios y Directorio B2B. |
-| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda, noticias, directorio y formularios. |

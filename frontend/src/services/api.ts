@@ -14,6 +14,8 @@ import type {
   User,
   PartnerResource,
   PartnerBenefit,
+  PartnerMinute,
+  Decree,
   PartnerDashboardData,
   Banner,
   Blog,
@@ -193,6 +195,48 @@ export const partnerApi = {
     apiClient
       .get<{ status: number; data: Category[] }>('/partner/categories', { params: { type } })
       .then((res) => res.data.data),
+
+  // Actas de Socios (PDF / URL)
+  getMinutes: (search?: string) =>
+    apiClient
+      .get<{ status: number; data: PartnerMinute[] }>('/partner/minutes', { params: { q: search } })
+      .then((res) => res.data.data),
+
+  createMinute: (data: Partial<PartnerMinute>) =>
+    apiClient
+      .post<{ status: number; message: string; data: PartnerMinute }>('/partner/minutes', data)
+      .then((res) => res.data),
+
+  deleteMinute: (id: number) =>
+    apiClient
+      .delete<{ status: number; message: string }>(`/partner/minutes/${id}`)
+      .then((res) => res.data),
+
+  downloadMinute: (id: number) =>
+    apiClient
+      .post<{ status: number; url: string; document_type: 'file' | 'url'; title: string; message: string }>(`/partner/minutes/${id}/download`)
+      .then((res) => res.data),
+
+  // Decretos Oficiales (Consulta Socios)
+  getDecrees: (search?: string) =>
+    apiClient
+      .get<{ status: number; data: Decree[] }>('/partner/decrees', { params: { q: search } })
+      .then((res) => res.data.data),
+
+  downloadDecree: (id: number) =>
+    apiClient
+      .post<{ status: number; url: string; document_type: 'file' | 'url'; title: string; message: string }>(`/partner/decrees/${id}/download`)
+      .then((res) => res.data),
+
+  uploadDocument: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient
+      .post<{ status: number; url: string; file_name?: string; file_size?: string; message: string }>('/admin/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then((res) => res.data);
+  },
 };
 
 // Admin API Service (Roles: admin, secretario)
@@ -304,6 +348,16 @@ export const adminApi = {
   updateOpportunity: (id: number, data: Partial<CommercialOpportunity>) =>
     apiClient.put(`/admin/opportunities/${id}`, data).then((res) => res.data),
   deleteOpportunity: (id: number) => apiClient.delete(`/admin/opportunities/${id}`).then((res) => res.data),
+
+  // Decrees (Admin & Secretario)
+  getDecrees: (search?: string) =>
+    apiClient.get<{ status: number; data: Decree[] }>('/admin/decrees', { params: { q: search } }).then((res) => res.data.data),
+  getDecree: (id: number) =>
+    apiClient.get<{ status: number; data: Decree }>(`/admin/decrees/${id}`).then((res) => res.data.data),
+  createDecree: (data: Partial<Decree>) => apiClient.post('/admin/decrees', data).then((res) => res.data),
+  updateDecree: (id: number, data: Partial<Decree>) =>
+    apiClient.put(`/admin/decrees/${id}`, data).then((res) => res.data),
+  deleteDecree: (id: number) => apiClient.delete(`/admin/decrees/${id}`).then((res) => res.data),
 
   // Partner Resources (Admin & Secretario)
   getPartnerResources: () =>

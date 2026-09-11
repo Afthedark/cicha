@@ -54,6 +54,14 @@ $routes->group('api', static function ($routes) {
         $routes->get('benefits', 'PartnerController::getBenefits');
         $routes->get('directory', 'PartnerController::getDirectory');
         $routes->get('categories', 'PartnerController::getCategories');
+        // Actas de Socios (PDF / URL)
+        $routes->get('minutes', 'PartnerController::getMinutes');
+        $routes->post('minutes', 'PartnerController::createMinute');
+        $routes->delete('minutes/(:num)', 'PartnerController::deleteMinute/$1');
+        $routes->post('minutes/(:num)/download', 'PartnerController::downloadMinute/$1');
+        // Decretos Oficiales (Consulta Socios)
+        $routes->get('decrees', 'PartnerController::getDecrees');
+        $routes->post('decrees/(:num)/download', 'PartnerController::downloadDecree/$1');
     });
 
     // Database Auto-Migration (Secured via secret key parameter)
@@ -86,6 +94,9 @@ $routes->group('api', static function ($routes) {
 
         // Commercial Opportunities
         $routes->resource('opportunities', ['controller' => 'Admin\OpportunitiesController']);
+
+        // Decrees (Admin CMS)
+        $routes->resource('decrees', ['controller' => 'Admin\DecreesController']);
 
         // Exclusive Partner Resources & Benefits Management
         $routes->resource('partner-resources', ['controller' => 'Admin\PartnerResourcesController']);

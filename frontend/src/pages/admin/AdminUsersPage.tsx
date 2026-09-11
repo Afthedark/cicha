@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Shield, Mail, Key } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, Shield, Mail, Key, Crown } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import type { User, Member } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 
 export const AdminUsersPage: React.FC = () => {
+  const { user: currentAuthUser } = useAuth();
+  const isSuperAdmin = Number(currentAuthUser?.id) === 1;
+
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -141,45 +145,62 @@ export const AdminUsersPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{u.name}</td>
-                    <td className="py-3.5 px-4 text-slate-600">{u.email}</td>
-                    <td className="py-3.5 px-4">
-                      <Badge
-                        variant={u.role === 'admin' ? 'danger' : 'primary'}
-                        className="uppercase font-bold"
-                      >
-                        {u.role === 'admin' ? 'Administrador' : 'Secretario'}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <Badge variant={u.status === 'active' ? 'success' : 'secondary'}>
-                        {u.status === 'active' ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(u)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
-                          title="Editar"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        {Number(u.id) !== 1 && (
-                          <button
-                            onClick={() => handleDelete(u.id)}
-                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="Eliminar"
+                {users
+                  .filter((u) => isSuperAdmin || Number(u.id) !== 1)
+                  .map((u) => {
+                    const isRowSuperAdmin = Number(u.id) === 1;
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-slate-900">
+                          <div className="flex items-center gap-2">
+                            <span>{u.name}</span>
+                            {isRowSuperAdmin && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                <Crown className="w-3 h-3 text-amber-600" /> Super Admin
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600">{u.email}</td>
+                        <td className="py-3.5 px-4">
+                          <Badge
+                            variant={u.role === 'admin' ? 'danger' : 'primary'}
+                            className="uppercase font-bold"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                            {u.role === 'admin' ? 'Administrador' : 'Secretario'}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <Badge variant={u.status === 'active' ? 'success' : 'secondary'}>
+                            {u.status === 'active' ? 'Activo' : 'Inactivo'}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {/* Solo permitir editar al super admin si el usuario autenticado ES el super admin */}
+                            {(!isRowSuperAdmin || isSuperAdmin) && (
+                              <button
+                                onClick={() => handleOpenEdit(u)}
+                                className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors"
+                                title="Editar"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                            )}
+                            {!isRowSuperAdmin && (
+                              <button
+                                onClick={() => handleDelete(u.id)}
+                                className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>

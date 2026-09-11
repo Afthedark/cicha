@@ -5,9 +5,9 @@ import {
   Mail,
   MapPin,
   Clock,
-  ShieldCheck,
   ExternalLink,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo.png';
 import { publicApi } from '../../services/api';
@@ -47,17 +47,6 @@ export const Footer: React.FC = () => {
             <p className="text-xs leading-relaxed text-white/90 font-light">
               Fuerza creadora de negocios sustentables, inversiones y comercio bilateral entre la República Argentina y la República Helénica.
             </p>
-            <div className="p-3.5 rounded-xl bg-black/15 border border-white/25 text-xs space-y-1 backdrop-blur-sm">
-              <p className="flex items-center gap-1.5 text-[#F5A623] font-bold">
-                <ShieldCheck className="w-4 h-4 text-[#00AEEF] shrink-0" />
-                Reconocimientos Oficiales
-              </p>
-              <p className="text-white/90 text-[11px] font-medium leading-tight">
-                • Gobierno Argentino: 1 de Noviembre 1989<br />
-                • Gobierno Griego: 18 de Septiembre 1998
-              </p>
-            </div>
-
           </div>
 
           {/* Column 2: Quick Links */}
@@ -301,9 +290,15 @@ export const Footer: React.FC = () => {
         {/* Bottom copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/80">
           <p>© {new Date().getFullYear()} Cámara de Industria y Comercio Heleno Argentina (CICHA). Todos los derechos reservados.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link to="/contacto" className="hover:text-white transition-colors font-medium">Privacidad & Términos</Link>
-            <Link to="/admin/login" className="hover:text-white transition-colors text-white/60 font-medium">Panel CMS</Link>
+            <Link
+              to="/admin/login"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs font-extrabold shadow-md hover:shadow-lg transition-all duration-200 border border-amber-300/80 hover:scale-105"
+            >
+              <ShieldCheck className="w-4 h-4 text-slate-950 shrink-0" />
+              <span>Acceso Administración Web CMS</span>
+            </Link>
           </div>
         </div>
       </div>

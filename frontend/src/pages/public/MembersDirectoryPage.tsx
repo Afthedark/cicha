@@ -218,7 +218,7 @@ export const MembersDirectoryPage: React.FC = () => {
         {loading ? (
           <Loader text="Cargando directorio de socios..." />
         ) : members.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {members.map((member) => {
               const resolvedLogo = resolveImageUrl(member.logo_url);
               return (
@@ -227,67 +227,75 @@ export const MembersDirectoryPage: React.FC = () => {
                   onClick={() => setActiveMember(member)}
                   className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer group relative overflow-hidden"
                 >
-                  <div>
-                    {/* Top Prominent Logo Showcase Header */}
-                    <div className="relative bg-gradient-to-b from-slate-50/90 via-white to-slate-50/40 p-4 border-b border-slate-100/90 flex flex-col items-center justify-center min-h-[110px] group-hover:from-blue-50/40 group-hover:to-white transition-colors">
-                      {/* Badges Overlay */}
-                      <div className="w-full flex items-center justify-between gap-2 mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 truncate max-w-[150px] shadow-2xs">
-                          {member.sector}
-                        </span>
-                        {member.is_featured && (
-                          <Badge variant="gold">Destacada</Badge>
-                        )}
-                      </div>
-
-                      {/* Prominent Logo Container */}
-                      <div className="w-full h-16 sm:h-20 flex items-center justify-center p-1.5">
-                        {resolvedLogo ? (
+                  <div className="flex flex-col sm:flex-row h-full">
+                    {/* Left Column: Independent Large Logo Showcase */}
+                    <div className="w-full sm:w-44 md:w-48 lg:w-52 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 p-4 sm:p-5 border-b sm:border-b-0 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0 min-h-[140px] sm:min-h-[190px] relative overflow-hidden group/logo">
+                      {resolvedLogo ? (
+                        <div className="w-full h-24 sm:h-32 flex items-center justify-center p-2">
                           <img
                             src={resolvedLogo}
                             alt={member.company_name}
-                            className="max-h-full max-w-[85%] object-contain filter drop-shadow-xs group-hover:scale-108 transition-transform duration-300"
+                            className="max-h-full max-w-full object-contain filter drop-shadow-sm transform transition-all duration-300 ease-out group-hover:scale-120 group-hover:-translate-y-1 group-hover:drop-shadow-md"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = 'none';
                               (e.target as HTMLElement).parentElement?.classList.add('fallback-icon');
                             }}
                           />
-                        ) : (
-                          <div className="w-14 h-14 rounded-xl bg-blue-50/80 flex items-center justify-center border border-blue-100">
-                            <Building2 className="w-7 h-7 text-blue-700/70" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Member Info Content */}
-                    <div className="p-5 space-y-3">
-                      <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug line-clamp-2">
-                        {member.company_name}
-                      </h3>
-
-                      {member.representative_name && (
-                        <div className="flex items-center gap-1.5 text-xs text-blue-900 font-semibold bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded-lg w-fit shadow-2xs">
-                          <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                          <span className="truncate">Rep.: {member.representative_name}</span>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-2xl bg-blue-50/90 flex items-center justify-center border border-blue-100 text-blue-700">
+                          <Building2 className="w-10 h-10 transform transition-transform duration-300 group-hover:scale-120" />
                         </div>
                       )}
-
-                      <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                        {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
-                      </p>
+                      
+                      {/* Sub-badge in logo section if featured */}
+                      {member.is_featured && (
+                        <div className="absolute top-2 left-2">
+                          <Badge variant="gold">Destacada</Badge>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Card Footer */}
-                  <div className="px-5 py-3.5 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium flex items-center gap-1">
-                      <Globe className="w-3.5 h-3.5 text-slate-400" />
-                      {member.country}
-                    </span>
-                    <span className="font-bold text-blue-700 group-hover:text-blue-900 flex items-center gap-1 transition-colors">
-                      Ver Perfil <ExternalLink className="w-3 h-3" />
-                    </span>
+                    {/* Right Column: Member Details, Badges & Footer */}
+                    <div className="flex-1 flex flex-col justify-between p-5 sm:p-6 space-y-4">
+                      <div className="space-y-3">
+                        {/* Sector Badge */}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10.5px] font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs">
+                            {member.sector}
+                          </span>
+                          <span className="text-slate-400 text-xs flex items-center gap-1 font-medium">
+                            <Globe className="w-3.5 h-3.5" />
+                            {member.country}
+                          </span>
+                        </div>
+
+                        {/* Title / Company Name */}
+                        <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
+                          {member.company_name}
+                        </h3>
+
+                        {/* Representative Name */}
+                        {member.representative_name && (
+                          <div className="flex items-center gap-1.5 text-xs text-blue-900 font-semibold bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded-lg w-fit shadow-2xs">
+                            <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <span className="truncate">Rep.: {member.representative_name}</span>
+                          </div>
+                        )}
+
+                        {/* Description */}
+                        <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                          {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
+                        </p>
+                      </div>
+
+                      {/* Card Footer Button */}
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
+                        <span className="text-xs font-bold text-blue-700 group-hover:text-blue-900 flex items-center gap-1.5 transition-colors">
+                          Ver Perfil Completo <ExternalLink className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );

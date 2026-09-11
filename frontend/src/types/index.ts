@@ -281,6 +281,45 @@ export interface PartnerBenefit {
   created_at: string;
 }
 
+export interface PartnerMinute {
+  id: number;
+  user_id: number;
+  member_id?: number | null;
+  title: string;
+  description?: string;
+  document_type: 'file' | 'url';
+  file_url: string;
+  file_name?: string;
+  file_size?: string;
+  meeting_date?: string;
+  downloads: number;
+  is_active: number | boolean;
+  created_at: string;
+  updated_at?: string;
+  user_name?: string;
+  user_email?: string;
+  user_avatar?: string;
+  company_name?: string;
+  company_logo?: string;
+}
+
+export interface Decree {
+  id: number;
+  title: string;
+  decree_number?: string;
+  description?: string;
+  logo_url?: string;
+  document_type: 'file' | 'url';
+  file_url: string;
+  file_name?: string;
+  file_size?: string;
+  issue_date?: string;
+  downloads: number;
+  is_active: number | boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface PartnerDashboardData {
   user: User;
   member_info?: Member | null;

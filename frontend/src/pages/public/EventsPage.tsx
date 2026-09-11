@@ -11,6 +11,7 @@ import { publicApi } from '../../services/api';
 import type { EventItem } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { EventCalendar } from '../../components/common/EventCalendar';
 import bgHeader from '../../assets/static/8.jpeg';
 
 export const EventsPage: React.FC = () => {
@@ -62,123 +63,138 @@ export const EventsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Main Events List */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Toggle Filters */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-          <h2 className="font-serif font-bold text-2xl text-cicha-navy">
-            {filter === 'upcoming' ? 'Próximos Encuentros' : 'Eventos Realizados'}
-          </h2>
+      {/* Main Events Section: Left List & Right Blue Calendar */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Próximos Encuentros / Eventos Realizados (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Toggle Filters */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <h2 className="font-serif font-bold text-2xl text-cicha-navy">
+                {filter === 'upcoming' ? 'Próximos Encuentros' : 'Eventos Realizados'}
+              </h2>
 
-          <div className="flex bg-slate-100 p-1 rounded-xl">
-            <button
-              onClick={() => setFilter('upcoming')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                filter === 'upcoming'
-                  ? 'bg-cicha-navy text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Próximos
-            </button>
-            <button
-              onClick={() => setFilter('past')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                filter === 'past'
-                  ? 'bg-cicha-navy text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Anteriores
-            </button>
+              <div className="flex bg-slate-100 p-1 rounded-xl">
+                <button
+                  onClick={() => setFilter('upcoming')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    filter === 'upcoming'
+                      ? 'bg-cicha-navy text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Próximos
+                </button>
+                <button
+                  onClick={() => setFilter('past')}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    filter === 'past'
+                      ? 'bg-cicha-navy text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Anteriores
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <Loader text="Cargando agenda de eventos..." />
+            ) : events.length > 0 ? (
+              <div className="space-y-4">
+                {events.map((event) => {
+                  const eventDate = new Date(event.event_date);
+                  return (
+                    <div
+                      key={event.id}
+                      className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-5 items-start justify-between group"
+                    >
+                      <div className="flex flex-col sm:flex-row gap-4 items-start flex-1">
+                        {/* Date Block */}
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cicha-navy to-cicha-blue text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-sm">
+                          <span className="font-serif font-extrabold text-xl text-cicha-sky-light leading-none">
+                            {eventDate.getDate()}
+                          </span>
+                          <span className="text-[10px] uppercase font-bold text-slate-200 mt-0.5">
+                            {eventDate.toLocaleString('es-AR', { month: 'short' })}
+                          </span>
+                          <span className="text-[9px] text-blue-200">{eventDate.getFullYear()}</span>
+                        </div>
+
+                        <div className="space-y-2 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 capitalize">
+                              {event.location_type}
+                            </span>
+                            {event.organizer && (
+                              <span className="text-[11px] text-slate-500 font-medium">
+                                Org: {event.organizer}
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="font-serif font-bold text-base sm:text-lg text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
+                            {event.title}
+                          </h3>
+
+                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                            {event.description}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              {eventDate.toLocaleTimeString('es-AR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}{' '}
+                              hs
+                            </span>
+                            {event.location_address && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                {event.location_address}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {event.registration_url && (
+                        <div className="w-full sm:w-auto shrink-0 pt-2 sm:pt-0 self-end sm:self-center">
+                          <a
+                            href={event.registration_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-sm transition-all"
+                          >
+                            Inscribirme <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-2">
+                <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
+                <p className="text-sm font-semibold text-slate-700">No hay eventos en esta sección.</p>
+                <p className="text-xs text-slate-500">Pronto publicaremos nuevas fechas y foros.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Blue Dark EventCalendar (5 cols) */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+            <EventCalendar
+              events={events}
+              variant="dark"
+              title="Calendario Mensual"
+              subtitle="Explora y selecciona una fecha para ver el cronograma"
+            />
           </div>
         </div>
-
-        {loading ? (
-          <Loader text="Cargando agenda de eventos..." />
-        ) : events.length > 0 ? (
-          <div className="space-y-6">
-            {events.map((event) => {
-              const eventDate = new Date(event.event_date);
-              return (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-6 items-start justify-between group"
-                >
-                  <div className="flex flex-col sm:flex-row gap-6 items-start flex-1">
-                    {/* Date Block */}
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cicha-navy to-cicha-blue text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-md">
-                      <span className="font-serif font-extrabold text-2xl text-cicha-sky-light leading-none">
-                        {eventDate.getDate()}
-                      </span>
-                      <span className="text-xs uppercase font-bold text-slate-200 mt-1">
-                        {eventDate.toLocaleString('es-AR', { month: 'short' })}
-                      </span>
-                      <span className="text-[10px] text-blue-200">{eventDate.getFullYear()}</span>
-                    </div>
-
-                    <div className="space-y-3 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 capitalize">
-                          {event.location_type}
-                        </span>
-                        {event.organizer && (
-                          <span className="text-xs text-slate-500 font-medium">
-                            Org: {event.organizer}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors">
-                        {event.title}
-                      </h3>
-
-                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                        {event.description}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-slate-400" />
-                          {eventDate.toLocaleTimeString('es-AR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}{' '}
-                          hs
-                        </span>
-                        {event.location_address && (
-                          <span className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4 text-slate-400" />
-                            {event.location_address}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {event.registration_url && (
-                    <div className="w-full md:w-auto shrink-0 pt-2 md:pt-0">
-                      <a
-                        href={event.registration_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-md transition-all"
-                      >
-                        Inscribirme <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-2">
-            <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">No hay eventos en esta sección.</p>
-            <p className="text-xs text-slate-500">Pronto publicaremos nuevas fechas y foros.</p>
-          </div>
-        )}
       </section>
     </div>
   );

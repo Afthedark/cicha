@@ -24,6 +24,8 @@ import { ContactPage } from './pages/public/ContactPage';
 import { PartnerLayout } from './components/layout/PartnerLayout';
 import { PartnerDashboardPage } from './pages/partner/PartnerDashboardPage';
 import { PartnerResourcesPage } from './pages/partner/PartnerResourcesPage';
+import { PartnerMinutesPage } from './pages/partner/PartnerMinutesPage';
+import { PartnerDecreesPage } from './pages/partner/PartnerDecreesPage';
 import { PartnerOpportunitiesPage } from './pages/partner/PartnerOpportunitiesPage';
 import { PartnerBenefitsPage } from './pages/partner/PartnerBenefitsPage';
 import { PartnerDirectoryPage } from './pages/partner/PartnerDirectoryPage';
@@ -41,6 +43,7 @@ import { AdminOpportunitiesPage } from './pages/admin/AdminOpportunitiesPage';
 import { AdminBannersPage } from './pages/admin/AdminBannersPage';
 import { AdminAuthoritiesPage } from './pages/admin/AdminAuthoritiesPage';
 import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
+import { AdminDecreesPage } from './pages/admin/AdminDecreesPage';
 import { AdminAlliancesPage } from './pages/admin/AdminAlliancesPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
@@ -225,6 +228,8 @@ export function App() {
             <Route index element={<Navigate to="/portal-socios/dashboard" replace />} />
             <Route path="dashboard" element={<PartnerDashboardPage />} />
             <Route path="recursos" element={<PartnerResourcesPage />} />
+            <Route path="actas" element={<PartnerMinutesPage />} />
+            <Route path="decretos" element={<PartnerDecreesPage />} />
             <Route path="oportunidades" element={<PartnerOpportunitiesPage />} />
             <Route path="beneficios" element={<PartnerBenefitsPage />} />
             <Route path="directorio" element={<PartnerDirectoryPage />} />
@@ -255,6 +260,7 @@ export function App() {
             <Route path="portadas" element={<AdminBannersPage />} />
             <Route path="autoridades" element={<AdminAuthoritiesPage />} />
             <Route path="institucional" element={<AdminInstitutionalPage />} />
+            <Route path="decretos" element={<AdminDecreesPage />} />
             <Route path="alianzas" element={<AdminAlliancesPage />} />
             <Route
               path="configuracion"

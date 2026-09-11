@@ -11,6 +11,7 @@ class UsersController extends ResourceController
 
     public function index()
     {
+        $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
         $userModel = new UserModel();
         $roleParam = $this->request->getGet('role');
 
@@ -25,11 +26,25 @@ class UsersController extends ResourceController
             $users = array_values(array_filter($users, fn($u) => in_array($u['role'], $roles)));
         }
 
+        // Si el usuario autenticado NO es el Super Admin (ID 1), ocultar al Super Admin
+        $currentUserId = $currentUser ? (int) ($currentUser->id ?? 0) : 0;
+        if ($currentUserId !== 1) {
+            $users = array_values(array_filter($users, fn($u) => (int) $u['id'] !== 1));
+        }
+
         return $this->respond(['status' => 200, 'data' => $users]);
     }
 
     public function show($id = null)
     {
+        $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
+        $currentUserId = $currentUser ? (int) ($currentUser->id ?? 0) : 0;
+
+        // Si se solicita al Super Admin (ID 1) y quien consulta NO es el Super Admin, denegar
+        if ((int) $id === 1 && $currentUserId !== 1) {
+            return $this->failNotFound('Usuario no encontrado');
+        }
+
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) return $this->failNotFound('Usuario no encontrado');
@@ -77,6 +92,13 @@ class UsersController extends ResourceController
     public function update($id = null)
     {
         $currentUser = $this->request->user ?? \App\Filters\JwtAuthFilter::$currentUser ?? null;
+        $currentUserId = $currentUser ? (int) ($currentUser->id ?? 0) : 0;
+
+        // Protección estricta: Solo el propio Super Admin (ID 1) puede modificar su cuenta
+        if ((int) $id === 1 && $currentUserId !== 1) {
+            return $this->failForbidden('No tiene permisos para modificar la cuenta del Super Administrador.');
+        }
+
         $userModel = new UserModel();
         $user = $userModel->find($id);
         if (!$user) return $this->failNotFound('Usuario no encontrado');
@@ -114,7 +136,7 @@ class UsersController extends ResourceController
         $target = $userModel->find($id);
         if (!$target) return $this->failNotFound('Usuario no encontrado');
         if ((int) $id === 1) {
-            return $this->fail('No es posible eliminar al Administrador principal del sistema.');
+            return $this->failForbidden('No es posible eliminar al Super Administrador principal del sistema.');
         }
 
         if ($currentUser && $currentUser->role === 'secretario' && $target['role'] !== 'socio') {

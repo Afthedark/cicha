@@ -10,85 +10,69 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-1. **🏛️ Módulo "La Cámara" (`/la-camara` & `/institucional`)**:
-   - Denominación oficial unificada como **"La Cámara"** en la barra de navegación del Header y en el Footer.
-   - Enrutamiento optimizado: URL canónica `/la-camara` con redirección automática desde `/institucional`.
-   - Visualización jerárquica en 3 bloques dinámicos y ordenados estrictamente por `order_num`:
-     1. **Presidencia Honoraria & Presidencia** (Tarjetas VIP de alta distinción).
-     2. **Comisión Directiva** (Mesa Ejecutiva y Vocales con línea divisoria azul y badge representativo).
-     3. **Comisión Revisora de Cuentas** (Órgano de Fiscalización con línea divisoria violeta y tarjetas con empresa).
+1. **🏛️ Módulo de "Decretos Oficiales" (`/admin/decretos` y `/portal-socios/decretos`)**:
+   - **Administración CMS (`AdminDecreesPage.tsx`)**: Módulo independiente para `admin` y `secretario` para publicar y gestionar decretos oficiales con logo/escudo oficial (preview interactivo), selector dual entre **Subir Archivo PDF** (hasta 30MB) o **Pegar Enlace URL**, fecha de promulgación y switch de publicación.
+   - **Portal de Socios (`PartnerDecreesPage.tsx`)**: Consulta exclusiva con buscador en tiempo real, insignia institucional, tarjetas con el logo/escudo destacado a la izquierda y botones de descarga de PDF o apertura de enlace web.
 
-2. **🗂️ Módulos Institucionales Independientes en el Menú del CMS**:
-   Los módulos que antes eran pestañas de "Configuración & Gestión" ahora son páginas propias en el menú lateral administrativo:
-   - **Portadas / Banners Home** (`/admin/portadas`): gestor visual de las portadas del Home (crear, editar, ordenar y activar/desactivar con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas).
-   - **Historia & Estatutos** (`/admin/institucional`): edición de secciones históricas y estatutarias de la Cámara.
-   - **Comisión Directiva** (`/admin/autoridades`): gestión de cargos con filtros rápidos por estructura (*Todos*, *Comisión Directiva*, *Comisión Revisora de Cuentas*, *Presidencia Honoraria*), orden de visualización y estado.
-   - **Alianzas Estratégicas** (`/admin/alianzas`): CRUD de alianzas/redes con columna `#Orden`, categoría, estado y campo editable de **posición**.
-   - **Ajustes Generales** (`/admin/configuracion`): datos institucionales, contactos, correos predefinidos, logotipo y redes sociales.
+2. **📑 Módulo de "Actas de Socios" (`/portal-socios/actas`)**:
+   - **Espacio Colaborativo Inter-Socios (`PartnerMinutesPage.tsx`)**: Permite a los socios publicar y compartir actas de asambleas, reuniones de comité o acuerdos.
+   - **Subida Dual**: Soporte para cargar documentos PDF nativos o pegar enlaces directos en la nube (Google Drive, OneDrive, Dropbox).
+   - **Buscador & Permisos**: Búsqueda instantánea, identificación del socio emisor con fecha/hora y permiso de eliminación exclusivo para el socio autor o administradores.
 
-3. **✨ Inicio Renovado con Título en Blanco Puro y Resplandor Animado**:
-   - Título principal: **`CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA`** en blanco puro (`text-white`) de alto contraste.
-   - Efecto animado sutil y elegante de resplandor blanco parpadeante (`.animate-glow-blink-white`).
-   - Trayectoria actualizada a **`+38`** años con contadores animados cíclicos (`CounterDisplay`).
-   - Tarjetas de cristal dedicadas para **MISIÓN** y **OBJETO** estatutario de la Cámara.
+3. **🗂️ Sidebar del CMS Reorganizado en 5 Grupos Temáticos (`AdminLayout.tsx`)**:
+   - Navegación lateral optimizada y ergonómica mapeada directamente con la cabecera pública y el portal de socios:
+     - **Resumen General**: Panel Principal (`/admin/dashboard`).
+     - **Web Pública & Contenidos**: Portadas & Banners, Historia & Estatutos, Comisión Directiva, Noticias & Comunicados, Blogs Editoriales, Galería de Fotos, Agenda de Eventos, Directorio de Socios, Alianzas Estratégicas.
+     - **Portal de Socios & Intranet**: Decretos Oficiales, Recursos & Informes, Oportunidades VIP, Club de Beneficios.
+     - **Gestión & Contacto**: Solicitudes de Afiliación, Mensajes de Contacto.
+     - **Sistema & Staff**: Ajustes Generales, Cuentas de Socios, Staff & Administradores.
+   - Contenedor con scroll interno (`overflow-y-auto`) y sincronización total en el menú lateral móvil.
 
-4. **👥 Gestión Segmentada y Especializada de Cuentas de Acceso**:
-   - **Staff & Administradores (`/admin/usuarios`)**: Módulo exclusivo para el rol **`admin`** para crear y gestionar credenciales de administradores y secretarios del CMS.
-   - **Cuentas de Socios (`/admin/usuarios-socios`)**: Módulo administrable por **`admin`** y **`secretario`** para registrar cuentas de acceso directo al Portal de Socios.
-   - **Login sin Cuentas de Demostración (`/admin/login`)**: se retiraron los botones de "Cuentas de demostración disponibles" y las credenciales precargadas; los campos inician vacíos.
-   - **Mostrar / Ocultar Contraseña**: Toggle visual interactivo (`Eye` / `EyeOff`) tanto en el login como en los formularios de creación y edición de usuarios.
-   - **Copiar Credenciales con 1 Clic**: Botón inteligente que detecta la URL actual del frontend (`/admin/login`) y copia al portapapeles el Nombre, Usuario (Email), Contraseña y Enlace de acceso en formato listo para compartir.
+4. **✨ Rediseño del Header del Portal de Socios (`PartnerLayout.tsx`)**:
+   - **Estructura Bicapa (Two-Tier)**:
+     - **Franja Superior (Blanca)**: Logo oficial (`logo oficial 3.png`), badge distintivo `Portal Socios`, slogan oficial *"PUENTES QUE GENERAN OPORTUNIDADES"*, banderas vectoriales bilaterales, reconocimientos de gobiernos (1989 / 1998), sellos de EUROCAMARA y EEN, selector de idiomas, píldora de usuario con estado **"Socio Verificado"**, enlace directo a la Web Pública y botón Salir.
+     - **Franja Inferior (Azul Egeo `#004b87`)**: Barra de navegación horizontal institucional con iconos y línea dorada activa para los 7 módulos del socio (*Panel Socio, Documentos & Informes, Actas, Decretos, Oportunidades VIP, Club de Beneficios, Directorio B2B*).
+     - Menú lateral deslizable (Drawer) responsive para dispositivos móviles.
 
-5. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
-   - Sección administrable en **Ajustes Generales** (`/admin/configuracion`): **"Correos Socios: Asunto & Mensaje Predeterminado"** (`member_email_subject` y `member_email_body`).
-   - Asunto predefinido: `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
-   - Aplicado de forma automática al presionar el correo de cualquier socio en **Socios Web Pública (`/socios`)** y en el **Directorio B2B Privado (`/portal-socios/directorio`)**.
-   - Administrable por roles **`admin`** y **`secretario`**.
+5. **📅 Componente Reutilizable de Calendario de Eventos (`EventCalendar.tsx`)**:
+   - Calendario mensual interactivo con selector de meses/años, badges de eventos en tiempo real, selector de categorías y panel lateral de detalles.
+   - **Inicio (`HomePage.tsx`)**: Integrado como tarjeta independiente y estilizada de **Agenda Bilateral & Encuentros**, separada del bloque de *Trayectoria & Representación*.
+   - **Eventos (`EventsPage.tsx`)**: Layout de 2 columnas: listado de encuentros a la izquierda y calendario interactivo a la derecha.
 
-6. **📚 Biblioteca de Socios con Subida Dual (PDF y URL Externa)**:
-   - Soporte para subida directa de archivos PDF/documentos al servidor y/o registro de enlaces externos para normativas, acuerdos comerciales e informes bilaterales.
+6. **🔘 Botón Dorado "Acceso Administración Web CMS" en el Footer (`Footer.tsx`)**:
+   - Botón/badge destacado en degradado dorado (`from-amber-400 to-amber-500`) con icono de seguridad para un acceso administrativo rápido y formal al CMS (`/admin/login`).
 
-7. **🏷️ Categorías Dinámicas y Sincronizadas en el Portal de Socios**:
-   - Filtros por sector y rubro en *Documentos & Informes*, *Oportunidades VIP*, *Club de Beneficios* y *Directorio B2B* conectados en tiempo real con el módulo **Sectores & Categorías** del CMS.
+7. **🏛️ Vista Institucional "Presentación" Refinada (`PresentationPage.tsx`)**:
+   - Layout en formato *Full-Width* enfocado en la lectura clara y solemne de la trayectoria histórica y el marco bilateral.
 
-8. **🔍 Búsqueda en Base de Datos a Nivel de Backend**:
-   - Endpoint optimizado `GET /api/admin/members?search=...` con búsqueda SQL `LIKE` sobre nombre de empresa, sector, representante y país.
+8. **🏢 Rediseño del Directorio de Socios Público (`MembersDirectoryPage.tsx`)**:
+   - Tarjetas horizontales de alta legibilidad con logo independiente a la izquierda de gran tamaño (64x64px), fondo blanco, borde suave y animación interactiva `group-hover:scale-110`.
 
-9. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
-   - Pestaña de acceso directo en la barra de navegación del Header.
-   - **Feed Dual en 2 Columnas (Lado a Lado)**: Facebook Oficial embebido e Instagram Oficial con enlace directo a `@camarahelenoargentina`.
+9. **🔘 Botón Dorado "Ingreso Socios" en Navbar Público (`Navbar.tsx`)**:
+   - Botón destacado en dorado institucional (`bg-gradient-to-r from-amber-400 to-amber-500`) con enlace directo a `/admin/login` para el acceso rápido de las empresas socias.
 
-10. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**:
-    - Módulo independiente para artículos de análisis, notas de opinión y publicaciones técnicas de la Cámara.
-    - Administrable por **`admin`** y **`secretario`**: autor, tiempo de lectura, tags, categorías, estados (`published`, `draft`, `archived`) y destacado.
+10. **🛡️ Aislamiento Estricto de Seguridad para Super Administradores**:
+    - Protección en backend (`UsersController.php`) y frontend (`AdminUsersPage.tsx`) para impedir que administradores estándar visualicen, editen o eliminen las credenciales del Super Administrador.
 
-11. **📷 Módulo de Galería de Fotos Inteligente (`/galeria` y `/admin/galeria`)**:
-    - Registro visual de encuentros y misiones con subida por lotes.
-    - Visor **Lightbox a Pantalla Completa** con navegación por teclado (`←`, `→`, `Esc`) y descarga en alta calidad.
+11. **🏛️ Módulo "La Cámara" (`/la-camara` & `/institucional`)**:
+    - Denominación oficial unificada como **"La Cámara"** en el Header y Footer con redirección automática desde `/institucional`.
+    - Visualización jerárquica en 3 bloques dinámicos: *Presidencia Honoraria & Presidencia*, *Comisión Directiva* y *Comisión Revisora de Cuentas*.
 
-12. **🌐 Ecosistema de Redes Sociales Administrables & Footer Centralizado**:
-    - Gestión en CMS (`/admin/configuracion`): soporte para LinkedIn, Instagram, Facebook, X (Twitter), YouTube y **TikTok** oficial.
-    - Pie de página institucional ([`Footer.tsx`](file:///d:/myProjects/cicha/frontend/src/components/layout/Footer.tsx)) con botones glassmorphism y resplandor celeste egeo (`#00AEEF`).
+12. **👥 Gestión Segmentada de Cuentas de Acceso**:
+    - **Staff & Administradores (`/admin/usuarios`)**: Módulo para administrar credenciales del CMS.
+    - **Cuentas de Socios (`/admin/usuarios-socios`)**: Módulo para crear accesos al Portal de Socios.
+    - **Login Seguro sin Cuentas de Demostración (`/admin/login`)**.
+    - **Toggle Ver/Ocultar Contraseña** y **Copiar Credenciales Inteligente con 1 Clic**.
 
-13. **📝 Solicitud de Afiliación con Logo Obligatorio (`/asociarse`)**:
-    - Requisito obligatorio de subida de logo/marca para personas jurídicas y físicas, validado en frontend y backend.
+13. **✉️ Asunto Predeterminado para Correos de Socios ("Correos Socios")**:
+    - Configurado en Ajustes Generales (`/admin/configuracion`): `MENSAJE POR MEDIO DE LA PAGINA DE CICHA`.
 
-14. **🖼️ Portadas / Banners Dinámicos del Home (`/admin/portadas`)**:
-    - Módulo independiente (página propia en el menú del CMS) para crear, editar, ordenar y activar/desactivar portadas con enlaces a `/la-camara`, `/asociarse`, `/noticias`, `/eventos`, `/socios` y URLs externas.
+14. **📱 Módulo de Post & Redes Sociales con Feed Dual (`/redes-sociales`)**:
+    - Widgets en vivo de Facebook e Instagram oficial lado a lado en 2 columnas.
 
-15. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)**:
-    - Traducción automática del 100% de la web con banderas vectoriales: 🇦🇷 **Español**, 🇬🇷 **Ελληνικά (Griego)** y 🇬🇧 **English (Inglés)**.
-
-16. **🛡️ Control de Acceso Basado en Roles (RBAC)**:
-    - Matriz de permisos con roles: `admin` (superusuario), `secretario` (gestor de contenidos y cuentas de socios), `socio` (intranet privada) y `visitante` (público general).
-
-17. **🔢 Orden y Numeración en el Directorio de Socios (`/admin/socios`)**:
-    - Columna **Nº** de numeración y campo **"Orden / Posición en el Directorio"** editable en el alta/edición de cada socio.
-    - El orden persistido (`order_num`) se replica en la **Web Pública (`/socios`)** y en el **Directorio B2B** del Portal de Socios.
-
-18. **🖼️ Header Institucional Renovado**:
-    - Logotipo oficial actualizado (`logo oficial 3.png`).
-    - Banderas bilaterales de Grecia y Argentina más grandes y botón selector de idioma en **celeste egeo** (`#00AEEF`).
+15. **📰 Módulo de Blogs & Artículos Editoriales (`/blogs` y `/admin/blogs`)**.
+16. **📷 Módulo de Galería de Fotos Inteligente con Lightbox a Pantalla Completa (`/galeria` y `/admin/galeria`)**.
+17. **🌐 Traductor Automático Global en Tiempo Real (`GoogleTranslate.tsx`)** (Español, Griego, Inglés).
 
 ---
 
@@ -103,7 +87,7 @@ cicha/
 │   ├── README.md            # Documentación técnica completa de la API
 │   └── ...
 ├── frontend/                # Aplicación SPA en React 19 + Vite 8 + TypeScript + Tailwind CSS v4
-│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (5) y CMS (17)
+│   ├── src/                 # Componentes, Páginas públicas (12), Intranet de socios (7) y CMS (18)
 │   ├── README.md            # Documentación técnica del Frontend
 │   └── ...
 └── README.md                # Guía general de inicio rápido del proyecto
@@ -120,7 +104,7 @@ Desde la carpeta `backend/`:
 ```bash
 cd backend
 
-# 1. Ejecutar las migraciones de base de datos
+# 1. Ejecutar las migraciones de base de datos (18 tablas)
 php spark migrate
 
 # 2. Cargar datos institucionales y cuentas por rol
@@ -148,14 +132,14 @@ npm run dev
 
 ## 👥 Roles y Cuentas de Demostración
 
-En la pantalla de inicio de sesión ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) las credenciales se ingresan manualmente (ya no hay botones de acceso rápido ni credenciales precargadas). Cuentas de ejemplo:
+En la pantalla de inicio de sesión ([http://localhost:5173/admin/login](http://localhost:5173/admin/login)) las credenciales se ingresan manualmente:
 
 | Rol | Email | Contraseña | Destino tras Iniciar Sesión | Alcance de Permisos |
 | :--- | :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Staff & Administradores, Cuentas de Socios, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
-| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Cuentas de Socios, Blogs, Galería, Noticias, Eventos, Oportunidades, Socios, Recursos de Socios y Ajustes. |
-| **Empresa Socia** | `socio@cicha.com.ar` | `socio123` | Portal Exclusivo de Socios (`/portal-socios`) | Intranet: Informes de mercado, Oportunidades VIP, Club de beneficios y Directorio B2B. |
-| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda, noticias, directorio y formularios. |
+| **Administrador** | `admin@cicha.com.ar` | `admin123` | CMS Total (`/admin/dashboard`) | Control total: Staff & Administradores, Cuentas de Socios, Decretos, Ajustes, Portadas, Blogs, Galería, Noticias, Eventos y Socios. |
+| **Secretaría** | `secretaria@cicha.com.ar` | `sec123` | CMS Operativo (`/admin/dashboard`) | Gestión operativa: Decretos, Cuentas de Socios, Blogs, Galería, Noticias, Eventos, Oportunidades, Socios, Recursos de Socios y Ajustes. |
+| **Empresa Socia** | `socio@cicha.com.ar` | `socio123` | Portal Exclusivo de Socios (`/portal-socios`) | Intranet: Informes de mercado, Actas colaborativas, Decretos oficiales, Oportunidades VIP, Club de beneficios y Directorio B2B. |
+| **Visitante** | *(Sin login)* | - | Portal Público Institucional (`/`) | Acceso a todas las páginas públicas, blogs, galería, agenda con calendario interactivo, noticias, directorio y formularios. |
 
 ---
 

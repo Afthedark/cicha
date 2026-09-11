@@ -12,6 +12,7 @@ import {
   FileDown,
   Gift,
   Users,
+  LogIn,
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { useAuth } from '../../context/AuthContext';
@@ -73,9 +74,9 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-300 shadow-md">
+    <header className="sticky top-0 z-50 w-full bg-white transition-all duration-300 shadow-md">
       {/* 1. TOP BAR: Identity, Slogan, Bilateral Flags & Official Accreditations */}
-      <div className="bg-gradient-to-r from-white via-sky-50/40 to-white border-b border-slate-200/80 py-2.5 sm:py-3 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white border-b border-slate-200/80 py-2.5 sm:py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-5">
           
           {/* Left: Logo + Typography + Slogan + Flags + Accreditations */}
@@ -117,20 +118,29 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Language Selector + Asociarse CTA Button + Mobile Menu Button */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Right: Language Selector + Ingreso Socios Button + Asociarse CTA Button + Mobile Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {/* Language Selector */}
             <div className="notranslate">
               <GoogleTranslate variant="celeste" align="right" />
             </div>
 
+            {/* Ingreso Socios Golden Button */}
+            <Link
+              to="/admin/login"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs sm:text-[13px] font-extrabold shadow-sm hover:shadow-md transition-all duration-200 border border-amber-300/60"
+            >
+              <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950 shrink-0" />
+              <span>Ingreso Socios</span>
+            </Link>
+
             {/* Asociarse CTA Button */}
             <Link
               to="/asociarse"
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-[#004b87] hover:bg-[#003666] text-white text-xs sm:text-[13px] font-bold shadow-xs hover:shadow transition-all duration-200"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-[#004b87] hover:bg-[#003666] text-white text-xs sm:text-[13px] font-bold shadow-xs hover:shadow transition-all duration-200"
             >
               <Users className="w-4 h-4" />
-              <span className="hidden xs:inline sm:inline">Asociarse</span>
+              <span>Asociarse</span>
             </Link>
 
             {/* Mobile menu trigger */}
@@ -287,14 +297,22 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
 
-            {/* CTA in Mobile */}
-            <div className="pt-2">
+            {/* CTAs in Mobile */}
+            <div className="pt-2 space-y-2">
+              <Link
+                to="/admin/login"
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-md transition-all border border-amber-300/70"
+              >
+                <LogIn className="w-4 h-4 text-slate-950" />
+                Ingreso Socios
+              </Link>
               <Link
                 to="/asociarse"
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-xs shadow-md transition-all"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all"
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-4 h-4 text-sky-300" />
                 Asociarse a CICHA
               </Link>
             </div>

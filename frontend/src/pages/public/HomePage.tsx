@@ -21,6 +21,8 @@ import { publicApi, resolveImageUrl } from '../../services/api';
 import type { HomeData, Banner } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { ArgentinaFlag, GreeceFlag } from '../../components/common/GoogleTranslate';
+import { EventCalendar } from '../../components/common/EventCalendar';
 
 // Componente de Contador Animado Cíclico y Elegante
 const CounterDisplay: React.FC<{
@@ -242,10 +244,32 @@ export const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-2">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              {/* Diplomatic Badges */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-cicha-sky-light/40 text-cicha-sky-light text-xs font-semibold shadow-inner backdrop-blur-md">
-                <ShieldCheck className="w-4 h-4 text-cicha-sky" />
-                <span>Reconocida por Gobiernos de Argentina (1989) y Grecia (1998)</span>
+              {/* Diplomatic Badges / Reconocimientos Oficiales */}
+              <div className="rounded-2xl bg-gradient-to-r from-white/15 via-white/10 to-white/5 border border-amber-400/40 p-4 sm:p-5 backdrop-blur-md shadow-xl max-w-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                    <Award className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <span className="font-serif font-bold text-base sm:text-lg text-amber-200 tracking-wide">
+                    Reconocimientos Oficiales
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-slate-100 font-medium">
+                  <div className="flex items-center gap-2.5 bg-black/20 hover:bg-black/30 transition-colors px-3 py-2 rounded-xl border border-white/10">
+                    <ArgentinaFlag className="w-5 h-3.5 shadow-sm shrink-0" />
+                    <div>
+                      <span className="font-semibold text-white">Gobierno Argentino:</span>
+                      <span className="text-slate-200 block text-xs">1 de Noviembre 1989</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 bg-black/20 hover:bg-black/30 transition-colors px-3 py-2 rounded-xl border border-white/10">
+                    <GreeceFlag className="w-5 h-3.5 shadow-sm shrink-0" />
+                    <div>
+                      <span className="font-semibold text-white">Gobierno Griego:</span>
+                      <span className="text-slate-200 block text-xs">18 de Septiembre 1998</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
@@ -303,15 +327,16 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Card / Statistics */}
-            <div className="lg:col-span-5">
-              <div className="bg-gradient-to-b from-[#0E2E54] to-[#081C33] rounded-3xl p-6 sm:p-8 border border-blue-800/80 shadow-2xl space-y-6">
-                <div className="flex items-center justify-between border-b border-blue-800 pb-4">
+            {/* Right Column: 2 Independent Cards */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Tarjeta 1: Trayectoria & Representación */}
+              <div className="bg-gradient-to-b from-[#0E2E54] to-[#081C33] rounded-3xl p-6 sm:p-7 border border-blue-800/80 shadow-2xl space-y-5">
+                <div className="flex items-center justify-between border-b border-blue-800 pb-3">
                   <h2 className="font-serif font-bold text-lg text-white">Trayectoria & Representación</h2>
                   <Badge variant="gold">Oficial</Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3.5">
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-cicha-sky/40 transition-all flex flex-col justify-center">
                     <CounterDisplay target={38} prefix="+" className="text-3xl font-extrabold text-[#00AEEF] font-serif" />
                     <p className="text-xs text-slate-300 mt-1 font-medium">Años de Trayectoria Bilateral (1989)</p>
@@ -329,6 +354,17 @@ export const HomePage: React.FC = () => {
                     <p className="text-xs text-slate-300 mt-1 font-medium">Articulación Público-Privada</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Tarjeta 2: Agenda Bilateral (Calendario Independiente) */}
+              <div className="bg-gradient-to-b from-[#0E2E54] to-[#081C33] rounded-3xl p-5 sm:p-6 border border-blue-800/80 shadow-2xl">
+                <EventCalendar
+                  events={data?.upcoming_events}
+                  variant="dark"
+                  compact={true}
+                  title="Agenda Bilateral"
+                  subtitle="Próximos foros y encuentros oficiales"
+                />
               </div>
             </div>
           </div>
@@ -376,85 +412,7 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. STRATEGIC ALLIANCES & NETWORKS SHOWCASE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-          <Badge variant="primary">Redes Internacionales</Badge>
-          <h2 className="font-serif font-bold text-2xl sm:text-3xl text-cicha-navy">
-            Alianzas Estratégicas y Nodos Globales
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            CICHA articula de manera permanente con los principales organismos y redes empresariales europeas y binacionales.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {data?.alliances?.map((alliance) => {
-            const resolvedLogo = resolveImageUrl(alliance.logo_url);
-            return (
-              <div
-                key={alliance.id}
-                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="w-16 h-16 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center p-2 shrink-0 shadow-2xs overflow-hidden">
-                      {resolvedLogo ? (
-                        <img
-                          src={resolvedLogo}
-                          alt={alliance.name}
-                          className="max-h-full max-w-full object-contain filter drop-shadow-xs group-hover:scale-105 transition-transform"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                            (e.target as HTMLElement).parentElement?.classList.add('fallback-icon');
-                          }}
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700">
-                          <Globe2 className="w-5 h-5" />
-                        </div>
-                      )}
-                    </div>
-                    {alliance.highlight_text && (
-                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 max-w-[170px] truncate text-right">
-                        {alliance.highlight_text}
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <h3 className="font-serif font-bold text-lg text-cicha-navy group-hover:text-blue-700 transition-colors">
-                      {alliance.name}
-                    </h3>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
-                      {alliance.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
-                    Conocer más <ChevronRight className="w-4 h-4" />
-                  </span>
-                  {alliance.website_url && (
-                    <a
-                      href={alliance.website_url.startsWith('http') ? alliance.website_url : `https://${alliance.website_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-400 hover:text-blue-700 p-1"
-                      title="Sitio Oficial"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 3. BILATERAL COMMERCIAL OPPORTUNITIES */}
+      {/* 2. BILATERAL COMMERCIAL OPPORTUNITIES */}
       <section className="bg-gradient-to-br from-cicha-navy-dark via-cicha-navy to-cicha-navy-deep text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border-2 border-cicha-sky/30 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-cicha-sky/10 rounded-full blur-3xl pointer-events-none" />
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-cicha-sky/20">
