@@ -480,19 +480,6 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({
                           {ev.title}
                         </h5>
                       </div>
-
-                      {ev.registration_url && (
-                        <a
-                          href={ev.registration_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 hover:text-amber-300 shrink-0 self-end sm:self-auto"
-                        >
-                          Inscribirme
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
                     </div>
                   );
                 })}

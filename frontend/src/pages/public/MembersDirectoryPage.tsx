@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Loader2,
   UserCheck,
+  ChevronDown,
 } from 'lucide-react';
 import { publicApi, resolveImageUrl } from '../../services/api';
 import type { Member, Settings } from '../../types';
@@ -32,6 +33,19 @@ export const MembersDirectoryPage: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [activeMember, setActiveMember] = useState<Member | null>(null);
+  const [expandedMemberIds, setExpandedMemberIds] = useState<Set<number>>(new Set());
+
+  const toggleExpand = (id: number) => {
+    setExpandedMemberIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   // In-App Web Viewer Modal state with fallback detection
   const [webViewer, setWebViewer] = useState<{
@@ -97,7 +111,7 @@ export const MembersDirectoryPage: React.FC = () => {
       });
   };
 
-  // Extraer sectores únicos de los socios registrados más los oficiales
+  // Extraer sectores únicos individuales de los socios registrados más los oficiales
   const defaultSectors = [
     'Marítimo & Logística',
     'Agroindustria & Alimentos',
@@ -105,11 +119,12 @@ export const MembersDirectoryPage: React.FC = () => {
     'Servicios Jurídicos & Finanzas',
   ];
 
+  const extractedSectorsFromMembers = allMembers
+    .flatMap((m) => (m.sector ? m.sector.split(',').map((s) => s.trim()) : []))
+    .filter(Boolean);
+
   const dynamicSectorNames = Array.from(
-    new Set([
-      ...defaultSectors,
-      ...allMembers.map((m) => m.sector).filter(Boolean),
-    ])
+    new Set([...defaultSectors, ...extractedSectorsFromMembers])
   );
 
   const sectors = [
@@ -259,19 +274,32 @@ export const MembersDirectoryPage: React.FC = () => {
                     {/* Right Column: Member Details, Badges & Footer */}
                     <div className="flex-1 flex flex-col justify-between p-5 sm:p-6 space-y-4">
                       <div className="space-y-3">
-                        {/* Sector Badge */}
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10.5px] font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs">
-                            {member.sector}
-                          </span>
-                          <span className="text-slate-400 text-xs flex items-center gap-1 font-medium">
+                        {/* Sector Badges */}
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap gap-1.5">
+                            {member.sector
+                              ? member.sector
+                                  .split(',')
+                                  .map((s) => s.trim())
+                                  .filter(Boolean)
+                                  .map((sec) => (
+                                    <span
+                                      key={sec}
+                                      className="text-[10.5px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs"
+                                    >
+                                      {sec}
+                                    </span>
+                                  ))
+                              : null}
+                          </div>
+                          <span className="text-slate-400 text-xs flex items-center gap-1 font-medium shrink-0">
                             <Globe className="w-3.5 h-3.5" />
                             {member.country}
                           </span>
                         </div>
 
                         {/* Title / Company Name */}
-                        <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
+                        <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug break-words">
                           {member.company_name}
                         </h3>
 
@@ -283,10 +311,33 @@ export const MembersDirectoryPage: React.FC = () => {
                           </div>
                         )}
 
-                        {/* Description */}
-                        <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                          {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
-                        </p>
+                        {/* Description con Ver más / Ver menos */}
+                        <div className="space-y-1.5">
+                          <p
+                            className={`text-xs text-slate-600 leading-relaxed break-words break-all whitespace-pre-line [overflow-wrap:anywhere] transition-all ${
+                              expandedMemberIds.has(member.id) ? '' : 'line-clamp-3'
+                            }`}
+                          >
+                            {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
+                          </p>
+                          {member.description && member.description.length > 90 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpand(member.id);
+                              }}
+                              className="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <span>{expandedMemberIds.has(member.id) ? 'Ver menos' : 'Ver más'}</span>
+                              <ChevronDown
+                                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                  expandedMemberIds.has(member.id) ? 'rotate-180' : ''
+                                }`}
+                              />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Card Footer Button */}
@@ -316,6 +367,7 @@ export const MembersDirectoryPage: React.FC = () => {
           isOpen={!!activeMember}
           onClose={() => setActiveMember(null)}
           title={activeMember.company_name}
+          maxWidth="xl"
         >
           <div className="space-y-6 text-slate-800">
             {/* Header with Logo */}
@@ -332,7 +384,7 @@ export const MembersDirectoryPage: React.FC = () => {
                 )}
               </div>
               <div className="space-y-2 min-w-0 flex-1">
-                <h3 className="font-serif font-bold text-xl text-cicha-navy leading-snug">
+                <h3 className="font-serif font-bold text-xl text-cicha-navy leading-snug break-words">
                   {activeMember.company_name}
                 </h3>
                 {activeMember.representative_name && (
@@ -341,11 +393,19 @@ export const MembersDirectoryPage: React.FC = () => {
                     <span>Representante: <strong className="text-slate-900">{activeMember.representative_name}</strong></span>
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                  <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">
-                    {activeMember.sector}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  {activeMember.sector
+                    ? activeMember.sector
+                        .split(',')
+                        .map((s) => s.trim())
+                        .filter(Boolean)
+                        .map((sec) => (
+                          <span key={sec} className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200/60">
+                            {sec}
+                          </span>
+                        ))
+                    : null}
+                  <span className="text-xs font-medium text-slate-500 ml-1">
                     {activeMember.country}
                   </span>
                   {activeMember.is_featured ? (
@@ -356,18 +416,22 @@ export const MembersDirectoryPage: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-serif font-bold text-sm text-cicha-navy">Descripción de la Empresa</h4>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {activeMember.description || 'Sin descripción disponible.'}
-              </p>
+              <h4 className="font-serif font-bold text-sm text-cicha-navy uppercase tracking-wider text-[12px]">Descripción de la Empresa</h4>
+              <div className="p-4 rounded-xl bg-slate-50/90 border border-slate-200/80 max-h-72 overflow-y-auto">
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed break-words break-all whitespace-pre-line [overflow-wrap:anywhere]">
+                  {activeMember.description || 'Sin descripción disponible.'}
+                </p>
+              </div>
             </div>
 
             {activeMember.services && (
               <div className="space-y-2">
-                <h4 className="font-serif font-bold text-sm text-cicha-navy">Servicios & Oferta Comercial</h4>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {activeMember.services}
-                </p>
+                <h4 className="font-serif font-bold text-sm text-cicha-navy uppercase tracking-wider text-[12px]">Servicios & Oferta Comercial</h4>
+                <div className="p-4 rounded-xl bg-slate-50/90 border border-slate-200/80 max-h-60 overflow-y-auto">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed break-words break-all whitespace-pre-line [overflow-wrap:anywhere]">
+                    {activeMember.services}
+                  </p>
+                </div>
               </div>
             )}
 

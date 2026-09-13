@@ -59,11 +59,18 @@ class MembersController extends ResourceController
             $defaultOrder = (int) $input['order_num'];
         }
 
+        $rawSector = $input['sector'] ?? '';
+        if (is_array($rawSector)) {
+            $sectorStr = implode(', ', array_filter(array_map('trim', $rawSector)));
+        } else {
+            $sectorStr = trim((string)$rawSector);
+        }
+
         $data = [
             'company_name'        => $input['company_name'] ?? '',
             'representative_name' => $input['representative_name'] ?? '',
             'slug'                => $slug,
-            'sector'              => $input['sector'] ?? '',
+            'sector'              => $sectorStr,
             'description'         => $input['description'] ?? '',
             'services'            => $input['services'] ?? '',
             'logo_url'            => $input['logo_url'] ?? '',
@@ -94,7 +101,14 @@ class MembersController extends ResourceController
             $data['slug'] = url_title($input['company_name'], '-', true) . '-' . $id;
         }
         if (isset($input['representative_name'])) $data['representative_name'] = $input['representative_name'];
-        if (isset($input['sector'])) $data['sector'] = $input['sector'];
+        if (isset($input['sector'])) {
+            $rawSector = $input['sector'];
+            if (is_array($rawSector)) {
+                $data['sector'] = implode(', ', array_filter(array_map('trim', $rawSector)));
+            } else {
+                $data['sector'] = trim((string)$rawSector);
+            }
+        }
         if (isset($input['description'])) $data['description'] = $input['description'];
         if (isset($input['services'])) $data['services'] = $input['services'];
         if (isset($input['logo_url'])) $data['logo_url'] = $input['logo_url'];

@@ -102,13 +102,8 @@ export const PartnerLayout: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: Language Selector + User Info Pill + Public Web Link + Logout + Mobile Menu Button */}
+            {/* Right: User Info Pill + Public Web Link + Logout + Mobile Menu Button */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {/* Language Selector */}
-              <div className="notranslate">
-                <GoogleTranslate variant="celeste" align="right" />
-              </div>
-
               {/* User Profile Pill */}
               <div className="hidden lg:flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100 transition-colors pl-2.5 pr-3.5 py-1 rounded-full border border-slate-200/90 shadow-2xs">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#004b87] to-sky-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
@@ -161,10 +156,10 @@ export const PartnerLayout: React.FC = () => {
 
         {/* 2. BOTTOM BAR: Classic Aegean/Navy Blue Navigation Bar for Partner Modules */}
         <nav className="bg-[#004b87] text-white shadow-inner">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
             
             {/* Desktop Horizontal Navigation Links */}
-            <div className="hidden lg:flex items-center flex-nowrap gap-x-1 xl:gap-x-2 overflow-hidden">
+            <div className="hidden lg:flex items-center flex-nowrap gap-x-0.5 xl:gap-x-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.path);
@@ -172,13 +167,13 @@ export const PartnerLayout: React.FC = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`relative py-3.5 px-3 xl:px-4 text-[12.5px] xl:text-[13.5px] font-semibold whitespace-nowrap transition-colors hover:text-amber-300 flex items-center gap-2 ${
+                    className={`relative py-3.5 px-2.5 xl:px-3.5 text-[12px] xl:text-[13px] font-semibold whitespace-nowrap transition-colors hover:text-amber-300 flex items-center gap-1.5 xl:gap-2 shrink-0 ${
                       active
-                        ? 'text-white font-bold after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-amber-400'
+                        ? 'text-white font-bold after:absolute after:bottom-0 after:left-1.5 after:right-1.5 after:h-0.5 after:bg-amber-400'
                         : 'text-slate-100'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${active ? 'text-amber-300' : 'text-sky-200'}`} />
+                    <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 ${active ? 'text-amber-300' : 'text-sky-200'}`} />
                     <span>{item.name}</span>
                     {item.badge && (
                       <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-black uppercase tracking-wider">
@@ -191,8 +186,8 @@ export const PartnerLayout: React.FC = () => {
             </div>
 
             {/* Right Tag in bottom bar */}
-            <div className="hidden lg:flex items-center gap-2 text-xs text-sky-200 font-medium py-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <div className="hidden 2xl:flex items-center gap-2 text-xs text-sky-200 font-medium py-2 pl-4 border-l border-white/10 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Sesión Activa</span>
             </div>
           </div>

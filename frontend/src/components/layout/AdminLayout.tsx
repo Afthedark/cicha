@@ -32,7 +32,6 @@ import {
   Send,
   Compass,
 } from 'lucide-react';
-import { GoogleTranslate } from '../common/GoogleTranslate';
 
 interface NavItem {
   name: string;
@@ -254,11 +253,6 @@ export const AdminLayout: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
-              {/* Google Translate Selector */}
-              <div className="notranslate">
-                <GoogleTranslate variant="diplomatic" align="right" />
-              </div>
-
               <Link
                 to="/portal-socios"
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400/20 to-amber-500/20 text-amber-300 hover:bg-amber-400/30 text-xs font-bold transition-all border border-amber-400/30 shadow-xs"

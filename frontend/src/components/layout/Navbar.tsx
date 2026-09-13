@@ -125,10 +125,10 @@ export const Navbar: React.FC = () => {
               <GoogleTranslate variant="celeste" align="right" />
             </div>
 
-            {/* Ingreso Socios Golden Button */}
+            {/* Ingreso Socios Golden Button (Oculto en móvil para evitar redundancia con el menú) */}
             <Link
               to="/admin/login"
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs sm:text-[13px] font-extrabold shadow-sm hover:shadow-md transition-all duration-200 border border-amber-300/60"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs sm:text-[13px] font-extrabold shadow-sm hover:shadow-md transition-all duration-200 border border-amber-300/60"
             >
               <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950 shrink-0" />
               <span>Ingreso Socios</span>

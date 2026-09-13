@@ -433,7 +433,7 @@ export const HomePage: React.FC = () => {
             to="/asociarse"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white text-xs font-bold shadow-lg shadow-cicha-sky/20 transition-all shrink-0"
           >
-            Acceder como Socio
+            Asociarse
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

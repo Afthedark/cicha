@@ -159,19 +159,6 @@ export const EventsPage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-
-                      {event.registration_url && (
-                        <div className="w-full sm:w-auto shrink-0 pt-2 sm:pt-0 self-end sm:self-center">
-                          <a
-                            href={event.registration_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-sm transition-all"
-                          >
-                            Inscribirme <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        </div>
-                      )}
                     </div>
                   );
                 })}

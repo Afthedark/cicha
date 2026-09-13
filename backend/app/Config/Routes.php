@@ -59,6 +59,8 @@ $routes->group('api', static function ($routes) {
         $routes->post('minutes', 'PartnerController::createMinute');
         $routes->delete('minutes/(:num)', 'PartnerController::deleteMinute/$1');
         $routes->post('minutes/(:num)/download', 'PartnerController::downloadMinute/$1');
+        // Subida de Documentos para Socios (PDF / Archivos de Actas hasta 30MB)
+        $routes->post('upload', 'Admin\UploadController::uploadImage');
         // Decretos Oficiales (Consulta Socios)
         $routes->get('decrees', 'PartnerController::getDecrees');
         $routes->post('decrees/(:num)/download', 'PartnerController::downloadDecree/$1');

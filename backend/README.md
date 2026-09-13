@@ -52,14 +52,14 @@ Tablas generadas en la base de datos:
 - `institutional_sections`: Misión, Objeto estatutario, Historia y reconocimientos diplomáticos.
 - `authorities`: Comisión Directiva, Comisión Revisora y autoridades de la Cámara.
 - `alliances`: Redes estratégicas (EUROCAMARA, EEN Unión Europea, UCCEB, Embajada).
-- `categories`: Taxonomía para noticias, eventos y socios.
+- `categories`: Taxonomía para noticias, eventos, rubros de socios y oportunidades comerciales.
 - `articles`: Noticias, prensa y comunicados institucionales.
 - `blogs`: Módulo editorial de artículos de análisis, opinión y notas técnicas.
 - `photo_albums`: Álbumes y grupos temáticos de la galería fotográfica.
 - `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
 - `banners`: Portadas y slides dinámicos del Home con selector de rutas.
-- `events`: Agenda de foros, webinars y rondas de negocios.
-- `members`: Directorio de empresas socias (incluye la columna `order_num` para posición en el directorio).
+- `events`: Agenda de foros, webinars y rondas de negocios oficiales.
+- `members`: Directorio de empresas socias (soporta múltiples categorías/sectores normalizados y columna `order_num` para posición en el directorio).
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
 - `partner_resources`: Biblioteca de informes sectoriales y guías con control de descargas (PDF / URL).
 - `partner_minutes`: **Actas institucionales y resoluciones colaborativas entre socios (PDF / URL)**.

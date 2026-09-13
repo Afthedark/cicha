@@ -232,7 +232,7 @@ export const partnerApi = {
     const formData = new FormData();
     formData.append('file', file);
     return apiClient
-      .post<{ status: number; url: string; file_name?: string; file_size?: string; message: string }>('/admin/upload', formData, {
+      .post<{ status: number; url: string; file_name?: string; file_size?: string; message: string }>('/partner/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((res) => res.data);
