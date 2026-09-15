@@ -22,11 +22,12 @@ import type {
   PhotoAlbum,
   GalleryPhoto,
   Category,
+  PartnerNewsItem,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 /**
  * Resuelve URLs de imágenes ya sean absolutas (http/https), rutas relativas de uploads (/uploads/...) o blobs locales.
@@ -159,6 +160,16 @@ export const publicApi = {
     interests?: string | string[];
     comments?: string;
   }) => apiClient.post<{ status: number; message: string }>('/public/apply', data).then((res) => res.data),
+
+  getGreekTranslations: () =>
+    apiClient
+      .get<{ status: number; data: { list: any[]; dictionary: Record<string, string> } }>('/public/translations/el')
+      .then((res) => res.data.data),
+
+  getEnglishTranslations: () =>
+    apiClient
+      .get<{ status: number; data: { list: any[]; dictionary: Record<string, string> } }>('/public/translations/en')
+      .then((res) => res.data.data),
 };
 
 // Exclusive Partner Portal API Service (Role: socio, admin, secretario)
@@ -228,6 +239,19 @@ export const partnerApi = {
       .post<{ status: number; url: string; document_type: 'file' | 'url'; title: string; message: string }>(`/partner/decrees/${id}/download`)
       .then((res) => res.data),
 
+  // Boletín de Noticias para Socios
+  getNews: (category?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: { news: PartnerNewsItem[]; categories: string[] } }>('/partner/news', {
+        params: { category, q: search },
+      })
+      .then((res) => res.data.data),
+
+  getNewsDetail: (slugOrId: string | number) =>
+    apiClient
+      .get<{ status: number; data: { item: PartnerNewsItem; related: PartnerNewsItem[] } }>(`/partner/news/${slugOrId}`)
+      .then((res) => res.data.data),
+
   uploadDocument: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -295,6 +319,18 @@ export const adminApi = {
   createArticle: (data: Partial<Article>) => apiClient.post('/admin/articles', data).then((res) => res.data),
   updateArticle: (id: number, data: Partial<Article>) => apiClient.put(`/admin/articles/${id}`, data).then((res) => res.data),
   deleteArticle: (id: number) => apiClient.delete(`/admin/articles/${id}`).then((res) => res.data),
+
+  // Partner News / Boletín de Socios (Admin & Secretario)
+  getPartnerNews: (params?: { category?: string; status?: string; q?: string }) =>
+    apiClient.get<{ status: number; data: PartnerNewsItem[] }>('/admin/partner-news', { params }).then((res) => res.data.data),
+  getPartnerNewsItem: (id: number | string) =>
+    apiClient.get<{ status: number; data: PartnerNewsItem }>(`/admin/partner-news/${id}`).then((res) => res.data.data),
+  createPartnerNews: (data: Partial<PartnerNewsItem>) =>
+    apiClient.post<{ status: number; message: string; data: PartnerNewsItem }>('/admin/partner-news', data).then((res) => res.data),
+  updatePartnerNews: (id: number, data: Partial<PartnerNewsItem>) =>
+    apiClient.put<{ status: number; message: string; data: PartnerNewsItem }>(`/admin/partner-news/${id}`, data).then((res) => res.data),
+  deletePartnerNews: (id: number) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/partner-news/${id}`).then((res) => res.data),
 
   // Blogs (Admin & Secretario)
   getBlogs: () => apiClient.get<{ status: number; data: Blog[] }>('/admin/blogs').then((res) => res.data.data),
@@ -388,8 +424,12 @@ export const adminApi = {
   // Institutional Sections (Admin only)
   getInstitutional: () =>
     apiClient.get<{ status: number; data: InstitutionalSection[] }>('/admin/institutional').then((res) => res.data.data),
+  createInstitutional: (data: Partial<InstitutionalSection>) =>
+    apiClient.post('/admin/institutional', data).then((res) => res.data),
   updateInstitutional: (id: number, data: Partial<InstitutionalSection>) =>
     apiClient.put(`/admin/institutional/${id}`, data).then((res) => res.data),
+  deleteInstitutional: (id: number) =>
+    apiClient.delete(`/admin/institutional/${id}`).then((res) => res.data),
 
   // Alliances (Admin only)
   getAlliances: () => apiClient.get<{ status: number; data: Alliance[] }>('/admin/alliances').then((res) => res.data.data),
@@ -415,6 +455,14 @@ export const adminApi = {
   // Settings (Admin only)
   getSettings: () => apiClient.get<{ status: number; data: Settings }>('/admin/settings').then((res) => res.data.data),
   updateSettings: (settings: Settings) => apiClient.post('/admin/settings', { settings }).then((res) => res.data),
+
+  // Greek & English Translations (CMS Administrable)
+  getTranslations: () =>
+    apiClient.get<{ status: number; data: any[] }>('/admin/translations').then((res) => res.data),
+  updateTranslation: (id: number, data: { text_el?: string; text_en?: string; original_es?: string; description?: string }) =>
+    apiClient.put<{ status: number; message: string; data?: any }>(`/admin/translations/${id}`, data).then((res) => res.data),
+  updateTranslationsBatch: (translations: Array<{ id: number; text_el?: string; text_en?: string; original_es?: string }>) =>
+    apiClient.post<{ status: number; message: string; data?: any }>('/admin/translations/batch', { translations }).then((res) => res.data),
 
   // Upload
   uploadFile: (file: File) => {

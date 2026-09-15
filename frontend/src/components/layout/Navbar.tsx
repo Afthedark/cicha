@@ -16,10 +16,12 @@ import {
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
 
 export const Navbar: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -64,7 +66,7 @@ export const Navbar: React.FC = () => {
     { name: 'Informes & Normativas', path: '/portal-socios/recursos', icon: FileDown, desc: 'Informes sectoriales y guías arancelarias' },
     { name: 'Oportunidades VIP', path: '/portal-socios/oportunidades', icon: Sparkles, desc: 'Contactos directos de contrapartes' },
     { name: 'Club de Beneficios', path: '/portal-socios/beneficios', icon: Gift, desc: 'Descuentos en fletes y eventos' },
-    { name: 'Networking B2B', path: '/portal-socios/directorio', icon: Users, desc: 'Directorio privado de directivos' },
+    { name: 'Socios', path: '/portal-socios/directorio', icon: Users, desc: 'Directorio exclusivo de empresas socias' },
   ];
 
   const isActive = (path: string) => {
@@ -92,8 +94,8 @@ export const Navbar: React.FC = () => {
 
             {/* Slogan */}
             <div className="hidden xl:flex items-center gap-3 border-l border-slate-300/80 pl-4">
-              <span className="text-xs italic font-serif text-slate-500 tracking-wide">
-                &ldquo;PUENTES QUE GENERAN OPORTUNIDADES&rdquo;
+              <span className="text-xs italic font-serif text-slate-500 tracking-wide uppercase">
+                &ldquo;{t('header.slogan', 'PUENTES QUE GENERAN OPORTUNIDADES')}&rdquo;
               </span>
             </div>
 
@@ -110,10 +112,10 @@ export const Navbar: React.FC = () => {
             {/* Accreditations Text */}
             <div className="hidden lg:flex flex-col border-l border-slate-300/80 pl-4 leading-tight">
               <span className="text-[10.5px] text-slate-500 font-medium">
-                Reconocimiento Oficial: <strong className="text-slate-700 font-semibold">Argentina 1989 &bull; Grecia 1998</strong>
+                {t('header.official_recognition', 'Reconocimiento Oficial: Argentina 1989 • Grecia 1998')}
               </span>
               <span className="text-[10px] text-slate-500 mt-0.5">
-                Miembro EUROCAMARA &bull; Nodo EEN Unión Europea &bull; UCCEB (32 Cámaras)
+                {t('header.memberships', 'Miembro EUROCAMARA • Nodo EEN Unión Europea • UCCEB (32 Cámaras)')}
               </span>
             </div>
           </div>

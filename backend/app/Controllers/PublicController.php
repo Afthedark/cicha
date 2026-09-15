@@ -494,4 +494,43 @@ class PublicController extends ResourceController
             'data'   => $album,
         ]);
     }
+
+    public function getGreekTranslations()
+    {
+        $model = new \App\Models\GreekTranslationModel();
+        $translations = $model->orderBy('order_num', 'ASC')->findAll();
+        
+        $dictionary = [];
+        foreach ($translations as $item) {
+            $dictionary[$item['translation_key']] = $item['text_el'] ?: $item['original_es'];
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'list'       => $translations,
+                'dictionary' => $dictionary,
+            ],
+        ]);
+    }
+
+    public function getEnglishTranslations()
+    {
+        $model = new \App\Models\GreekTranslationModel();
+        $translations = $model->orderBy('order_num', 'ASC')->findAll();
+        
+        $dictionary = [];
+        foreach ($translations as $item) {
+            $dictionary[$item['translation_key']] = $item['text_en'] ?: $item['original_es'];
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'list'       => $translations,
+                'dictionary' => $dictionary,
+            ],
+        ]);
+    }
 }
+

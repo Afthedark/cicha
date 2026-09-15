@@ -12,8 +12,8 @@ import {
   AlertCircle,
   Loader2,
   UserCheck,
-  ChevronDown,
   Filter,
+  MapPin,
 } from 'lucide-react';
 import { partnerApi, publicApi, resolveImageUrl } from '../../services/api';
 import type { Member, Settings } from '../../types';
@@ -29,19 +29,6 @@ export const PartnerDirectoryPage: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [activeMember, setActiveMember] = useState<Member | null>(null);
-  const [expandedMemberIds, setExpandedMemberIds] = useState<Set<number>>(new Set());
-
-  const toggleExpand = (id: number) => {
-    setExpandedMemberIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
 
   // In-App Web Viewer Modal state with fallback detection
   const [webViewer, setWebViewer] = useState<{
@@ -259,40 +246,33 @@ export const PartnerDirectoryPage: React.FC = () => {
                         {member.company_name}
                       </h3>
 
-                      {/* Representative Name */}
-                      {member.representative_name && (
-                        <div className="flex items-center gap-1.5 text-xs text-sky-200 font-semibold bg-white/10 border border-white/15 px-2.5 py-1 rounded-xl w-fit shadow-xs">
-                          <UserCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span className="truncate">Rep.: <strong className="text-white">{member.representative_name}</strong></span>
-                        </div>
-                      )}
+                      {/* Representative, Phone & Address Info */}
+                      <div className="flex flex-wrap gap-2 pt-0.5">
+                        {member.representative_name && (
+                          <div className="flex items-center gap-1.5 text-xs text-sky-200 font-semibold bg-white/10 border border-white/15 px-2.5 py-1 rounded-xl w-fit shadow-xs">
+                            <UserCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span className="truncate">Rep.: <strong className="text-white">{member.representative_name}</strong></span>
+                          </div>
+                        )}
+                        {(member.contact_phone || member.phone) && (
+                          <div className="flex items-center gap-1.5 text-xs text-sky-100 font-medium bg-white/5 border border-white/10 px-2.5 py-1 rounded-xl w-fit shadow-xs">
+                            <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{member.contact_phone || member.phone}</span>
+                          </div>
+                        )}
+                        {member.address && (
+                          <div className="flex items-center gap-1.5 text-xs text-sky-100 font-medium bg-white/5 border border-white/10 px-2.5 py-1 rounded-xl w-fit shadow-xs">
+                            <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                            <span className="truncate max-w-[260px]">{member.address}</span>
+                          </div>
+                        )}
+                      </div>
 
-                      {/* Description con Ver más / Ver menos */}
-                      <div className="space-y-1.5">
-                        <p
-                          className={`text-xs text-slate-300 leading-relaxed break-words break-all whitespace-pre-line [overflow-wrap:anywhere] transition-all ${
-                            expandedMemberIds.has(member.id) ? '' : 'line-clamp-3'
-                          }`}
-                        >
+                      {/* Full Description (Sin truncamiento / Sin Ver más) */}
+                      <div className="pt-1">
+                        <p className="text-xs text-slate-300 leading-relaxed break-words whitespace-pre-line [overflow-wrap:anywhere]">
                           {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
                         </p>
-                        {member.description && member.description.length > 90 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpand(member.id);
-                            }}
-                            className="text-[11px] font-bold text-amber-300 hover:text-amber-200 hover:underline inline-flex items-center gap-1 transition-colors cursor-pointer"
-                          >
-                            <span>{expandedMemberIds.has(member.id) ? 'Ver menos' : 'Ver más'}</span>
-                            <ChevronDown
-                              className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                                expandedMemberIds.has(member.id) ? 'rotate-180' : ''
-                              }`}
-                            />
-                          </button>
-                        )}
                       </div>
                     </div>
 
@@ -438,10 +418,25 @@ export const PartnerDirectoryPage: React.FC = () => {
                   </a>
                 );
               })()}
-              {activeMember.contact_phone && (
-                <div className="flex items-center gap-2 text-slate-700 font-medium p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <Phone className="w-4 h-4 shrink-0 text-slate-400" />
-                  <span>{activeMember.contact_phone}</span>
+              {(activeMember.contact_phone || activeMember.phone) && (
+                <a
+                  href={`tel:${activeMember.contact_phone || activeMember.phone}`}
+                  className="flex items-center justify-between gap-2 text-slate-700 hover:text-blue-700 font-medium p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors group"
+                  title="Llamar a la empresa socia"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Phone className="w-4 h-4 shrink-0 text-blue-600" />
+                    <span className="truncate">{activeMember.contact_phone || activeMember.phone}</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60 shrink-0">
+                    Llamar
+                  </span>
+                </a>
+              )}
+              {activeMember.address && (
+                <div className="flex items-start gap-2 text-slate-700 text-xs font-medium p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <MapPin className="w-4 h-4 shrink-0 text-blue-600 mt-0.5" />
+                  <span className="[overflow-wrap:anywhere]">{activeMember.address}</span>
                 </div>
               )}
             </div>

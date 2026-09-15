@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   LayoutDashboard,
   FileDown,
@@ -17,24 +18,27 @@ import {
   ExternalLink,
   FileCheck2,
   Scroll,
+  Newspaper,
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
 
 export const PartnerLayout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
     { name: 'Panel Socio', path: '/portal-socios', icon: LayoutDashboard },
+    { name: 'Boletín', path: '/portal-socios/boletin', icon: Newspaper },
     { name: 'Documentos & Informes', path: '/portal-socios/recursos', icon: FileDown },
     { name: 'Actas', path: '/portal-socios/actas', icon: FileCheck2 },
     { name: 'Decretos', path: '/portal-socios/decretos', icon: Scroll },
     { name: 'Oportunidades VIP', path: '/portal-socios/oportunidades', icon: Sparkles, badge: 'VIP' },
     { name: 'Club de Beneficios', path: '/portal-socios/beneficios', icon: Gift },
-    { name: 'Directorio B2B', path: '/portal-socios/directorio', icon: Users },
+    { name: 'Socios', path: '/portal-socios/directorio', icon: Users },
   ];
 
   const handleLogout = () => {
@@ -94,10 +98,10 @@ export const PartnerLayout: React.FC = () => {
               {/* Accreditations Text */}
               <div className="hidden 2xl:flex flex-col border-l border-slate-300/80 pl-4 leading-tight">
                 <span className="text-[10.5px] text-slate-500 font-medium">
-                  Reconocimiento Oficial: <strong className="text-slate-700 font-semibold">Argentina 1989 &bull; Grecia 1998</strong>
+                  {t('header.official_recognition', 'Reconocimiento Oficial: Argentina 1989 • Grecia 1998')}
                 </span>
                 <span className="text-[10px] text-slate-500 mt-0.5">
-                  Miembro EUROCAMARA &bull; Nodo EEN Unión Europea
+                  {t('header.memberships', 'Miembro EUROCAMARA • Nodo EEN Unión Europea • UCCEB (32 Cámaras)')}
                 </span>
               </div>
             </div>

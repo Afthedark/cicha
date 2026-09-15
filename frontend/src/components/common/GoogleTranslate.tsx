@@ -142,6 +142,7 @@ export const GoogleTranslate: React.FC<{
   const changeLanguage = (langCode: string) => {
     setCurrentLang(langCode);
     localStorage.setItem('cicha_lang', langCode);
+    window.dispatchEvent(new CustomEvent('cicha_language_change', { detail: { language: langCode } }));
     setIsOpen(false);
 
     // Set cookie for Google Translate
@@ -155,9 +156,6 @@ export const GoogleTranslate: React.FC<{
     if (selectElem) {
       selectElem.value = langCode;
       selectElem.dispatchEvent(new Event('change'));
-    } else {
-      // If combo not ready or changing back to original, reload cleanly to apply
-      window.location.reload();
     }
   };
 

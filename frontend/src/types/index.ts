@@ -102,6 +102,22 @@ export interface Article {
   created_at?: string;
 }
 
+export interface PartnerNewsItem {
+  id: number;
+  category: string;
+  title: string;
+  slug: string;
+  summary?: string;
+  content: string;
+  image_url?: string;
+  author: string;
+  published_at: string;
+  is_featured: number | boolean;
+  status: 'published' | 'draft' | 'archived';
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Blog {
   id: number;
   title: string;
@@ -179,6 +195,8 @@ export interface Member {
   website_url?: string;
   contact_email?: string;
   contact_phone?: string;
+  phone?: string;
+  address?: string;
   country: string;
   is_featured: number | boolean;
   status: 'active' | 'inactive';
@@ -328,11 +346,13 @@ export interface PartnerDashboardData {
     total_benefits: number;
     total_opportunities: number;
     total_members: number;
+    total_news?: number;
   };
   latest_resources: PartnerResource[];
   active_benefits: PartnerBenefit[];
   vip_opportunities: CommercialOpportunity[];
   upcoming_events: EventItem[];
+  latest_news?: PartnerNewsItem[];
 }
 
 export interface Banner {

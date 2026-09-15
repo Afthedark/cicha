@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Public Components
 import { Navbar } from './components/layout/Navbar';
@@ -29,6 +30,8 @@ import { PartnerDecreesPage } from './pages/partner/PartnerDecreesPage';
 import { PartnerOpportunitiesPage } from './pages/partner/PartnerOpportunitiesPage';
 import { PartnerBenefitsPage } from './pages/partner/PartnerBenefitsPage';
 import { PartnerDirectoryPage } from './pages/partner/PartnerDirectoryPage';
+import { PartnerNewsPage } from './pages/partner/PartnerNewsPage';
+import { PartnerNewsDetailPage } from './pages/partner/PartnerNewsDetailPage';
 
 // Admin CMS (Admin & Secretario) Components
 import { AdminLayout } from './components/layout/AdminLayout';
@@ -45,12 +48,14 @@ import { AdminAuthoritiesPage } from './pages/admin/AdminAuthoritiesPage';
 import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
 import { AdminDecreesPage } from './pages/admin/AdminDecreesPage';
 import { AdminAlliancesPage } from './pages/admin/AdminAlliancesPage';
+import { AdminTranslationsPage } from './pages/admin/AdminTranslationsPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminPartnerUsersPage } from './pages/admin/AdminPartnerUsersPage';
 import { AdminPartnerResourcesPage } from './pages/admin/AdminPartnerResourcesPage';
+import { AdminPartnerNewsPage } from './pages/admin/AdminPartnerNewsPage';
 
 // Role-Based Route Wrapper
 const RoleRoute: React.FC<{
@@ -97,8 +102,9 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 export function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
+      <LanguageProvider>
+        <Router>
+          <Routes>
           {/* 1. Public Portal Routes (Visitante) */}
           <Route
             path="/"
@@ -227,6 +233,8 @@ export function App() {
           >
             <Route index element={<Navigate to="/portal-socios/dashboard" replace />} />
             <Route path="dashboard" element={<PartnerDashboardPage />} />
+            <Route path="boletin" element={<PartnerNewsPage />} />
+            <Route path="boletin/:slug" element={<PartnerNewsDetailPage />} />
             <Route path="recursos" element={<PartnerResourcesPage />} />
             <Route path="actas" element={<PartnerMinutesPage />} />
             <Route path="decretos" element={<PartnerDecreesPage />} />
@@ -247,6 +255,7 @@ export function App() {
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="noticias" element={<AdminArticlesPage />} />
+            <Route path="boletin-socios" element={<AdminPartnerNewsPage />} />
             <Route path="blogs" element={<AdminBlogsPage />} />
             <Route path="galeria" element={<AdminGalleryPage />} />
             <Route path="eventos" element={<AdminEventsPage />} />
@@ -262,6 +271,7 @@ export function App() {
             <Route path="institucional" element={<AdminInstitutionalPage />} />
             <Route path="decretos" element={<AdminDecreesPage />} />
             <Route path="alianzas" element={<AdminAlliancesPage />} />
+            <Route path="traducciones" element={<AdminTranslationsPage />} />
             <Route
               path="configuracion"
               element={
@@ -294,6 +304,7 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </LanguageProvider>
     </AuthProvider>
   );
 }

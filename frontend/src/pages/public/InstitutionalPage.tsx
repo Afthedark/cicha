@@ -14,9 +14,11 @@ import { publicApi, resolveImageUrl } from '../../services/api';
 import type { InstitutionalSection, Authority, Alliance } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { useLanguage } from '../../context/LanguageContext';
 import bgHeader from '../../assets/static/3.jpeg';
 
 export const InstitutionalPage: React.FC = () => {
+  const { isGreek, t } = useLanguage();
   const [sections, setSections] = useState<InstitutionalSection[]>([]);
   const [authorities, setAuthorities] = useState<Authority[]>([]);
   const [alliances, setAlliances] = useState<Alliance[]>([]);
@@ -101,20 +103,18 @@ export const InstitutionalPage: React.FC = () => {
             <div className="space-y-1.5">
               <div className="w-10 h-0.5 bg-amber-400 rounded-full" />
               <p className="text-[11px] sm:text-xs font-bold tracking-widest text-slate-200 uppercase leading-snug">
-                ARGENTINA Y GRECIA,<br />
-                MÁS CERCA, MÁS LEJOS JUNTOS
+                {t('la_camara.headline', 'ARGENTINA Y GRECIA, MÁS CERCA, MÁS LEJOS JUNTOS')}
               </p>
             </div>
 
             {/* Main Title */}
             <h1 className="font-serif font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[52px] text-white tracking-tight leading-[1.08] drop-shadow-md">
-              COMITÉ DIRECTIVO &amp;<br />
-              COMISIÓN REVISORA
+              {t('la_camara.authorities_title', 'COMITÉ DIRECTIVO & COMISIÓN REVISORA')}
             </h1>
 
             {/* Description */}
             <p className="text-slate-100 text-xs sm:text-sm md:text-base font-normal max-w-2xl leading-relaxed drop-shadow">
-              Nómina oficial de directivos y empresarios comprometidos con el intercambio bilateral heleno-argentino.
+              {t('la_camara.authorities_subtitle', 'Nómina oficial de directivos y empresarios comprometidos con el intercambio bilateral heleno-argentino.')}
             </p>
 
             {/* 4 Pillars Horizontal Bar */}
@@ -123,7 +123,7 @@ export const InstitutionalPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Handshake className="w-5 h-5 text-amber-400 shrink-0" />
                 <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider leading-tight">
-                  COMERCIO<br />BILATERAL
+                  {t('la_camara.pillar1', 'COMERCIO BILATERAL')}
                 </span>
               </div>
 
@@ -131,7 +131,7 @@ export const InstitutionalPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-amber-400 shrink-0" />
                 <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider leading-tight">
-                  DESARROLLO<br />SUSTENTABLE
+                  {t('la_camara.pillar2', 'DESARROLLO SUSTENTABLE')}
                 </span>
               </div>
 
@@ -139,7 +139,7 @@ export const InstitutionalPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-amber-400 shrink-0" />
                 <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider leading-tight">
-                  INNOVACIÓN<br />Y CONOCIMIENTO
+                  {t('la_camara.pillar3', 'INNOVACIÓN Y CONOCIMIENTO')}
                 </span>
               </div>
 
@@ -147,7 +147,7 @@ export const InstitutionalPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Globe2 className="w-5 h-5 text-amber-400 shrink-0" />
                 <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider leading-tight">
-                  REDES<br />INTERNACIONALES
+                  {t('la_camara.pillar4', 'REDES INTERNACIONALES')}
                 </span>
               </div>
             </div>
@@ -157,10 +157,7 @@ export const InstitutionalPage: React.FC = () => {
           <div className="lg:col-span-4 flex justify-center lg:justify-end">
             <div className="text-center lg:text-right space-y-1 relative pr-2">
               <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg opacity-95 [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
-                Dos culturas
-              </span>
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg opacity-95 [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
-                un mismo futuro
+                {t('la_camara.motto', 'Dos culturas un mismo futuro')}
               </span>
               {/* Decorative dynamic curve */}
               <div className="mt-2 flex justify-center lg:justify-end">
@@ -176,12 +173,12 @@ export const InstitutionalPage: React.FC = () => {
       {/* 2. Board of Directors / Authorities (Comité Directivo & Comisión Revisora) */}
       <section id="autoridades" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-2">
-          <Badge variant="primary">Liderazgo Institucional</Badge>
+          <Badge variant="primary">{isGreek ? 'Θεσμική Ηγεσία' : 'Liderazgo Institucional'}</Badge>
           <h2 className="font-serif font-bold text-2xl sm:text-3xl text-cicha-navy">
-            Comité Directivo & Comisión Revisora
+            {t('la_camara.authorities_title', 'Comité Directivo & Comisión Revisora')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600">
-            Nómina oficial de directivos y empresarios comprometidos con el intercambio bilateral heleno-argentino.
+            {t('la_camara.authorities_subtitle', 'Nómina oficial de directivos y empresarios comprometidos con el intercambio bilateral heleno-argentino.')}
           </p>
         </div>
 
@@ -430,14 +427,26 @@ export const InstitutionalPage: React.FC = () => {
               <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
                 {historia?.title || 'Historia y Reconocimientos Oficiales'}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              {historia?.subtitle && (
+                <p className="text-xs font-semibold text-amber-300">{historia.subtitle}</p>
+              )}
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed [overflow-wrap:anywhere]">
                 {historia?.content ||
                   'La Cámara de Industria y Comercio Heleno Argentina fue oficialmente reconocida por el gobierno argentino el 1 de noviembre de 1989, y por el gobierno griego el 18 de septiembre de 1998. Desde sus orígenes, se ha consolidado como un puente fundamental de integración comercial, cultural y productiva entre la República Argentina y la República Helénica.'}
               </p>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                {redes?.content ||
-                  'Desde Mayo de 2017 es miembro activo de EUROCAMARA Argentina y compone nodo de la red EEN (Enterprise Europe Network) de la Unión Europea. Asimismo, desde hace más de una década integra la UCCEB (Unión de Cámaras Comerciales Extranjeras Binacionales) de 32 cámaras.'}
-              </p>
+              {redes && (
+                <>
+                  {redes.title && redes.title !== 'Redes Estratégicas' && (
+                    <h3 className="font-serif font-bold text-xl text-white pt-2">{redes.title}</h3>
+                  )}
+                  {redes.subtitle && (
+                    <p className="text-xs font-semibold text-sky-300">{redes.subtitle}</p>
+                  )}
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed [overflow-wrap:anywhere]">
+                    {redes.content}
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="lg:col-span-4 space-y-4">
@@ -464,6 +473,34 @@ export const InstitutionalPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* 6. Dynamic Additional Active Institutional Sections */}
+      {sections
+        .filter(
+          (s) =>
+            Number(s.is_active) === 1 &&
+            s.section_key !== 'historia' &&
+            s.section_key !== 'redes_estrategicas' &&
+            s.section_key !== 'presentacion' &&
+            s.section_key !== 'mision' &&
+            s.section_key !== 'objeto'
+        )
+        .map((extraSec) => (
+          <section key={extraSec.id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-md space-y-4">
+              <div className="space-y-1">
+                <Badge variant="primary">{extraSec.section_key.replace(/_/g, ' ').toUpperCase()}</Badge>
+                <h3 className="font-serif font-bold text-2xl text-cicha-navy">{extraSec.title}</h3>
+                {extraSec.subtitle && (
+                  <p className="text-xs font-semibold text-amber-600">{extraSec.subtitle}</p>
+                )}
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed [overflow-wrap:anywhere] whitespace-pre-line">
+                {extraSec.content}
+              </p>
+            </div>
+          </section>
+        ))}
     </div>
   );
 };

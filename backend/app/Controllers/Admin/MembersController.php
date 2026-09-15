@@ -76,7 +76,8 @@ class MembersController extends ResourceController
             'logo_url'            => $input['logo_url'] ?? '',
             'website_url'         => $input['website_url'] ?? '',
             'contact_email'       => $input['contact_email'] ?? '',
-            'contact_phone'       => $input['contact_phone'] ?? '',
+            'contact_phone'       => $input['contact_phone'] ?? ($input['phone'] ?? ''),
+            'address'             => $input['address'] ?? ($input['direccion'] ?? ''),
             'country'             => $input['country'] ?? 'Argentina',
             'is_featured'         => !empty($input['is_featured']) ? 1 : 0,
             'status'              => $input['status'] ?? 'active',
@@ -115,6 +116,9 @@ class MembersController extends ResourceController
         if (isset($input['website_url'])) $data['website_url'] = $input['website_url'];
         if (isset($input['contact_email'])) $data['contact_email'] = $input['contact_email'];
         if (isset($input['contact_phone'])) $data['contact_phone'] = $input['contact_phone'];
+        elseif (isset($input['phone'])) $data['contact_phone'] = $input['phone'];
+        if (isset($input['address'])) $data['address'] = $input['address'];
+        elseif (isset($input['direccion'])) $data['address'] = $input['direccion'];
         if (isset($input['country'])) $data['country'] = $input['country'];
         if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];

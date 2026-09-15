@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ArrowRight,
   X,
+  Phone,
+  MapPin,
 } from 'lucide-react';
 import { adminApi, resolveImageUrl } from '../../services/api';
 import type { Member, CommercialOpportunity, PartnerResource, PartnerBenefit, Category } from '../../types';
@@ -43,6 +45,8 @@ export const AdminMembersPage: React.FC = () => {
       m.representative_name?.toLowerCase().includes(term) ||
       m.sector?.toLowerCase().includes(term) ||
       m.contact_email?.toLowerCase().includes(term) ||
+      m.contact_phone?.toLowerCase().includes(term) ||
+      m.address?.toLowerCase().includes(term) ||
       m.country?.toLowerCase().includes(term)
     );
   });
@@ -69,7 +73,7 @@ export const AdminMembersPage: React.FC = () => {
     return (
       r.title?.toLowerCase().includes(term) ||
       r.category?.toLowerCase().includes(term) ||
-      r.file_type?.toLowerCase().includes(term)
+      r.description?.toLowerCase().includes(term)
     );
   });
 
@@ -84,15 +88,11 @@ export const AdminMembersPage: React.FC = () => {
     );
   });
 
-  // Category CRUD state
-  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
-  const [editingCat, setEditingCat] = useState<Category | null>(null);
-  const [catName, setCatName] = useState('');
-
-  // Modals
+  // Member CRUD state
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  // Member Sector Dropdown State
+  
+  // Member Sector Multi-select state
   const [sectorSearch, setSectorSearch] = useState('');
   const [isSectorDropdownOpen, setIsSectorDropdownOpen] = useState(false);
 
@@ -117,6 +117,7 @@ export const AdminMembersPage: React.FC = () => {
     website_url: '',
     contact_email: '',
     contact_phone: '',
+    address: '',
     country: 'Argentina',
     logo_url: '',
     is_featured: 0,
@@ -164,6 +165,11 @@ export const AdminMembersPage: React.FC = () => {
     valid_until: '',
     is_active: 1,
   });
+
+  // Category modal states
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [editingCat, setEditingCat] = useState<Category | null>(null);
+  const [catName, setCatName] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -330,6 +336,7 @@ export const AdminMembersPage: React.FC = () => {
       website_url: '',
       contact_email: '',
       contact_phone: '',
+      address: '',
       country: 'Argentina',
       logo_url: '',
       is_featured: 0,
@@ -351,7 +358,8 @@ export const AdminMembersPage: React.FC = () => {
       services: m.services || '',
       website_url: m.website_url || '',
       contact_email: m.contact_email || '',
-      contact_phone: m.contact_phone || '',
+      contact_phone: m.contact_phone || m.phone || '',
+      address: m.address || '',
       country: m.country || 'Argentina',
       logo_url: m.logo_url || '',
       is_featured: m.is_featured ? 1 : 0,
@@ -773,6 +781,18 @@ export const AdminMembersPage: React.FC = () => {
                               </div>
                             )}
                             <div className="text-[11px] text-slate-500">{mem.contact_email}</div>
+                            {mem.contact_phone && (
+                              <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                                <span>{mem.contact_phone}</span>
+                              </div>
+                            )}
+                            {mem.address && (
+                              <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                <span className="truncate max-w-[220px]">{mem.address}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -1300,9 +1320,39 @@ export const AdminMembersPage: React.FC = () => {
               <label className="font-bold text-slate-700">Email de Contacto</label>
               <input
                 type="email"
+                placeholder="info@empresa.com"
                 value={memberForm.contact_email}
                 onChange={(e) => setMemberForm({ ...memberForm, contact_email: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-blue-600" />
+                <span>Teléfono de Contacto</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Ej. +54 11 4312-5000 / +54 9 11 1234-5678"
+                value={memberForm.contact_phone}
+                onChange={(e) => setMemberForm({ ...memberForm, contact_phone: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                <span>Dirección / Sede</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Ej. Av. Corrientes 327, Piso 8, CABA"
+                value={memberForm.address}
+                onChange={(e) => setMemberForm({ ...memberForm, address: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
               />
             </div>
           </div>

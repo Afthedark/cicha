@@ -40,7 +40,7 @@ database.default.port = 3306
 ```
 
 ### 2. Ejecutar Migraciones de Base de Datos
-Crea todas las tablas estructurales (18 tablas principales):
+Crea todas las tablas estructurales (20 tablas principales):
 
 ```bash
 php spark migrate
@@ -59,11 +59,13 @@ Tablas generadas en la base de datos:
 - `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
 - `banners`: Portadas y slides dinámicos del Home con selector de rutas.
 - `events`: Agenda de foros, webinars y rondas de negocios oficiales.
-- `members`: Directorio de empresas socias (soporta múltiples categorías/sectores normalizados y columna `order_num` para posición en el directorio).
+- `members`: Directorio de empresas socias (soporta múltiples categorías/sectores, campos `address`, `phone` y orden `order_num`).
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
 - `partner_resources`: Biblioteca de informes sectoriales y guías con control de descargas (PDF / URL).
-- `partner_minutes`: **Actas institucionales y resoluciones colaborativas entre socios (PDF / URL)**.
-- `decrees`: **Decretos oficiales y resoluciones gubernamentales administrables (PDF / URL)**.
+- `partner_minutes`: Actas institucionales y resoluciones colaborativas entre socios (PDF / URL).
+- `partner_news`: **Boletín informativo y noticias exclusivas para la comunidad de socios**.
+- `decrees`: Decretos oficiales y resoluciones gubernamentales administrables (PDF / URL).
+- `greek_translations`: **Traducciones manuales de textos solemnes a Griego (`text_el`) e Inglés (`text_en`) con referencia en Español (`original_es`)**.
 - `partner_benefits`: Convenios corporativos y club de beneficios para socios.
 - `membership_applications`: Bandeja de solicitudes de afiliación con gestión de estados.
 - `contact_messages`: Bandeja de mensajes de contacto y consultas.
@@ -94,9 +96,9 @@ La API cuenta con una arquitectura de seguridad por capas:
 ### Cuentas de Acceso Preconfiguradas:
 | Rol | Email | Contraseña | Permisos |
 | :--- | :--- | :--- | :--- |
-| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total: Staff (`admin`, `secretario`), Decretos, Cuentas de Socios (`socio`), Ajustes, Portadas, Blogs, Galería, Noticias, Eventos, Socios y Portal de Socios. |
-| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos: Decretos, Blogs, Galería de Fotos, Noticias, Eventos, Oportunidades, Socios, Recursos (PDFs/URLs), Bandejas y **Cuentas de Socios (`role=socio`)**. |
-| **`socio`** | `socio@cicha.com.ar` | `socio123` | Intranet de socios: Biblioteca de recursos, **Actas colaborativas**, **Decretos oficiales**, oportunidades VIP, club de beneficios y directorio B2B. |
+| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total: Staff (`admin`, `secretario`), Decretos, Boletín Socios, Traducciones (Griego/Inglés), Cuentas de Socios (`socio`), Ajustes, Portadas, Blogs, Galería, Noticias, Eventos, Socios y Portal de Socios. |
+| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos: Decretos, Boletín Socios, Traducciones, Blogs, Galería de Fotos, Noticias, Eventos, Oportunidades, Socios, Recursos (PDFs/URLs), Bandejas y **Cuentas de Socios (`role=socio`)**. |
+| **`socio`** | `socio@cicha.com.ar` | `socio123` | Intranet de socios: **Boletín de noticias exclusivo**, Biblioteca de recursos, **Actas colaborativas**, **Decretos oficiales**, oportunidades VIP, club de beneficios y directorio de socios. |
 
 ---
 
@@ -117,6 +119,8 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `GET` | `/public/home` | Datos de portada (hero, misión, estadísticas, destacados) | Público |
 | `GET` | `/public/banners` | Lista de portadas/banners activos para el carrusel | Público |
 | `GET` | `/public/institutional` | Secciones institucionales, comisión directiva y alianzas | Público |
+| `GET` | `/public/translations/el` | **Diccionario dinámico de traducciones en Griego moderno (Ελληνικά)** | Público |
+| `GET` | `/public/translations/en` | **Diccionario dinámico de traducciones en Inglés (English)** | Público |
 | `GET` | `/public/articles` | Noticias y comunicados con filtros por categoría y búsqueda | Público |
 | `GET` | `/public/articles/{slug}` | Detalle de noticia por slug con artículos relacionados | Público |
 | `GET` | `/public/blogs` | Catálogo de blogs con filtros por categoría y buscador | Público |
@@ -124,7 +128,7 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `GET` | `/public/gallery` | Álbumes fotográficos activos, mosaico de fotos y categorías | Público |
 | `GET` | `/public/gallery/{slug}` | Detalle de álbum con todas sus fotografías en alta resolución | Público |
 | `GET` | `/public/events` | Agenda de eventos con filtros (próximos, anteriores) | Público |
-| `GET` | `/public/members` | Catálogo de empresas socias filtrable por sector y búsqueda (`?search=...`), ordenado por `order_num` | Público |
+| `GET` | `/public/members` | Catálogo de empresas socias (incluye dirección y teléfono), filtrable por sector y búsqueda (`?search=...`), ordenado por `order_num` | Público |
 | `GET` | `/public/opportunities` | Oportunidades comerciales abiertas | Público |
 | `GET` | `/public/alliances` | Convenios y alianzas estratégicas (Eurocámara, EEN, UCCEB) | Público |
 | `GET` | `/public/settings` | Configuración pública, teléfonos, emails, redes sociales y plantillas de correos a socios | Público |
@@ -136,17 +140,19 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | `GET` | `/partner/dashboard` | Resumen de intranet, bienvenida corporativa, KPIs y últimas novedades |
+| `GET` | `/partner/news` | **Boletín de noticias exclusivo para socios con categorías y buscador** |
+| `GET` | `/partner/news/{slug}` | **Detalle de noticia del boletín con artículos relacionados** |
 | `GET` | `/partner/resources` | Biblioteca de informes de mercado y guías (soporta PDF y enlace web externo) |
 | `POST` | `/partner/resources/{id}/download` | Registra la descarga del recurso e incrementa el contador |
-| `GET` | `/partner/minutes` | **Listado de actas y resoluciones compartidas entre socios con buscador** |
-| `POST` | `/partner/minutes` | **Publicar nueva acta (subida de PDF hasta 30MB o enlace URL externo)** |
-| `DELETE`| `/partner/minutes/{id}` | **Eliminar acta (autor original o administradores)** |
-| `POST` | `/partner/minutes/{id}/download` | **Registra acceso a acta e incrementa contador** |
-| `GET` | `/partner/decrees` | **Listado de Decretos Oficiales de la Cámara para consulta de socios** |
-| `POST` | `/partner/decrees/{id}/download` | **Registra descarga/apertura de decreto oficial** |
+| `GET` | `/partner/minutes` | Listado de actas y resoluciones compartidas entre socios con buscador |
+| `POST` | `/partner/minutes` | Publicar nueva acta (subida de PDF hasta 30MB o enlace URL externo) |
+| `DELETE`| `/partner/minutes/{id}` | Eliminar acta (autor original o administradores) |
+| `POST` | `/partner/minutes/{id}/download` | Registra acceso a acta e incrementa contador |
+| `GET` | `/partner/decrees` | Listado de Decretos Oficiales de la Cámara para consulta de socios |
+| `POST` | `/partner/decrees/{id}/download` | Registra descarga/apertura de decreto oficial |
 | `GET` | `/partner/opportunities` | Oportunidades comerciales VIP con datos de contacto directo |
 | `GET` | `/partner/benefits` | Club de beneficios y convenios con descuentos exclusivos |
-| `GET` | `/partner/directory` | Directorio privado B2B para networking directo con correos prellenados |
+| `GET` | `/partner/directory` | Directorio privado de socios con dirección, teléfono y correo prellenado |
 
 ### 4. CMS Administrativo (`/api/admin`)
 *Requiere JWT con rol `admin` o `secretario`. Organizado en 5 grupos temáticos coincidentes con el Sidebar del CMS:*
@@ -160,7 +166,10 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | Método | Endpoint | Descripción | Rol Requerido |
 | :--- | :--- | :--- | :--- |
 | `CRUD` | `/admin/banners` | Gestión de portadas y banners del Home | `admin`, `secretario` |
-| `GET/PUT`| `/admin/institutional`| Edición de Historia y Estatutos de La Cámara | `admin`, `secretario` |
+| `CRUD` | `/admin/institutional`| **Gestión de secciones institucionales (Historia, Estatutos, Redes)** | `admin`, `secretario` |
+| `GET`  | `/admin/translations` | **Catálogo completo de frases para traducción manual** | `admin`, `secretario` |
+| `PUT`  | `/admin/translations/{id}` | **Actualiza traducción de una frase en Griego (`text_el`) o Inglés (`text_en`)** | `admin`, `secretario` |
+| `POST` | `/admin/translations/batch`| **Actualización masiva por lote de todas las traducciones** | `admin`, `secretario` |
 | `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva, Comisión Revisora y autoridades | `admin`, `secretario` |
 | `CRUD` | `/admin/articles` | Gestión completa de noticias y comunicados | `admin`, `secretario` |
 | `CRUD` | `/admin/blogs` | Gestión de artículos de blogs editoriales | `admin`, `secretario` |
@@ -168,13 +177,14 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `POST` | `/admin/gallery/{id}/photos`| Subida de fotos individuales a un álbum | `admin`, `secretario` |
 | `DELETE`| `/admin/gallery/photos/{id}`| Eliminación de una foto de álbum | `admin`, `secretario` |
 | `CRUD` | `/admin/events` | Agenda de eventos y encuentros | `admin`, `secretario` |
-| `CRUD` | `/admin/members` | Catálogo de empresas socias con buscador y orden (`order_num`) | `admin`, `secretario` |
+| `CRUD` | `/admin/members` | Catálogo de empresas socias (dirección, teléfono, sectores, `order_num`) | `admin`, `secretario` |
 | `CRUD` | `/admin/alliances` | Gestión de convenios y redes (EUROCAMARA, EEN, UCCEB) | `admin`, `secretario` |
 
 #### C. Portal de Socios & Intranet
 | Método | Endpoint | Descripción | Rol Requerido |
 | :--- | :--- | :--- | :--- |
-| `CRUD` | `/admin/decrees` | **Gestión integral de Decretos Oficiales (título, logo, PDF/URL, fecha, activo)** | `admin`, `secretario` |
+| `CRUD` | `/admin/partner-news` | **Gestión del Boletín de Noticias para Socios (título, imagen, cuerpo, categoría, publicado)** | `admin`, `secretario` |
+| `CRUD` | `/admin/decrees` | Gestión integral de Decretos Oficiales (título, logo, PDF/URL, fecha, activo) | `admin`, `secretario` |
 | `CRUD` | `/admin/partner-resources` | Biblioteca de informes de mercado (soporte dual PDF local o Enlace URL externo) | `admin`, `secretario` |
 | `CRUD` | `/admin/opportunities` | Gestión de oportunidades comerciales bilaterales | `admin`, `secretario` |
 | `CRUD` | `/admin/partner-benefits` | Gestión de convenios y beneficios de socios | `admin`, `secretario` |

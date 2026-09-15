@@ -23,6 +23,7 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { ArgentinaFlag, GreeceFlag } from '../../components/common/GoogleTranslate';
 import { EventCalendar } from '../../components/common/EventCalendar';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Componente de Contador Animado Cíclico y Elegante
 const CounterDisplay: React.FC<{
@@ -72,6 +73,7 @@ const CounterDisplay: React.FC<{
 };
 
 export const HomePage: React.FC = () => {
+  const { isGreek, t } = useLanguage();
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -273,22 +275,34 @@ export const HomePage: React.FC = () => {
               </div>
 
               <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                Impulsando el Comercio Bilateral e Inversiones entre{' '}
-                <span className="text-[#072B54] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">
-                  Grecia y Argentina
-                </span>
+                {isGreek ? (
+                  t('home.hero_welcome', 'ΕΛΛΗΝΟΑΡΓΕΝΤΙΝΟ ΕΜΠΟΡΙΚΟ ΚΑΙ ΒΙΟΜΗΧΑΝΙΚΟ ΕΠΙΜΕΛΗΤΗΡΙΟ')
+                ) : (
+                  <>
+                    Impulsando el Comercio Bilateral e Inversiones entre{' '}
+                    <span className="text-[#072B54] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">
+                      Grecia y Argentina
+                    </span>
+                  </>
+                )}
               </h1>
 
               <div className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-2xl font-light space-y-3 text-justify">
-                <p>
-                  La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, desde <strong>Mayo 2017</strong> es <strong>miembro activo de la EUROCAMARA Argentina</strong>, y compone nodo de la red <strong>EEN (Europe Enterprise Network)</strong> de la <strong>Unión Europea</strong>.
-                </p>
-                <p>
-                  Desde hace más de una década, es <strong>miembro activo de la UCCEB</strong> (<strong>Unión de Cámaras Comerciales Extranjeras Binacionales</strong>), compuesta actualmente de <strong>32 cámaras</strong>.
-                </p>
-                <p>
-                  La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, reconocida por el <strong>gobierno griego el 18 de septiembre de 1998</strong>, y por el <strong>gobierno argentino el 1 de noviembre de 1989</strong>, cada día está tomando mayor relevancia y su misión ha sido definida de la siguiente manera:
-                </p>
+                {isGreek ? (
+                  <p>{t('home.hero_tagline')}</p>
+                ) : (
+                  <>
+                    <p>
+                      La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, desde <strong>Mayo 2017</strong> es <strong>miembro activo de la EUROCAMARA Argentina</strong>, y compone nodo de la red <strong>EEN (Europe Enterprise Network)</strong> de la <strong>Unión Europea</strong>.
+                    </p>
+                    <p>
+                      Desde hace más de una década, es <strong>miembro activo de la UCCEB</strong> (<strong>Unión de Cámaras Comerciales Extranjeras Binacionales</strong>), compuesta actualmente de <strong>32 cámaras</strong>.
+                    </p>
+                    <p>
+                      La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, reconocida por el <strong>gobierno griego el 18 de septiembre de 1998</strong>, y por el <strong>gobierno argentino el 1 de noviembre de 1989</strong>, cada día está tomando mayor relevancia.
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Action Buttons */}

@@ -31,6 +31,7 @@ import {
   Layers,
   Send,
   Compass,
+  Languages,
 } from 'lucide-react';
 
 interface NavItem {
@@ -133,6 +134,12 @@ export const AdminLayout: React.FC = () => {
           icon: Globe,
           roles: ['admin', 'secretario'],
         },
+        {
+          name: 'Traducción Griego / Inglés',
+          path: '/admin/traducciones',
+          icon: Languages,
+          roles: ['admin', 'secretario'],
+        },
       ],
     },
     {
@@ -151,6 +158,12 @@ export const AdminLayout: React.FC = () => {
           name: 'Decretos Oficiales',
           path: '/admin/decretos',
           icon: Scroll,
+          roles: ['admin', 'secretario'],
+        },
+        {
+          name: 'Boletín para Socios',
+          path: '/admin/boletin-socios',
+          icon: Newspaper,
           roles: ['admin', 'secretario'],
         },
         {

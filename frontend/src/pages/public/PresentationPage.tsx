@@ -18,9 +18,11 @@ import { publicApi } from '../../services/api';
 import type { InstitutionalSection } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { useLanguage } from '../../context/LanguageContext';
 import bgHeader from '../../assets/static/1.jpeg';
 
 export const PresentationPage: React.FC = () => {
+  const { isGreek, isEnglish, t } = useLanguage();
   const [sections, setSections] = useState<InstitutionalSection[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +48,15 @@ La Cámara de Industria y Comercio Helénico-Argentina, está reconocida por Dec
 La Cámara de Industria y Comercio Helénico-Argentina (C.I.C.H.A.) cada día cobra más importancia y su misión se define de la siguiente manera:
 La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argentina - en un entorno empresarial que contribuya al desarrollo de nuestra sociedad, enmarcado por la justicia y la igualdad de oportunidades. Impulsar el desarrollo de negocios sostenibles, el comercio bilateral, las inversiones genuinamente productivas, el fomento de la empresa privada y la economía de mercado, todo ello enmarcado desde la responsabilidad, la ética y la transparencia. La organización de Foros para el conocimiento y la facilitación del diálogo entre el sector público y privado.`;
 
-  const rawText = presentacionSec?.content || defaultContent;
+  const rawText = (isGreek || isEnglish)
+    ? [
+        t('presentacion.history_p1', ''),
+        t('presentacion.history_p2', ''),
+        t('presentacion.mission_p1', ''),
+        t('presentacion.mission_p2', ''),
+      ].filter(Boolean).join('\n\n')
+    : (presentacionSec?.content || defaultContent);
+
   const paragraphs = rawText.split('\n\n').filter((p) => p.trim().length > 0);
 
   return (
@@ -64,13 +74,12 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="gold">Presentación Institucional</Badge>
+          <Badge variant="gold">{t('presentacion.badge', 'Presentación Institucional')}</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight drop-shadow-md">
-            {presentacionSec?.title || 'Cámara de Industria y Comercio Heleno Argentina'}
+            {t('presentacion.title', presentacionSec?.title || 'Cámara de Industria y Comercio Heleno Argentina')}
           </h1>
           <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
-            {presentacionSec?.subtitle ||
-              'Historia, Reconocimiento Oficial, Trayectoria Bilateral y Misión Estratégica'}
+            {t('presentacion.subtitle', presentacionSec?.subtitle || 'Orígenes, Reconocimientos Oficiales y Redes Estratégicas de CICHA')}
           </p>
         </div>
       </section>
@@ -92,13 +101,13 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
                   </span>
                 </div>
                 <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
-                  Orígenes & Fundación de C.I.C.H.A.
+                  {t('presentacion.history_title', 'Orígenes & Fundación de C.I.C.H.A.')}
                 </h2>
                 <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-                  La <strong>Cámara de Industria y Comercio Helénico-Argentina – C.I.C.H.A.</strong> fue fundada a principios de la década de <strong>1940 por Aristóteles Onassis</strong> y los entonces destacados empresarios griegos de Argentina.
+                  {t('presentacion.history_p1', 'La Cámara de Industria y Comercio Helénico-Argentina – C.I.C.H.A. fue fundada a principios de la década de 1940 por Aristóteles Onassis y los entonces destacados empresarios griegos de Argentina.')}
                 </p>
                 <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                  En 1988 cobra un nuevo impulso y adquiere el pleno reconocimiento oficial de ambos países, manteniéndose desde entonces activa con una participación creciente en los flujos de comercio e inversiones bilaterales.
+                  {t('presentacion.history_p2', 'En 1988 cobra un nuevo impulso y adquiere el pleno reconocimiento oficial de ambos países, manteniéndose desde entonces activa con una participación creciente en los flujos de comercio e inversiones bilaterales.')}
                 </p>
               </div>
 
@@ -109,7 +118,7 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
                     Decreto Argentino (1989)
                   </div>
                   <p className="text-xs text-slate-300">
-                    Reconocimiento por decreto del gobierno argentino el 1 de noviembre de 1989.
+                    {t('presentacion.decree_ar', 'Reconocimiento por decreto del gobierno argentino el 1 de noviembre de 1989.')}
                   </p>
                 </div>
 
@@ -119,7 +128,7 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
                     Decreto Helénico (1998)
                   </div>
                   <p className="text-xs text-slate-300">
-                    Reconocimiento por Decreto Presidencial del gobierno griego el 18 de septiembre de 1998.
+                    {t('presentacion.decree_gr', 'Reconocimiento por Decreto Presidencial del gobierno griego el 18 de septiembre de 1998.')}
                   </p>
                 </div>
               </div>
@@ -134,9 +143,11 @@ La misión de la Cámara es constituir una fuerza creativa entre Grecia y Argent
               </div>
               <div>
                 <h3 className="font-serif font-bold text-xl text-cicha-navy">
-                  Marco Institucional y Trayectoria Bilateral
+                  {isGreek ? 'Θεσμικό Πλαίσιο και Διμερής Πορεία' : 'Marco Institucional y Trayectoria Bilateral'}
                 </h3>
-                <p className="text-xs text-slate-500">Documento de Presentación de la Cámara</p>
+                <p className="text-xs text-slate-500">
+                  {isGreek ? 'Έγγραφο Παρουσίασης του Επιμελητηρίου' : 'Documento de Presentación de la Cámara'}
+                </p>
               </div>
             </div>
 

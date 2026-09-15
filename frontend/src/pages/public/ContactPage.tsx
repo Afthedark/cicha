@@ -15,9 +15,11 @@ import {
 import { publicApi } from '../../services/api';
 import type { Settings } from '../../types';
 import { Badge } from '../../components/common/Badge';
+import { useLanguage } from '../../context/LanguageContext';
 import bgHeader from '../../assets/static/9.jpeg';
 
 export const ContactPage: React.FC = () => {
+  const { isGreek, t } = useLanguage();
   const [searchParams] = useSearchParams();
   const [settings, setSettings] = useState<Settings>({});
   const [formData, setFormData] = useState({
@@ -86,12 +88,12 @@ export const ContactPage: React.FC = () => {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="gold">Canal Oficial</Badge>
+          <Badge variant="gold">{isGreek ? 'Επίσημος Δίαυλος' : 'Canal Oficial'}</Badge>
           <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight drop-shadow-md">
-            Contacto & Atención Institucional
+            {t('contacto.title', 'Contacto & Atención Institucional')}
           </h1>
           <p className="text-slate-200 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed drop-shadow">
-            Estamos a disposición de empresas, diplomáticos y emprendedores interesados en el intercambio comercial y cultural bilateral.
+            {t('contacto.subtitle', 'Estamos a su disposición para consultas comerciales, relaciones institucionales y asesoramiento bilateral.')}
           </p>
         </div>
       </section>

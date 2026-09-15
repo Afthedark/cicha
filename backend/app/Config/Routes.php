@@ -41,6 +41,8 @@ $routes->group('api', static function ($routes) {
         $routes->get('opportunities', 'PublicController::getOpportunities');
         $routes->get('alliances', 'PublicController::getAlliances');
         $routes->get('settings', 'PublicController::getSettings');
+        $routes->get('translations/el', 'PublicController::getGreekTranslations');
+        $routes->get('translations/en', 'PublicController::getEnglishTranslations');
         $routes->post('contact', 'PublicController::submitContact');
         $routes->post('apply', 'PublicController::submitApplication');
     });
@@ -64,6 +66,9 @@ $routes->group('api', static function ($routes) {
         // Decretos Oficiales (Consulta Socios)
         $routes->get('decrees', 'PartnerController::getDecrees');
         $routes->post('decrees/(:num)/download', 'PartnerController::downloadDecree/$1');
+        // Boletín de Noticias para Socios
+        $routes->get('news', 'PartnerController::getNews');
+        $routes->get('news/(:segment)', 'PartnerController::getNewsDetail/$1');
     });
 
     // Database Auto-Migration (Secured via secret key parameter)
@@ -73,8 +78,11 @@ $routes->group('api', static function ($routes) {
     $routes->group('admin', ['filter' => ['jwt', 'role:admin,secretario']], static function ($routes) {
         $routes->get('dashboard', 'Admin\DashboardController::index');
 
-        // Articles / News
+        // Articles / News (Públicas)
         $routes->resource('articles', ['controller' => 'Admin\ArticlesController']);
+
+        // Boletín de Noticias para Socios (Exclusivo)
+        $routes->resource('partner-news', ['controller' => 'Admin\PartnerNewsController']);
 
         // Blogs
         $routes->resource('blogs', ['controller' => 'Admin\BlogsController']);
@@ -120,9 +128,11 @@ $routes->group('api', static function ($routes) {
         $routes->resource('authorities', ['controller' => 'Admin\AuthoritiesController']);
 
         // Institutional Sections
-        $routes->get('institutional', 'Admin\InstitutionalController::index');
-        $routes->get('institutional/(:num)', 'Admin\InstitutionalController::show/$1');
-        $routes->put('institutional/(:num)', 'Admin\InstitutionalController::update/$1');
+        $routes->resource('institutional', ['controller' => 'Admin\InstitutionalController']);
+
+        // Greek Translations (CMS Administrable)
+        $routes->post('translations/batch', 'Admin\GreekTranslationsController::updateBatch');
+        $routes->resource('translations', ['controller' => 'Admin\GreekTranslationsController']);
 
         // Alliances
         $routes->resource('alliances', ['controller' => 'Admin\AlliancesController']);

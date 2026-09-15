@@ -12,6 +12,7 @@ import {
   Calendar,
   Download,
   ExternalLink,
+  Newspaper,
 } from 'lucide-react';
 import { partnerApi } from '../../services/api';
 import type { PartnerDashboardData } from '../../types';
@@ -58,31 +59,31 @@ export const PartnerDashboardPage: React.FC = () => {
 
           <p className="text-xs sm:text-sm text-blue-100 font-light leading-relaxed">
             {member
-              ? `Acceda a los informes de inteligencia comercial bilateral, beneficios corporativos y oportunidades exclusivas para ${member.company_name}.`
-              : 'Acceda a los informes de inteligencia comercial bilateral, beneficios corporativos y oportunidades exclusivas para empresas socias de CICHA.'}
+              ? `Representante oficial de ${member.company_name} en la Cámara Heleno-Argentina. Acceda a la inteligencia comercial, oportunidades bilaterales y documentos reservados.`
+              : 'Portal exclusivo para asociados de la Cámara Heleno-Argentina con acceso a la red de negocios y recursos bilaterales.'}
           </p>
+        </div>
 
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <Link
-              to="/portal-socios/recursos"
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-2"
-            >
-              <FileDown className="w-4 h-4" />
-              Descargar Informes Sectoriales
-            </Link>
-            <Link
-              to="/portal-socios/oportunidades"
-              className="px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition-all flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              Oportunidades VIP
-            </Link>
-          </div>
+        {/* Decorative Watermark */}
+        <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-10 translate-y-10">
+          <Building className="w-80 h-80 text-white" />
         </div>
       </div>
 
       {/* 2. Partner Quick KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <Link
+          to="/portal-socios/boletin"
+          className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-amber-400/40 shadow-lg transition-all space-y-2 group"
+        >
+          <div className="flex items-center justify-between text-amber-300">
+            <span className="text-xs font-bold text-slate-100">Boletín Socios</span>
+            <Newspaper className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <p className="text-2xl font-extrabold text-amber-300 font-serif">{stats?.total_news || 0}</p>
+          <p className="text-[11px] text-sky-200/80 font-medium">Comunicados oficiales</p>
+        </Link>
+
         <Link
           to="/portal-socios/recursos"
           className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-cicha-sky/40 shadow-lg transition-all space-y-2 group"
@@ -92,7 +93,7 @@ export const PartnerDashboardPage: React.FC = () => {
             <FileDown className="w-5 h-5 text-sky-300 group-hover:scale-110 transition-transform" />
           </div>
           <p className="text-2xl font-extrabold text-white font-serif">{stats?.total_resources || 0}</p>
-          <p className="text-[11px] text-sky-200/80 font-medium">Informes y minutas disponibles</p>
+          <p className="text-[11px] text-sky-200/80 font-medium">Informes y minutas</p>
         </Link>
 
         <Link
@@ -100,11 +101,11 @@ export const PartnerDashboardPage: React.FC = () => {
           className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-amber-400/40 shadow-lg transition-all space-y-2 group"
         >
           <div className="flex items-center justify-between text-amber-300">
-            <span className="text-xs font-bold text-slate-100">Oportunidades VIP</span>
+            <span className="text-xs font-bold text-slate-100">Oportunidades</span>
             <Sparkles className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
           </div>
           <p className="text-2xl font-extrabold text-amber-300 font-serif">{stats?.total_opportunities || 0}</p>
-          <p className="text-[11px] text-sky-200/80 font-medium">Comercio Grecia - Argentina</p>
+          <p className="text-[11px] text-sky-200/80 font-medium">Negocios bilaterales</p>
         </Link>
 
         <Link
@@ -112,7 +113,7 @@ export const PartnerDashboardPage: React.FC = () => {
           className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-emerald-400/40 shadow-lg transition-all space-y-2 group"
         >
           <div className="flex items-center justify-between text-emerald-300">
-            <span className="text-xs font-bold text-slate-100">Club de Beneficios</span>
+            <span className="text-xs font-bold text-slate-100">Beneficios</span>
             <Gift className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
           </div>
           <p className="text-2xl font-extrabold text-white font-serif">{stats?.total_benefits || 0}</p>
@@ -121,14 +122,14 @@ export const PartnerDashboardPage: React.FC = () => {
 
         <Link
           to="/portal-socios/directorio"
-          className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-purple-400/40 shadow-lg transition-all space-y-2 group"
+          className="bg-[#003866]/85 hover:bg-[#004b87] p-5 rounded-2xl border border-blue-400/20 hover:border-purple-400/40 shadow-lg transition-all space-y-2 group col-span-2 sm:col-span-1"
         >
           <div className="flex items-center justify-between text-purple-300">
-            <span className="text-xs font-bold text-slate-100">Red de Socios</span>
+            <span className="text-xs font-bold text-slate-100">Red Socios</span>
             <Users className="w-5 h-5 text-purple-300 group-hover:scale-110 transition-transform" />
           </div>
           <p className="text-2xl font-extrabold text-white font-serif">{stats?.total_members || 0}</p>
-          <p className="text-[11px] text-sky-200/80 font-medium">Empresas en comunidad</p>
+          <p className="text-[11px] text-sky-200/80 font-medium">Empresas socias</p>
         </Link>
       </div>
 

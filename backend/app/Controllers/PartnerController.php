@@ -10,6 +10,7 @@ use App\Models\EventModel;
 use App\Models\CategoryModel;
 use App\Models\PartnerMinuteModel;
 use App\Models\DecreeModel;
+use App\Models\PartnerNewsModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PartnerController extends ResourceController
@@ -24,6 +25,7 @@ class PartnerController extends ResourceController
         $oppModel      = new CommercialOpportunityModel();
         $memberModel   = new MemberModel();
         $eventModel    = new EventModel();
+        $newsModel     = new PartnerNewsModel();
 
         $memberInfo = null;
         if (!empty($userData->member_id)) {
@@ -34,12 +36,14 @@ class PartnerController extends ResourceController
         $activeBenefits  = $benefitModel->where('is_active', 1)->orderBy('created_at', 'DESC')->findAll(4);
         $vipOpportunities= $oppModel->where('status', 'open')->orderBy('created_at', 'DESC')->findAll(4);
         $upcomingEvents  = $eventModel->where('status', 'upcoming')->orderBy('event_date', 'ASC')->findAll(3);
+        $latestNews      = $newsModel->where('status', 'published')->orderBy('published_at', 'DESC')->findAll(4);
 
         $stats = [
             'total_resources'     => $resourceModel->where('is_active', 1)->countAllResults(),
             'total_benefits'      => $benefitModel->where('is_active', 1)->countAllResults(),
             'total_opportunities' => $oppModel->where('status', 'open')->countAllResults(),
             'total_members'       => $memberModel->where('status', 'active')->countAllResults(),
+            'total_news'          => $newsModel->where('status', 'published')->countAllResults(),
         ];
 
         return $this->respond([
@@ -52,6 +56,7 @@ class PartnerController extends ResourceController
                 'active_benefits'     => $activeBenefits,
                 'vip_opportunities'   => $vipOpportunities,
                 'upcoming_events'     => $upcomingEvents,
+                'latest_news'         => $latestNews,
             ]
         ]);
     }
@@ -351,6 +356,71 @@ class PartnerController extends ResourceController
             'url'           => $decree['file_url'],
             'document_type' => $decree['document_type'],
             'title'         => $decree['title']
+        ]);
+    }
+
+    public function getNews()
+    {
+        $model = new PartnerNewsModel();
+        $category = $this->request->getGet('category');
+        $q = $this->request->getGet('q');
+
+        $builder = $model->where('status', 'published');
+
+        if (!empty($category)) {
+            $builder->where('category', $category);
+        }
+
+        if (!empty($q)) {
+            $builder->groupStart()
+                ->like('title', $q)
+                ->orLike('summary', $q)
+                ->orLike('content', $q)
+                ->orLike('author', $q)
+                ->groupEnd();
+        }
+
+        $news = $builder->orderBy('published_at', 'DESC')
+                        ->orderBy('created_at', 'DESC')
+                        ->findAll();
+
+        // Distinct categories for quick filtering
+        $allCategories = $model->where('status', 'published')
+            ->select('category')
+            ->distinct()
+            ->findAll();
+        $categoriesList = array_values(array_filter(array_column($allCategories, 'category')));
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'news'       => $news,
+                'categories' => $categoriesList,
+            ]
+        ]);
+    }
+
+    public function getNewsDetail($slugOrId = null)
+    {
+        $model = new PartnerNewsModel();
+        $item = is_numeric($slugOrId) ? $model->find($slugOrId) : $model->where('slug', $slugOrId)->first();
+
+        if (!$item || $item['status'] !== 'published') {
+            return $this->failNotFound('Comunicado o noticia del boletín no encontrada.');
+        }
+
+        // Related news
+        $related = $model->where('status', 'published')
+            ->where('id !=', $item['id'])
+            ->orderBy('published_at', 'DESC')
+            ->findAll(3);
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'item'    => $item,
+                'related' => $related,
+            ]
         ]);
     }
 }

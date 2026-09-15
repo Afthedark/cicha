@@ -44,9 +44,9 @@ Esta guía explica paso a paso cómo desplegar la API Backend de **CICHA (CodeIg
    - En tu cPanel, abre la herramienta **phpMyAdmin**.
    - En la columna izquierda, haz clic sobre el nombre de tu base de datos recién creada (ej. `cpaneluser_cicha`).
    - En el menú superior, haz clic en la pestaña **Importar (Import)**.
-   - Presiona el botón **Seleccionar archivo (Choose File)** y elige el archivo `d:\myProjects\cicha\backend\cicha_database.sql`.
+   - Presiona el botón **Seleccionar archivo (Choose File)** y elige el archivo `backend/cicha_database.sql`.
    - Baja hasta el final de la página y presiona el botón **Importar / Continuar (Go / Import)**.
-   - *¡Listo! Este archivo crea automáticamente las 15 tablas completas, usuarios con contraseñas seguras (Admin, Secretario, Socio), el nuevo Comité Directivo, contenidos de la Cámara, noticias y configuraciones.*
+   - *¡Listo! Este archivo crea automáticamente las 20 tablas completas, usuarios con contraseñas seguras (Admin, Secretario, Socio), el Comité Directivo, contenidos de la Cámara, noticias, boletines de socios, catálogo de traducciones y configuraciones.*
 
 ---
 
@@ -59,84 +59,23 @@ Esta guía explica paso a paso cómo desplegar la API Backend de **CICHA (CodeIg
    - **Raíz del documento (Document Root)**: `api.cicha.com.ar`
 3. Presiona **Crear / Enviar**.
 
-### Estructura Final dentro de `/api.cicha.com.ar/`:
-```
-/api.cicha.com.ar/                 <-- 🌐 Todo el Backend va aquí adentro
-│   ├── .htaccess                  <-- ⚠️ Redirige el tráfico hacia /public/
-│   ├── .env                       <-- ⚙️ Configuración y credenciales de BD
-│   ├── app/
-│   ├── system/
-│   ├── vendor/
-│   ├── writable/                  <-- ⚠️ Permisos 775 o 777 (Logs y Cache)
-│   └── public/                    <-- Carpeta pública interna de CodeIgniter
-│       ├── index.php
-│       ├── .htaccess
-│       └── uploads/               <-- ⚠️ Imágenes subidas por usuarios (Permisos 755)
-```
+---
+
+## 📦 5. Paso 3: Subir el Backend al Subdominio
+
+1. En el Administrador de Archivos de cPanel, entra a la carpeta `/api.cicha.com.ar/`.
+2. Sube y extrae el archivo `backend.zip` o la estructura de carpetas de `backend/`.
+3. Asegúrate de que la carpeta `/api.cicha.com.ar/writable/` y `/api.cicha.com.ar/public/uploads/` tengan permisos de escritura (`755` o `775`).
 
 ---
 
-## 📤 5. Paso 3: Subida y Configuración de Archivos en `api.cicha.com.ar`
+## ⚙️ 6. Paso 4: Configurar `.htaccess` en `/api.cicha.com.ar/`
 
-1. En tu máquina local, comprime toda la carpeta `backend/` en un archivo `backend_cicha.zip`:
-   - Incluyendo `app/`, `system/`, `vendor/`, `writable/`, `public/`, `composer.json`, `env`.
-2. En el Administrador de Archivos de cPanel, entra a la carpeta de tu subdominio `api.cicha.com.ar/` y sube/extrae `backend_cicha.zip`.
-3. Asegúrate de que la carpeta `writable/` tenga permisos `775` o `777`.
-4. Asegúrate de que la carpeta `public/uploads/` tenga permisos `755` o `775`.
-
----
-
-## ⚙️ 6. Paso 4: Redirección Automática a `/public` (`.htaccess` Raíz)
-
-Para que al entrar a `https://api.cicha.com.ar/` el servidor cargue directamente la carpeta `/public` sin mostrar las carpetas internas, crea o coloca este archivo **`.htaccess` en la raíz de `/api.cicha.com.ar/.htaccess`**:
+Crea o edita el archivo `.htaccess` en la raíz de `/api.cicha.com.ar/` con la siguiente directiva para enrutar las peticiones al motor de CodeIgniter 4 con CORS habilitado:
 
 ```apache
-# php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php82” package as the default “PHP” programming language.
-<IfModule mime_module>
-  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
-</IfModule>
-# php -- END cPanel-generated handler, do not edit
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
-
-    # Pasar el Header Authorization (JWT) en cPanel / FastCGI
-    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Si la petición no entra ya a /public/, redirigir internamente a /public/
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L,QSA]
-</IfModule>
-
-# Proteger archivos sensibles
-<FilesMatch "^\.env|composer\.(json|lock)">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-```
-
-Y en **`/api.cicha.com.ar/public/.htaccess`** asegúrate de tener:
-```apache
-# php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php82” package as the default “PHP” programming language.
-<IfModule mime_module>
-  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
-</IfModule>
-# php -- END cPanel-generated handler, do not edit
-
-Options -Indexes
-<IfModule mod_rewrite.c>
-    Options +FollowSymlinks
-    RewriteEngine On
-
-    # Pasar el Header Authorization (JWT) en cPanel / FastCGI
-    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
@@ -168,22 +107,15 @@ CI_ENVIRONMENT = production
 app.baseURL = 'https://api.cicha.com.ar/'
 
 #--------------------------------------------------------------------
-# BASE DE DATOS MYSQL (cPanel)
+# CONEXIÓN A BASE DE DATOS
 #--------------------------------------------------------------------
 database.default.hostname = localhost
 database.default.database = cpaneluser_cicha
 database.default.username = cpaneluser_cicha_user
-database.default.password = TuContraseñaSegura123!
+database.default.password = TU_PASSWORD_MYSQL_AQUI
 database.default.DBDriver = MySQLi
-database.default.DBPrefix =
+database.default.DBPrefix = 
 database.default.port = 3306
-database.default.charset = utf8mb4
-database.default.DBCollat = utf8mb4_general_ci
-
-#--------------------------------------------------------------------
-# SEGURIDAD JWT (Genera una clave secreta propia)
-#--------------------------------------------------------------------
-JWT_SECRET_KEY = "clave_secreta_super_segura_de_produccion_cicha_2026"
 ```
 
 ---
@@ -211,6 +143,8 @@ Abre tu navegador y prueba directamente estos enlaces para verificar que la API 
    *Debe responder `HTTP 200 OK` con el JSON de noticias destacadas, eventos y autoridades.*
 
 2. **Otros Endpoints Públicos de Prueba**:
+   - **Traducciones Griego**: `https://api.cicha.com.ar/index.php/api/public/translations/el`
+   - **Traducciones Inglés**: `https://api.cicha.com.ar/index.php/api/public/translations/en`
    - **Noticias**: `https://api.cicha.com.ar/index.php/api/public/articles`
    - **Socios**: `https://api.cicha.com.ar/index.php/api/public/members`
    - **Institucional**: `https://api.cicha.com.ar/index.php/api/public/institutional`
@@ -238,14 +172,14 @@ Cuando hagas cambios en el código local o agreguemos nuevas funciones / tablas:
 ---
 
 ### Paso 2: Auto-Migración de Base de Datos (1 Clic)
-Si la nueva versión incluye tablas nuevas (por ejemplo: `banners` o nuevos campos):
+Si la nueva versión incluye tablas nuevas (por ejemplo: `greek_translations`, `partner_news` o nuevos campos):
 
 Abre este enlace directamente en tu navegador:
 👉 **`https://api.cicha.com.ar/index.php/api/admin/migrate?secret=cicha_migration_secret_key_2026`**
 
 **¿Qué hace este link automáticamente?**
 - ✅ CodeIgniter revisa el historial de la base de datos.
-- ✅ Si hay tablas nuevas pendientes, las crea en **menos de 1 segundo**.
+- ✅ Si hay tablas o columnas nuevas pendientes, las crea en **menos de 1 segundo**.
 - ✅ **NO toca ni borra** ningún dato existente de tus usuarios, noticias ni socios.
 - ✅ Te devuelve una respuesta JSON de confirmación:
   ```json
@@ -253,7 +187,7 @@ Abre este enlace directamente en tu navegador:
     "status": 200,
     "success": true,
     "message": "✅ Base de datos actualizada con éxito.",
-    "timestamp": "2026-08-29 17:35:00"
+    "timestamp": "2026-09-15 00:00:00"
   }
   ```
 
