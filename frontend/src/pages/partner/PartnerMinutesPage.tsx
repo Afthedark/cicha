@@ -15,16 +15,20 @@ import {
   AlertCircle,
   X,
   FileCheck2,
+  Tag,
+  Filter,
 } from 'lucide-react';
 import { partnerApi, resolveImageUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import type { PartnerMinute } from '../../types';
+import type { PartnerMinute, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 export const PartnerMinutesPage: React.FC = () => {
   const { user } = useAuth();
   const [minutes, setMinutes] = useState<PartnerMinute[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,15 +40,45 @@ export const PartnerMinutesPage: React.FC = () => {
   // Form State
   const [documentMode, setDocumentMode] = useState<'file' | 'url'>('file');
   const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('Asamblea General');
   const [description, setDescription] = useState('');
   const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split('T')[0]);
   const [externalUrl, setExternalUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(false);
 
-  const fetchMinutes = (q?: string) => {
+  const fetchCategories = () => {
     partnerApi
-      .getMinutes(q)
+      .getCategories('minutes')
+      .then((data) => {
+        if (data && data.length > 0) {
+          setCategories(data);
+          setCategory((prev) => (prev ? prev : data[0].name));
+        } else {
+          const defaults = [
+            { id: 1, name: 'Asamblea General', slug: 'asamblea-general', type: 'minutes' },
+            { id: 2, name: 'Comité Ejecutivo', slug: 'comite-ejecutivo', type: 'minutes' },
+            { id: 3, name: 'Comisión Revisora', slug: 'comision-revisora', type: 'minutes' },
+            { id: 4, name: 'Acuerdos Comerciales', slug: 'acuerdos-comerciales', type: 'minutes' },
+            { id: 5, name: 'Resoluciones Institucionales', slug: 'resoluciones-institucionales', type: 'minutes' },
+          ];
+          setCategories(defaults);
+        }
+      })
+      .catch(() => {
+        setCategories([
+          { id: 1, name: 'Asamblea General', slug: 'asamblea-general', type: 'minutes' },
+          { id: 2, name: 'Comité Ejecutivo', slug: 'comite-ejecutivo', type: 'minutes' },
+          { id: 3, name: 'Comisión Revisora', slug: 'comision-revisora', type: 'minutes' },
+          { id: 4, name: 'Acuerdos Comerciales', slug: 'acuerdos-comerciales', type: 'minutes' },
+          { id: 5, name: 'Resoluciones Institucionales', slug: 'resoluciones-institucionales', type: 'minutes' },
+        ]);
+      });
+  };
+
+  const fetchMinutes = (q?: string, cat?: string) => {
+    partnerApi
+      .getMinutes(q, cat)
       .then((data) => {
         setMinutes(data || []);
         setLoading(false);
@@ -56,17 +90,23 @@ export const PartnerMinutesPage: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchCategories();
     fetchMinutes();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchMinutes(searchQuery);
+    fetchMinutes(searchQuery, selectedCategory);
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
-    fetchMinutes('');
+    fetchMinutes('', selectedCategory);
+  };
+
+  const handleCategoryChange = (catName: string) => {
+    setSelectedCategory(catName);
+    fetchMinutes(searchQuery, catName);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +129,7 @@ export const PartnerMinutesPage: React.FC = () => {
 
   const resetForm = () => {
     setTitle('');
+    setCategory(categories[0]?.name || 'Asamblea General');
     setDescription('');
     setMeetingDate(new Date().toISOString().split('T')[0]);
     setExternalUrl('');
@@ -135,6 +176,7 @@ export const PartnerMinutesPage: React.FC = () => {
 
       await partnerApi.createMinute({
         title: title.trim(),
+        category: category.trim() || 'Asamblea General',
         description: description.trim() || undefined,
         document_type: documentMode,
         file_url: finalFileUrl,
@@ -273,6 +315,38 @@ export const PartnerMinutesPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Filter bar by Categories */}
+      <div className="bg-[#003866]/85 rounded-2xl p-4 sm:p-5 border border-blue-400/20 shadow-lg flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-wrap items-center gap-2 w-full">
+          <span className="text-xs font-bold text-amber-300 mr-1 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5 text-amber-400" /> Categoría:
+          </span>
+          <button
+            onClick={() => handleCategoryChange('all')}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              selectedCategory === 'all'
+                ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
+                : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white border border-white/10'
+            }`}
+          >
+            Todas
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.name)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                selectedCategory === cat.name
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
+                  : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white border border-white/10'
+              }`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Minutes List */}
       {loading ? (
         <div className="py-20 flex justify-center">
@@ -285,22 +359,24 @@ export const PartnerMinutesPage: React.FC = () => {
           </div>
           <div>
             <h3 className="font-serif font-bold text-lg text-white">
-              {searchQuery ? 'No se encontraron actas con ese criterio' : 'Aún no hay actas publicadas'}
+              {searchQuery || selectedCategory !== 'all' ? 'No se encontraron actas con ese criterio' : 'Aún no hay actas publicadas'}
             </h3>
             <p className="text-xs text-sky-200 mt-1">
-              {searchQuery
+              {searchQuery || selectedCategory !== 'all'
                 ? 'Intenta con otro término de búsqueda o limpia el filtro.'
                 : 'Sé el primero en compartir un acta o resolución con la comunidad de socios de la Cámara.'}
             </p>
           </div>
           <button
             onClick={() => {
-              if (searchQuery) handleClearSearch();
-              else setIsModalOpen(true);
+              if (searchQuery || selectedCategory !== 'all') {
+                setSelectedCategory('all');
+                handleClearSearch();
+              } else setIsModalOpen(true);
             }}
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 px-4 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
           >
-            {searchQuery ? 'Limpiar búsqueda' : 'Subir Acta Ahora'}
+            {searchQuery || selectedCategory !== 'all' ? 'Limpiar filtros' : 'Subir Acta Ahora'}
           </button>
         </div>
       ) : (
@@ -318,6 +394,13 @@ export const PartnerMinutesPage: React.FC = () => {
                   {/* Top Badges & Document Type */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
+                      {minute.category && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold text-[11px] uppercase tracking-wider">
+                          <Tag className="w-3 h-3 text-amber-400" />
+                          {minute.category}
+                        </span>
+                      )}
+
                       {isPdf ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-200 border border-rose-400/30 font-bold text-[11px] uppercase tracking-wider">
                           <FileText className="w-3.5 h-3.5 text-rose-300" />
@@ -486,6 +569,25 @@ export const PartnerMinutesPage: React.FC = () => {
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all"
                 />
+              </div>
+
+              {/* Category Select */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-cicha-gold" />
+                  Categoría del Acta <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all font-medium text-slate-700"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Description */}

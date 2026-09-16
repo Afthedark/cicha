@@ -20,6 +20,7 @@ import { MembersDirectoryPage } from './pages/public/MembersDirectoryPage';
 import { MembershipApplyPage } from './pages/public/MembershipApplyPage';
 import { SocialFeedPage } from './pages/public/SocialFeedPage';
 import { ContactPage } from './pages/public/ContactPage';
+import { B2BMeetingsPublicPage } from './pages/public/B2BMeetingsPublicPage';
 
 // Partner Portal (Socio) Components
 import { PartnerLayout } from './components/layout/PartnerLayout';
@@ -32,6 +33,7 @@ import { PartnerBenefitsPage } from './pages/partner/PartnerBenefitsPage';
 import { PartnerDirectoryPage } from './pages/partner/PartnerDirectoryPage';
 import { PartnerNewsPage } from './pages/partner/PartnerNewsPage';
 import { PartnerNewsDetailPage } from './pages/partner/PartnerNewsDetailPage';
+import { PartnerB2BMeetingsPage } from './pages/partner/PartnerB2BMeetingsPage';
 
 // Admin CMS (Admin & Secretario) Components
 import { AdminLayout } from './components/layout/AdminLayout';
@@ -43,6 +45,7 @@ import { AdminGalleryPage } from './pages/admin/AdminGalleryPage';
 import { AdminEventsPage } from './pages/admin/AdminEventsPage';
 import { AdminMembersPage } from './pages/admin/AdminMembersPage';
 import { AdminOpportunitiesPage } from './pages/admin/AdminOpportunitiesPage';
+import { AdminB2BMeetingsPage } from './pages/admin/AdminB2BMeetingsPage';
 import { AdminBannersPage } from './pages/admin/AdminBannersPage';
 import { AdminAuthoritiesPage } from './pages/admin/AdminAuthoritiesPage';
 import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
@@ -203,6 +206,14 @@ export function App() {
             }
           />
           <Route
+            path="/reuniones-b2b"
+            element={
+              <PublicLayout>
+                <B2BMeetingsPublicPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/asociarse"
             element={
               <PublicLayout>
@@ -239,6 +250,7 @@ export function App() {
             <Route path="actas" element={<PartnerMinutesPage />} />
             <Route path="decretos" element={<PartnerDecreesPage />} />
             <Route path="oportunidades" element={<PartnerOpportunitiesPage />} />
+            <Route path="reuniones-b2b" element={<PartnerB2BMeetingsPage />} />
             <Route path="beneficios" element={<PartnerBenefitsPage />} />
             <Route path="directorio" element={<PartnerDirectoryPage />} />
           </Route>
@@ -261,6 +273,7 @@ export function App() {
             <Route path="eventos" element={<AdminEventsPage />} />
             <Route path="socios" element={<AdminMembersPage />} />
             <Route path="oportunidades" element={<AdminOpportunitiesPage />} />
+            <Route path="reuniones-b2b" element={<AdminB2BMeetingsPage />} />
             <Route path="recursos-socios" element={<AdminPartnerResourcesPage />} />
             <Route path="solicitudes" element={<AdminApplicationsPage />} />
             <Route path="mensajes" element={<AdminMessagesPage />} />

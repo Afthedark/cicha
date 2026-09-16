@@ -312,11 +312,23 @@ export const MembersDirectoryPage: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Full Description (Sin truncamiento / Sin Ver más) */}
+                        {/* Truncated Description with 'Ver más...' modal trigger */}
                         <div className="pt-1">
-                          <p className="text-xs text-slate-600 leading-relaxed break-words whitespace-pre-line [overflow-wrap:anywhere]">
+                          <p className="text-xs text-slate-600 leading-relaxed break-words line-clamp-3 [overflow-wrap:anywhere]">
                             {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
                           </p>
+                          {member.description && member.description.length > 120 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMember(member);
+                              }}
+                              className="mt-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                            >
+                              Ver más...
+                            </button>
+                          )}
                         </div>
                       </div>
 

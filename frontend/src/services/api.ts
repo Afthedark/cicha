@@ -23,11 +23,12 @@ import type {
   GalleryPhoto,
   Category,
   PartnerNewsItem,
+  B2BMeeting,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 /**
  * Resuelve URLs de imágenes ya sean absolutas (http/https), rutas relativas de uploads (/uploads/...) o blobs locales.
@@ -139,6 +140,16 @@ export const publicApi = {
       .get<{ status: number; data: CommercialOpportunity[] }>('/public/opportunities', { params: { type } })
       .then((res) => res.data.data),
 
+  getB2BMeetings: (sector?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: B2BMeeting[] }>('/public/b2b-meetings', { params: { sector, q: search } })
+      .then((res) => res.data.data),
+
+  getB2BMeeting: (slug: string) =>
+    apiClient
+      .get<{ status: number; data: B2BMeeting }>(`/public/b2b-meetings/${slug}`)
+      .then((res) => res.data.data),
+
   getAlliances: () =>
     apiClient.get<{ status: number; data: Alliance[] }>('/public/alliances').then((res) => res.data.data),
 
@@ -192,6 +203,16 @@ export const partnerApi = {
       .get<{ status: number; data: CommercialOpportunity[] }>('/partner/opportunities', { params: { type, sector } })
       .then((res) => res.data.data),
 
+  getB2BMeetings: (sector?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: B2BMeeting[] }>('/partner/b2b-meetings', { params: { sector, q: search } })
+      .then((res) => res.data.data),
+
+  getB2BMeetingDetail: (slugOrId: string | number) =>
+    apiClient
+      .get<{ status: number; data: B2BMeeting }>(`/partner/b2b-meetings/${slugOrId}`)
+      .then((res) => res.data.data),
+
   getBenefits: (category?: string) =>
     apiClient
       .get<{ status: number; data: PartnerBenefit[] }>('/partner/benefits', { params: { category } })
@@ -208,9 +229,9 @@ export const partnerApi = {
       .then((res) => res.data.data),
 
   // Actas de Socios (PDF / URL)
-  getMinutes: (search?: string) =>
+  getMinutes: (search?: string, category?: string) =>
     apiClient
-      .get<{ status: number; data: PartnerMinute[] }>('/partner/minutes', { params: { q: search } })
+      .get<{ status: number; data: PartnerMinute[] }>('/partner/minutes', { params: { q: search, category } })
       .then((res) => res.data.data),
 
   createMinute: (data: Partial<PartnerMinute>) =>
@@ -331,6 +352,18 @@ export const adminApi = {
     apiClient.put<{ status: number; message: string; data: PartnerNewsItem }>(`/admin/partner-news/${id}`, data).then((res) => res.data),
   deletePartnerNews: (id: number) =>
     apiClient.delete<{ status: number; message: string }>(`/admin/partner-news/${id}`).then((res) => res.data),
+
+  // B2B Meetings & Results (Admin & Secretario)
+  getB2BMeetings: () =>
+    apiClient.get<{ status: number; data: B2BMeeting[] }>('/admin/b2b-meetings').then((res) => res.data.data),
+  getB2BMeeting: (id: number | string) =>
+    apiClient.get<{ status: number; data: B2BMeeting }>(`/admin/b2b-meetings/${id}`).then((res) => res.data.data),
+  createB2BMeeting: (data: Partial<B2BMeeting>) =>
+    apiClient.post<{ status: number; message: string; id: number }>('/admin/b2b-meetings', data).then((res) => res.data),
+  updateB2BMeeting: (id: number | string, data: Partial<B2BMeeting>) =>
+    apiClient.put<{ status: number; message: string }>(`/admin/b2b-meetings/${id}`, data).then((res) => res.data),
+  deleteB2BMeeting: (id: number | string) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/b2b-meetings/${id}`).then((res) => res.data),
 
   // Blogs (Admin & Secretario)
   getBlogs: () => apiClient.get<{ status: number; data: Blog[] }>('/admin/blogs').then((res) => res.data.data),

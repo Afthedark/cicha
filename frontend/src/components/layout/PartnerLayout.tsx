@@ -19,6 +19,7 @@ import {
   FileCheck2,
   Scroll,
   Newspaper,
+  Handshake,
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
@@ -33,6 +34,7 @@ export const PartnerLayout: React.FC = () => {
   const navItems = [
     { name: 'Panel Socio', path: '/portal-socios', icon: LayoutDashboard },
     { name: 'Boletín', path: '/portal-socios/boletin', icon: Newspaper },
+    { name: 'Reuniones B2B', path: '/portal-socios/reuniones-b2b', icon: Handshake },
     { name: 'Documentos & Informes', path: '/portal-socios/recursos', icon: FileDown },
     { name: 'Actas', path: '/portal-socios/actas', icon: FileCheck2 },
     { name: 'Decretos', path: '/portal-socios/decretos', icon: Scroll },

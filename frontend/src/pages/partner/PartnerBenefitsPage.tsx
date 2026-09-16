@@ -13,14 +13,31 @@ export const PartnerBenefitsPage: React.FC = () => {
 
   useEffect(() => {
     partnerApi
-      .getCategories('members')
+      .getCategories('benefits')
       .then((cats) => {
         if (cats && cats.length > 0) {
           setCategories(cats);
+        } else {
+          setCategories([
+            { id: 1, name: 'Logística & Transporte', slug: 'logistica-transporte', type: 'benefits' },
+            { id: 2, name: 'Networking Internacional', slug: 'networking-internacional', type: 'benefits' },
+            { id: 3, name: 'Servicios Profesionales', slug: 'servicios-profesionales', type: 'benefits' },
+            { id: 4, name: 'Comercio Exterior', slug: 'comercio-exterior', type: 'benefits' },
+            { id: 5, name: 'Asesoría Legal & Tributaria', slug: 'asesoria-legal-tributaria', type: 'benefits' },
+            { id: 6, name: 'Hotelería & Eventos', slug: 'hoteleria-eventos', type: 'benefits' },
+          ]);
         }
       })
       .catch((err) => {
         console.error('Error cargando categorías para beneficios:', err);
+        setCategories([
+          { id: 1, name: 'Logística & Transporte', slug: 'logistica-transporte', type: 'benefits' },
+          { id: 2, name: 'Networking Internacional', slug: 'networking-internacional', type: 'benefits' },
+          { id: 3, name: 'Servicios Profesionales', slug: 'servicios-profesionales', type: 'benefits' },
+          { id: 4, name: 'Comercio Exterior', slug: 'comercio-exterior', type: 'benefits' },
+          { id: 5, name: 'Asesoría Legal & Tributaria', slug: 'asesoria-legal-tributaria', type: 'benefits' },
+          { id: 6, name: 'Hotelería & Eventos', slug: 'hoteleria-eventos', type: 'benefits' },
+        ]);
       });
   }, []);
 

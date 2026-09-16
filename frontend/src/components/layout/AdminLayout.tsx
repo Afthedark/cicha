@@ -32,6 +32,7 @@ import {
   Send,
   Compass,
   Languages,
+  Handshake,
 } from 'lucide-react';
 
 interface NavItem {
@@ -120,6 +121,12 @@ export const AdminLayout: React.FC = () => {
           name: 'Agenda de Eventos',
           path: '/admin/eventos',
           icon: Calendar,
+          roles: ['admin', 'secretario'],
+        },
+        {
+          name: 'Reuniones B2B & Resultados',
+          path: '/admin/reuniones-b2b',
+          icon: Handshake,
           roles: ['admin', 'secretario'],
         },
         {

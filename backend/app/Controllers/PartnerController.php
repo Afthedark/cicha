@@ -189,6 +189,7 @@ class PartnerController extends ResourceController
     {
         $db = \Config\Database::connect();
         $search = $this->request->getGet('q');
+        $category = $this->request->getGet('category');
 
         $builder = $db->table('partner_minutes pm')
             ->select('pm.*, u.name as user_name, u.email as user_email, u.avatar as user_avatar, m.company_name, m.logo_url as company_logo')
@@ -196,10 +197,15 @@ class PartnerController extends ResourceController
             ->join('members m', 'm.id = pm.member_id', 'left')
             ->where('pm.is_active', 1);
 
+        if (!empty($category) && $category !== 'all') {
+            $builder->where('pm.category', $category);
+        }
+
         if (!empty($search)) {
             $builder->groupStart()
                 ->like('pm.title', $search)
                 ->orLike('pm.description', $search)
+                ->orLike('pm.category', $search)
                 ->orLike('u.name', $search)
                 ->orLike('m.company_name', $search)
                 ->groupEnd();
@@ -239,6 +245,7 @@ class PartnerController extends ResourceController
             'user_id'       => $userData->id,
             'member_id'     => !empty($userData->member_id) ? $userData->member_id : null,
             'title'         => trim($input['title']),
+            'category'      => !empty($input['category']) ? trim($input['category']) : 'Asamblea General',
             'description'   => !empty($input['description']) ? trim($input['description']) : null,
             'document_type' => $documentType,
             'file_url'      => trim($input['file_url']),
@@ -423,5 +430,50 @@ class PartnerController extends ResourceController
             ]
         ]);
     }
+
+    public function getB2BMeetings()
+    {
+        $model = new \App\Models\B2BMeetingModel();
+        $sector = $this->request->getGet('sector');
+        $search = $this->request->getGet('q');
+
+        $builder = $model->where('is_active', 1);
+
+        if ($sector && $sector !== 'all') {
+            $builder->where('sector', $sector);
+        }
+
+        if ($search) {
+            $builder->groupStart()
+                ->like('title', $search)
+                ->orLike('public_summary', $search)
+                ->orLike('partner_detailed_report', $search)
+                ->orLike('location', $search)
+                ->groupEnd();
+        }
+
+        $items = $builder->orderBy('meeting_date', 'DESC')->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $items
+        ]);
+    }
+
+    public function getB2BMeetingDetail($slugOrId = null)
+    {
+        $model = new \App\Models\B2BMeetingModel();
+        $item = is_numeric($slugOrId) ? $model->find($slugOrId) : $model->where('slug', $slugOrId)->first();
+
+        if (!$item || !$item['is_active']) {
+            return $this->failNotFound('Encuentro B2B no encontrado.');
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $item
+        ]);
+    }
 }
+
 

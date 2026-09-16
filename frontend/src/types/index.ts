@@ -82,7 +82,7 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  type: 'news' | 'events' | 'members' | 'opportunities';
+  type: 'news' | 'events' | 'members' | 'opportunities' | 'minutes' | string;
 }
 
 export interface Article {
@@ -304,6 +304,7 @@ export interface PartnerMinute {
   user_id: number;
   member_id?: number | null;
   title: string;
+  category?: string;
   description?: string;
   document_type: 'file' | 'url';
   file_url: string;
@@ -386,3 +387,30 @@ export interface HomeData {
     eurocamara_since: string;
   };
 }
+
+export interface B2BMeeting {
+  id: number;
+  title: string;
+  slug: string;
+  sector: string;
+  meeting_date?: string;
+  location?: string;
+  modality: 'presencial' | 'virtual' | 'hibrido' | string;
+  status: 'completed' | 'in_progress' | 'upcoming' | string;
+  cover_image_url?: string;
+  // Public fields (básico)
+  public_summary?: string;
+  participants_count?: number;
+  meetings_count?: number;
+  agreements_count?: number;
+  // Partner fields (detallado y exclusivo)
+  partner_detailed_report?: string;
+  partner_companies_list?: string;
+  partner_conclusions?: string;
+  partner_document_url?: string;
+  partner_contact_info?: string;
+  is_active: number | boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+

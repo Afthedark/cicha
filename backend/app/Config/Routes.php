@@ -39,6 +39,8 @@ $routes->group('api', static function ($routes) {
         $routes->get('events', 'PublicController::getEvents');
         $routes->get('members', 'PublicController::getMembers');
         $routes->get('opportunities', 'PublicController::getOpportunities');
+        $routes->get('b2b-meetings', 'PublicController::getB2BMeetings');
+        $routes->get('b2b-meetings/(:segment)', 'PublicController::getB2BMeeting/$1');
         $routes->get('alliances', 'PublicController::getAlliances');
         $routes->get('settings', 'PublicController::getSettings');
         $routes->get('translations/el', 'PublicController::getGreekTranslations');
@@ -53,6 +55,8 @@ $routes->group('api', static function ($routes) {
         $routes->get('resources', 'PartnerController::getResources');
         $routes->post('resources/(:num)/download', 'PartnerController::downloadResource/$1');
         $routes->get('opportunities', 'PartnerController::getOpportunities');
+        $routes->get('b2b-meetings', 'PartnerController::getB2BMeetings');
+        $routes->get('b2b-meetings/(:segment)', 'PartnerController::getB2BMeetingDetail/$1');
         $routes->get('benefits', 'PartnerController::getBenefits');
         $routes->get('directory', 'PartnerController::getDirectory');
         $routes->get('categories', 'PartnerController::getCategories');
@@ -83,6 +87,9 @@ $routes->group('api', static function ($routes) {
 
         // Boletín de Noticias para Socios (Exclusivo)
         $routes->resource('partner-news', ['controller' => 'Admin\PartnerNewsController']);
+
+        // B2B Meetings & Results (Reuniones B2B)
+        $routes->resource('b2b-meetings', ['controller' => 'Admin\B2BMeetingsController']);
 
         // Blogs
         $routes->resource('blogs', ['controller' => 'Admin\BlogsController']);

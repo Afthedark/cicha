@@ -532,5 +532,53 @@ class PublicController extends ResourceController
             ],
         ]);
     }
+
+    public function getB2BMeetings()
+    {
+        $model = new \App\Models\B2BMeetingModel();
+        $sector = $this->request->getGet('sector');
+        $search = $this->request->getGet('q');
+
+        $builder = $model->select('id, title, slug, sector, meeting_date, location, modality, status, cover_image_url, public_summary, participants_count, meetings_count, agreements_count, created_at')
+            ->where('is_active', 1);
+
+        if ($sector && $sector !== 'all') {
+            $builder->where('sector', $sector);
+        }
+
+        if ($search) {
+            $builder->groupStart()
+                ->like('title', $search)
+                ->orLike('public_summary', $search)
+                ->orLike('location', $search)
+                ->groupEnd();
+        }
+
+        $items = $builder->orderBy('meeting_date', 'DESC')->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $items
+        ]);
+    }
+
+    public function getB2BMeeting($slug = null)
+    {
+        $model = new \App\Models\B2BMeetingModel();
+        $item = $model->select('id, title, slug, sector, meeting_date, location, modality, status, cover_image_url, public_summary, participants_count, meetings_count, agreements_count, created_at')
+            ->where('slug', $slug)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$item) {
+            return $this->failNotFound('Encuentro B2B no encontrado');
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $item
+        ]);
+    }
 }
+
 

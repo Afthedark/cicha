@@ -16,6 +16,7 @@ class PartnerMinuteModel extends Model
         'user_id',
         'member_id',
         'title',
+        'category',
         'description',
         'document_type',
         'file_url',

@@ -13,6 +13,7 @@ import {
   Gift,
   Users,
   LogIn,
+  Handshake,
 } from 'lucide-react';
 import cichaLogo from '../../assets/images/logo oficial 3.png';
 import { useAuth } from '../../context/AuthContext';
@@ -56,6 +57,7 @@ export const Navbar: React.FC = () => {
     { name: 'Post Redes', path: '/redes-sociales' },
     { name: 'Galería', path: '/galeria' },
     { name: 'Eventos', path: '/eventos' },
+    { name: 'Reuniones B2B', path: '/reuniones-b2b' },
     { name: 'Socios', path: '/socios' },
     { name: 'Contacto', path: '/contacto' },
   ];
@@ -63,6 +65,7 @@ export const Navbar: React.FC = () => {
   // Exclusive Partner Modules
   const partnerLinks = [
     { name: 'Dashboard Socio', path: '/portal-socios', icon: Building2, desc: 'Panel principal de la empresa socia' },
+    { name: 'Reuniones B2B & Resultados', path: '/portal-socios/reuniones-b2b', icon: Handshake, desc: 'Balances de rondas comerciales y acuerdos' },
     { name: 'Informes & Normativas', path: '/portal-socios/recursos', icon: FileDown, desc: 'Informes sectoriales y guías arancelarias' },
     { name: 'Oportunidades VIP', path: '/portal-socios/oportunidades', icon: Sparkles, desc: 'Contactos directos de contrapartes' },
     { name: 'Club de Beneficios', path: '/portal-socios/beneficios', icon: Gift, desc: 'Descuentos en fletes y eventos' },
