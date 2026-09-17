@@ -27,8 +27,8 @@ import type {
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 /**
  * Resuelve URLs de imágenes ya sean absolutas (http/https), rutas relativas de uploads (/uploads/...) o blobs locales.
@@ -152,6 +152,13 @@ export const publicApi = {
 
   getAlliances: () =>
     apiClient.get<{ status: number; data: Alliance[] }>('/public/alliances').then((res) => res.data.data),
+
+  getBenefits: (category?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: { benefits: PartnerBenefit[]; categories: Category[] } }>('/public/benefits', {
+        params: { category, q: search },
+      })
+      .then((res) => res.data.data),
 
   getSettings: () =>
     apiClient.get<{ status: number; data: Settings }>('/public/settings').then((res) => res.data.data),

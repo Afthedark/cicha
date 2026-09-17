@@ -47,9 +47,10 @@ export const InstitutionalPage: React.FC = () => {
     );
   }
 
-  const getSection = (key: string) => sections.find((s) => s.section_key === key);
+  const getSection = (key: string) =>
+    sections.find((s) => s.section_key === `camara_${key}` || s.section_key === key);
   const historia = getSection('historia');
-  const redes = getSection('redes_estrategicas');
+  const redes = getSection('redes') || getSection('redes_estrategicas');
 
   // Helper sort function
   const sortByOrder = (a: Authority, b: Authority) => (a.order_num ?? 0) - (b.order_num ?? 0);

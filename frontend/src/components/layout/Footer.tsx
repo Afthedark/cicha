@@ -98,6 +98,12 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/beneficios" className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
+                  Club de Beneficios & Convenios
+                </Link>
+              </li>
+              <li>
                 <Link to="/asociarse" className="hover:text-white transition-colors flex items-center gap-1.5 font-bold text-[#F5A623]">
                   <ChevronRight className="w-3.5 h-3.5 text-[#00AEEF]" />
                   Solicitud de Afiliación

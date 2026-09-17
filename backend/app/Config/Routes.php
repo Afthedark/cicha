@@ -42,6 +42,7 @@ $routes->group('api', static function ($routes) {
         $routes->get('b2b-meetings', 'PublicController::getB2BMeetings');
         $routes->get('b2b-meetings/(:segment)', 'PublicController::getB2BMeeting/$1');
         $routes->get('alliances', 'PublicController::getAlliances');
+        $routes->get('benefits', 'PublicController::getBenefits');
         $routes->get('settings', 'PublicController::getSettings');
         $routes->get('translations/el', 'PublicController::getGreekTranslations');
         $routes->get('translations/en', 'PublicController::getEnglishTranslations');

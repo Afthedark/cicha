@@ -42,6 +42,7 @@ export interface Settings {
 export interface InstitutionalSection {
   id: number;
   section_key: string;
+  page_target?: 'home' | 'presentacion' | 'la_camara' | string;
   title: string;
   subtitle?: string;
   content: string;
@@ -169,6 +170,11 @@ export interface EventItem {
   id: number;
   category_id?: number;
   category_name?: string;
+  album_id?: number | null;
+  album_title?: string;
+  album_slug?: string;
+  album_cover?: string;
+  photos_count?: number;
   title: string;
   slug: string;
   description: string;
@@ -375,6 +381,7 @@ export interface HomeData {
   settings: Settings;
   mision?: InstitutionalSection;
   historia?: InstitutionalSection;
+  institutional_sections?: InstitutionalSection[];
   alliances: Alliance[];
   featured_articles: Article[];
   upcoming_events: EventItem[];

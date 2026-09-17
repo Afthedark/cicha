@@ -69,6 +69,12 @@ export const AdminTranslationsPage: React.FC = () => {
     }, 4000);
   };
 
+  const handleSpanishChange = (id: number, newText: string) => {
+    setTranslations((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, original_es: newText } : t))
+    );
+  };
+
   const handleGreekChange = (id: number, newText: string) => {
     setTranslations((prev) =>
       prev.map((t) => (t.id === id ? { ...t, text_el: newText } : t))
@@ -86,6 +92,7 @@ export const AdminTranslationsPage: React.FC = () => {
       setSavingId(item.id);
       setErrorMessage(null);
       await adminApi.updateTranslation(item.id, {
+        original_es: item.original_es,
         text_el: item.text_el,
         text_en: item.text_en,
       });
@@ -104,10 +111,10 @@ export const AdminTranslationsPage: React.FC = () => {
       setSavingAll(true);
       setErrorMessage(null);
       await adminApi.updateTranslationsBatch(
-        translations.map((t) => ({ id: t.id, text_el: t.text_el, text_en: t.text_en }))
+        translations.map((t) => ({ id: t.id, original_es: t.original_es, text_el: t.text_el, text_en: t.text_en }))
       );
       await refreshTranslations();
-      showNotification('Todas las traducciones (Griego e Inglés) han sido guardadas y sincronizadas.');
+      showNotification('Todas las traducciones (Español, Griego e Inglés) han sido guardadas y sincronizadas.');
     } catch (err: any) {
       console.error('Error saving all translations:', err);
       setErrorMessage(err.message || 'Error al guardar los cambios en lote');
@@ -362,15 +369,29 @@ export const AdminTranslationsPage: React.FC = () => {
 
                 {/* 3 Column Layout: Spanish (Reference) | Greek (Editable) | English (Editable) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                  {/* Spanish Reference Column */}
+                  {/* Spanish Editable Column */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                       <ArgentinaFlag className="w-4 h-3 rounded-2xs" />
                       <span>Original en Español:</span>
                     </label>
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-700 leading-relaxed min-h-[52px] select-text">
-                      {item.original_es}
-                    </div>
+                    {isLongText ? (
+                      <textarea
+                        rows={4}
+                        value={item.original_es || ''}
+                        onChange={(e) => handleSpanishChange(item.id, e.target.value)}
+                        placeholder="Escribe el texto original en español..."
+                        className="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white text-slate-900 leading-relaxed transition-all font-sans"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={item.original_es || ''}
+                        onChange={(e) => handleSpanishChange(item.id, e.target.value)}
+                        placeholder="Escribe el texto original en español..."
+                        className="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white text-slate-900 leading-relaxed transition-all font-sans"
+                      />
+                    )}
                   </div>
 
                   {/* Greek Editable Column */}

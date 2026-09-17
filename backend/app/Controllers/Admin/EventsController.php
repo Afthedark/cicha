@@ -44,6 +44,7 @@ class EventsController extends ResourceController
             'title'            => $title,
             'slug'             => $slug,
             'category_id'      => $input['category_id'] ?? null,
+            'album_id'         => !empty($input['album_id']) ? (int) $input['album_id'] : null,
             'description'      => $input['description'] ?? '',
             'event_date'       => $input['event_date'] ?? date('Y-m-d H:i:s'),
             'end_date'         => $input['end_date'] ?? null,
@@ -75,6 +76,7 @@ class EventsController extends ResourceController
             $data['slug'] = url_title($input['title'], '-', true) . '-' . $id;
         }
         if (isset($input['category_id'])) $data['category_id'] = $input['category_id'] ?: null;
+        if (isset($input['album_id'])) $data['album_id'] = !empty($input['album_id']) ? (int) $input['album_id'] : null;
         if (isset($input['description'])) $data['description'] = $input['description'];
         if (isset($input['event_date'])) $data['event_date'] = $input['event_date'];
         if (isset($input['end_date'])) $data['end_date'] = $input['end_date'] ?: null;

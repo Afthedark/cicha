@@ -10,6 +10,10 @@ import {
   XCircle,
   HelpCircle,
   LayoutGrid,
+  Home,
+  BookOpen,
+  Landmark,
+  Layers,
 } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import type { InstitutionalSection } from '../../types';
@@ -19,10 +23,12 @@ import { Modal } from '../../components/common/Modal';
 export const AdminInstitutionalPage: React.FC = () => {
   const [sections, setSections] = useState<InstitutionalSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'all' | 'home' | 'presentacion' | 'la_camara'>('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSec, setEditingSec] = useState<InstitutionalSection | null>(null);
   const [formData, setFormData] = useState({
     section_key: '',
+    page_target: 'home',
     title: '',
     subtitle: '',
     content: '',
@@ -52,12 +58,15 @@ export const AdminInstitutionalPage: React.FC = () => {
 
   const handleOpenCreate = () => {
     setEditingSec(null);
+    const target = activeTab === 'all' ? 'home' : activeTab;
+    const countInTarget = sections.filter((s) => (s.page_target || 'home') === target).length;
     setFormData({
-      section_key: '',
+      section_key: `${target}_`,
+      page_target: target,
       title: '',
       subtitle: '',
       content: '',
-      order_num: sections.length + 1,
+      order_num: countInTarget + 1,
       is_active: 1,
     });
     setIsModalOpen(true);
@@ -67,6 +76,7 @@ export const AdminInstitutionalPage: React.FC = () => {
     setEditingSec(sec);
     setFormData({
       section_key: sec.section_key,
+      page_target: sec.page_target || 'home',
       title: sec.title,
       subtitle: sec.subtitle || '',
       content: sec.content || '',
@@ -129,6 +139,19 @@ export const AdminInstitutionalPage: React.FC = () => {
     }
   };
 
+  const tabs = [
+    { key: 'home', label: 'Inicio', icon: Home, count: sections.filter((s) => (s.page_target || 'home') === 'home').length },
+    { key: 'presentacion', label: 'Presentación', icon: BookOpen, count: sections.filter((s) => s.page_target === 'presentacion').length },
+    { key: 'la_camara', label: 'La Cámara', icon: Landmark, count: sections.filter((s) => s.page_target === 'la_camara').length },
+    { key: 'all', label: 'Todas las Secciones', icon: Layers, count: sections.length },
+  ];
+
+  const filteredSections = sections.filter((s) => {
+    if (activeTab === 'all') return true;
+    const target = s.page_target || 'home';
+    return target === activeTab;
+  });
+
   return (
     <div className="space-y-6">
       {/* Header Panel */}
@@ -148,13 +171,71 @@ export const AdminInstitutionalPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Navigation Tabs for Independent Page Administration */}
+      <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key as any)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+              <span>{tab.label}</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {loading ? (
         <Loader text="Cargando secciones institucionales..." />
+      ) : filteredSections.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+          <FileText className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="text-base font-bold text-slate-800">No hay secciones registradas en esta página</h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Puedes crear una nueva sección institucional haciendo clic en el botón "Nueva Sección" superior.
+          </p>
+          <button
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-xs hover:bg-blue-700 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Crear Sección para {tabs.find((t) => t.key === activeTab)?.label}</span>
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {sections.map((sec) => {
+          {filteredSections.map((sec) => {
             const isActive = Number(sec.is_active) === 1;
             const isToggling = togglingId === sec.id;
+            const target = sec.page_target || 'home';
+
+            const getTargetBadge = (tgt: string) => {
+              switch (tgt) {
+                case 'home':
+                  return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">Inicio</span>;
+                case 'presentacion':
+                  return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">Presentación</span>;
+                case 'la_camara':
+                  return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">La Cámara</span>;
+                default:
+                  return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-50 text-slate-700 border border-slate-200">{tgt}</span>;
+              }
+            };
 
             return (
               <div
@@ -167,6 +248,7 @@ export const AdminInstitutionalPage: React.FC = () => {
                   {/* Top Bar Badges and Actions */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
+                      {getTargetBadge(target)}
                       <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/60">
                         Clave: {sec.section_key}
                       </span>
@@ -258,18 +340,35 @@ export const AdminInstitutionalPage: React.FC = () => {
           maxWidth="2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+            {/* Page Target Selector */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                Página de Destino *
+                <span className="text-[10px] text-slate-400 font-normal">(Dónde se mostrará esta sección)</span>
+              </label>
+              <select
+                value={formData.page_target}
+                onChange={(e) => setFormData({ ...formData, page_target: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold focus:ring-2 focus:ring-blue-500 focus:outline-hidden bg-white"
+              >
+                <option value="home">Inicio (Portada / Tarjetas de Presentación)</option>
+                <option value="presentacion">Presentación (Historia Onassis, Misión)</option>
+                <option value="la_camara">La Cámara (Trayectoria, Redes y Pilares)</option>
+              </select>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="font-bold text-slate-700 flex items-center gap-1">
                   Clave Única (Slug) *
-                  <span className="text-[10px] text-slate-400 font-normal">ej: historia, redes_estrategicas</span>
+                  <span className="text-[10px] text-slate-400 font-normal">ej: home_mision, presentacion_historia</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.section_key}
                   onChange={(e) => setFormData({ ...formData, section_key: e.target.value })}
-                  placeholder="ej. historia"
+                  placeholder="ej. home_mision"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
@@ -293,7 +392,7 @@ export const AdminInstitutionalPage: React.FC = () => {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="ej. Historia & Trayectoria"
+                placeholder="ej. Nuestra Misión"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
             </div>
@@ -304,7 +403,7 @@ export const AdminInstitutionalPage: React.FC = () => {
                 type="text"
                 value={formData.subtitle}
                 onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                placeholder="ej. Forjando puentes comerciales bilaterales desde 1940"
+                placeholder="ej. Fuerza creadora para el desarrollo bilateral equitativo"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
             </div>

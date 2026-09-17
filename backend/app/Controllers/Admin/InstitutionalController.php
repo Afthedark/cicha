@@ -12,7 +12,11 @@ class InstitutionalController extends ResourceController
     public function index()
     {
         $model = new InstitutionalSectionModel();
-        $sections = $model->orderBy('order_num', 'ASC')->findAll();
+        $pageTarget = $this->request->getGet('page_target');
+        if (!empty($pageTarget)) {
+            $model->where('page_target', $pageTarget);
+        }
+        $sections = $model->orderBy('order_num', 'ASC')->orderBy('id', 'ASC')->findAll();
         return $this->respond(['status' => 200, 'data' => $sections]);
     }
 
@@ -51,6 +55,7 @@ class InstitutionalController extends ResourceController
 
         $data = [
             'section_key' => $sectionKey,
+            'page_target' => $input['page_target'] ?? 'home',
             'title'       => $title,
             'subtitle'    => $input['subtitle'] ?? null,
             'content'     => $input['content'] ?? '',
@@ -87,6 +92,7 @@ class InstitutionalController extends ResourceController
                 $data['section_key'] = $key;
             }
         }
+        if (isset($input['page_target'])) $data['page_target'] = $input['page_target'];
         if (isset($input['title'])) $data['title'] = $input['title'];
         if (isset($input['subtitle'])) $data['subtitle'] = $input['subtitle'];
         if (isset($input['content'])) $data['content'] = $input['content'];

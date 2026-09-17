@@ -136,6 +136,12 @@ export const AdminLayout: React.FC = () => {
           roles: ['admin', 'secretario'],
         },
         {
+          name: 'Club de Beneficios',
+          path: '/admin/beneficios',
+          icon: Gift,
+          roles: ['admin', 'secretario'],
+        },
+        {
           name: 'Alianzas Estratégicas',
           path: '/admin/alianzas',
           icon: Globe,

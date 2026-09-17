@@ -21,6 +21,7 @@ import { MembershipApplyPage } from './pages/public/MembershipApplyPage';
 import { SocialFeedPage } from './pages/public/SocialFeedPage';
 import { ContactPage } from './pages/public/ContactPage';
 import { B2BMeetingsPublicPage } from './pages/public/B2BMeetingsPublicPage';
+import { BenefitsPage } from './pages/public/BenefitsPage';
 
 // Partner Portal (Socio) Components
 import { PartnerLayout } from './components/layout/PartnerLayout';
@@ -52,6 +53,7 @@ import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
 import { AdminDecreesPage } from './pages/admin/AdminDecreesPage';
 import { AdminAlliancesPage } from './pages/admin/AdminAlliancesPage';
 import { AdminTranslationsPage } from './pages/admin/AdminTranslationsPage';
+import { AdminBenefitsPage } from './pages/admin/AdminBenefitsPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
@@ -214,6 +216,14 @@ export function App() {
             }
           />
           <Route
+            path="/beneficios"
+            element={
+              <PublicLayout>
+                <BenefitsPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/asociarse"
             element={
               <PublicLayout>
@@ -275,6 +285,7 @@ export function App() {
             <Route path="oportunidades" element={<AdminOpportunitiesPage />} />
             <Route path="reuniones-b2b" element={<AdminB2BMeetingsPage />} />
             <Route path="recursos-socios" element={<AdminPartnerResourcesPage />} />
+            <Route path="beneficios" element={<AdminBenefitsPage />} />
             <Route path="solicitudes" element={<AdminApplicationsPage />} />
             <Route path="mensajes" element={<AdminMessagesPage />} />
 

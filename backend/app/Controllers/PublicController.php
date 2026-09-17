@@ -42,8 +42,11 @@ class PublicController extends ResourceController
         }
 
         $banners = $bannerModel->where('is_active', 1)->orderBy('order_num', 'ASC')->orderBy('id', 'DESC')->findAll();
-        $mision = $sectionModel->where('section_key', 'mision')->where('is_active', 1)->first();
-        $historia = $sectionModel->where('section_key', 'historia')->where('is_active', 1)->first();
+        $homeSections = $sectionModel->where('is_active', 1)->where('page_target', 'home')->orderBy('order_num', 'ASC')->orderBy('id', 'ASC')->findAll();
+        $mision = $sectionModel->where('section_key', 'home_mision')->where('is_active', 1)->first()
+            ?: $sectionModel->where('section_key', 'mision')->where('is_active', 1)->first();
+        $historia = $sectionModel->where('section_key', 'presentacion_historia')->where('is_active', 1)->first()
+            ?: $sectionModel->where('section_key', 'historia')->where('is_active', 1)->first();
         $alliances = $allianceModel->where('is_active', 1)->orderBy('order_num', 'ASC')->findAll();
         
         $featuredArticles = $articleModel->getWithCategory();
@@ -65,15 +68,16 @@ class PublicController extends ResourceController
         return $this->respond([
             'status' => 200,
             'data'   => [
-                'banners'               => $banners,
-                'settings'              => $settings,
-                'mision'                => $mision,
-                'historia'              => $historia,
-                'alliances'             => $alliances,
-                'featured_articles'     => $featuredArticles,
-                'upcoming_events'       => $upcomingEvents,
-                'featured_members'      => $featuredMembers,
-                'featured_opportunities'=> $opportunities,
+                'banners'                => $banners,
+                'settings'               => $settings,
+                'mision'                 => $mision,
+                'historia'               => $historia,
+                'institutional_sections' => $homeSections,
+                'alliances'              => $alliances,
+                'featured_articles'      => $featuredArticles,
+                'upcoming_events'        => $upcomingEvents,
+                'featured_members'       => $featuredMembers,
+                'featured_opportunities' => $opportunities,
                 'stats' => [
                     'years_active'     => date('Y') - 1989,
                     'binational_cams'  => 32,
@@ -101,7 +105,12 @@ class PublicController extends ResourceController
         $authorityModel = new AuthorityModel();
         $allianceModel  = new AllianceModel();
 
-        $sections = $sectionModel->where('is_active', 1)->orderBy('order_num', 'ASC')->findAll();
+        $pageTarget = $this->request->getGet('page_target');
+        if (!empty($pageTarget)) {
+            $sectionModel->where('page_target', $pageTarget);
+        }
+
+        $sections = $sectionModel->where('is_active', 1)->orderBy('order_num', 'ASC')->orderBy('id', 'ASC')->findAll();
         $authorities = $authorityModel->where('is_active', 1)->orderBy('order_num', 'ASC')->findAll();
         $alliances = $allianceModel->where('is_active', 1)->orderBy('order_num', 'ASC')->findAll();
 
@@ -186,19 +195,31 @@ class PublicController extends ResourceController
         $filter = $this->request->getGet('filter'); // 'upcoming', 'past', 'all'
 
         $builder = $eventModel->db->table('events')
-            ->select('events.*, categories.name as category_name')
-            ->join('categories', 'categories.id = events.category_id', 'left');
+            ->select('events.*, categories.name as category_name, photo_albums.title as album_title, photo_albums.slug as album_slug, photo_albums.cover_image_url as album_cover')
+            ->join('categories', 'categories.id = events.category_id', 'left')
+            ->join('photo_albums', 'photo_albums.id = events.album_id', 'left');
 
         if ($filter === 'past') {
             $builder->where('events.event_date <', date('Y-m-d H:i:s'));
             $builder->orderBy('events.event_date', 'DESC');
-        } else {
-            // default upcoming
+        } else if ($filter === 'upcoming') {
             $builder->where('events.event_date >=', date('Y-m-d H:i:s'));
             $builder->orderBy('events.event_date', 'ASC');
+        } else {
+            // all
+            $builder->orderBy('events.event_date', 'DESC');
         }
 
         $events = $builder->get()->getResultArray();
+        $photoModel = new \App\Models\GalleryPhotoModel();
+
+        foreach ($events as &$event) {
+            if (!empty($event['album_id'])) {
+                $event['photos_count'] = $photoModel->where('album_id', $event['album_id'])->countAllResults();
+            } else {
+                $event['photos_count'] = 0;
+            }
+        }
 
         return $this->respond([
             'status' => 200,
@@ -577,6 +598,43 @@ class PublicController extends ResourceController
         return $this->respond([
             'status' => 200,
             'data'   => $item
+        ]);
+    }
+
+    public function getBenefits()
+    {
+        $benefitModel = new \App\Models\PartnerBenefitModel();
+        $categoryModel = new \App\Models\CategoryModel();
+
+        $category = $this->request->getGet('category');
+        $search   = $this->request->getGet('q');
+
+        // Select public-safe fields (exclude how_to_claim or private notes for non-members)
+        $builder = $benefitModel->select('id, title, provider_company, category, discount_description, logo_url, valid_until, created_at')
+            ->where('is_active', 1);
+
+        if ($category && $category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        if ($search) {
+            $builder->groupStart()
+                ->like('title', $search)
+                ->orLike('provider_company', $search)
+                ->orLike('discount_description', $search)
+                ->orLike('category', $search)
+                ->groupEnd();
+        }
+
+        $benefits = $builder->orderBy('created_at', 'DESC')->findAll();
+        $categories = $categoryModel->where('type', 'benefits')->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'benefits'   => $benefits,
+                'categories' => $categories,
+            ]
         ]);
     }
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
@@ -6,8 +7,9 @@ import {
   ExternalLink,
   Users,
   Building,
+  Images,
 } from 'lucide-react';
-import { publicApi } from '../../services/api';
+import { publicApi, resolveImageUrl } from '../../services/api';
 import type { EventItem } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
@@ -137,6 +139,17 @@ export const EventsPage: React.FC = () => {
                             {event.title}
                           </h3>
 
+                          {/* Event Cover Photo if available */}
+                          {event.image_url && (
+                            <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-slate-200 shadow-xs my-2 bg-slate-50">
+                              <img
+                                src={resolveImageUrl(event.image_url)}
+                                alt={event.title}
+                                className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                              />
+                            </div>
+                          )}
+
                           <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                             {event.description}
                           </p>
@@ -155,6 +168,31 @@ export const EventsPage: React.FC = () => {
                                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
                                 {event.location_address}
                               </span>
+                            )}
+                          </div>
+
+                          {/* Action Buttons: Link Evento & Ver Galería de Fotos */}
+                          <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-100 mt-2">
+                            {event.registration_url && (
+                              <a
+                                href={event.registration_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3.5 py-2 rounded-xl bg-[#004b87] hover:bg-[#071E38] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                <span>Link Evento</span>
+                              </a>
+                            )}
+
+                            {event.album_id && (
+                              <Link
+                                to={event.album_slug ? `/galeria/${event.album_slug}` : '/galeria'}
+                                className="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-bold text-xs transition-all flex items-center gap-1.5"
+                              >
+                                <Images className="w-3.5 h-3.5 text-indigo-600" />
+                                <span>Ver Galería de Fotos {event.photos_count ? `(${event.photos_count})` : ''}</span>
+                              </Link>
                             )}
                           </div>
                         </div>

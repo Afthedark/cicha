@@ -58,6 +58,7 @@ export const Navbar: React.FC = () => {
     { name: 'Galería', path: '/galeria' },
     { name: 'Eventos', path: '/eventos' },
     { name: 'Reuniones B2B', path: '/reuniones-b2b' },
+    { name: 'Beneficios', path: '/beneficios' },
     { name: 'Socios', path: '/socios' },
     { name: 'Contacto', path: '/contacto' },
   ];

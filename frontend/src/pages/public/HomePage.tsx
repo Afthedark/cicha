@@ -73,7 +73,7 @@ const CounterDisplay: React.FC<{
 };
 
 export const HomePage: React.FC = () => {
-  const { isGreek, t } = useLanguage();
+  const { t } = useLanguage();
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -133,7 +133,7 @@ export const HomePage: React.FC = () => {
           {/* TITLE ABOVE TOP BANNERS CON CONTRASTE BLANCO RESPLANDECIENTE Y ANIMACIÓN DE PARPADEO */}
           <div className="text-center py-2 sm:py-3">
             <h2 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white tracking-wider uppercase px-2 animate-glow-blink-white inline-block">
-              CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA
+              {t('home.top_title', 'CÁMARA DE INDUSTRIA Y COMERCIO HELENO ARGENTINA')}
             </h2>
           </div>
 
@@ -253,56 +253,50 @@ export const HomePage: React.FC = () => {
                     <Award className="w-5 h-5 text-amber-300" />
                   </div>
                   <span className="font-serif font-bold text-base sm:text-lg text-amber-200 tracking-wide">
-                    Reconocimientos Oficiales
+                    {t('home.recog_title', 'Reconocimientos Oficiales')}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-slate-100 font-medium">
                   <div className="flex items-center gap-2.5 bg-black/20 hover:bg-black/30 transition-colors px-3 py-2 rounded-xl border border-white/10">
                     <ArgentinaFlag className="w-5 h-3.5 shadow-sm shrink-0" />
                     <div>
-                      <span className="font-semibold text-white">Gobierno Argentino:</span>
-                      <span className="text-slate-200 block text-xs">1 de Noviembre 1989</span>
+                      <span className="font-semibold text-white">{t('home.recog_arg_label', 'Gobierno Argentino:')}</span>
+                      <span className="text-slate-200 block text-xs">{t('home.recog_arg_date', '1 de Noviembre 1989')}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 bg-black/20 hover:bg-black/30 transition-colors px-3 py-2 rounded-xl border border-white/10">
                     <GreeceFlag className="w-5 h-3.5 shadow-sm shrink-0" />
                     <div>
-                      <span className="font-semibold text-white">Gobierno Griego:</span>
-                      <span className="text-slate-200 block text-xs">18 de Septiembre 1998</span>
+                      <span className="font-semibold text-white">{t('home.recog_gr_label', 'Gobierno Griego:')}</span>
+                      <span className="text-slate-200 block text-xs">{t('home.recog_gr_date', '18 de Septiembre 1998')}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                {isGreek ? (
-                  t('home.hero_welcome', 'ΕΛΛΗΝΟΑΡΓΕΝΤΙΝΟ ΕΜΠΟΡΙΚΟ ΚΑΙ ΒΙΟΜΗΧΑΝΙΚΟ ΕΠΙΜΕΛΗΤΗΡΙΟ')
-                ) : (
-                  <>
-                    Impulsando el Comercio Bilateral e Inversiones entre{' '}
-                    <span className="text-[#072B54] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">
-                      Grecia y Argentina
-                    </span>
-                  </>
-                )}
+                {t('home.hero_title', 'Impulsando el Comercio Bilateral e Inversiones entre Grecia y Argentina')}
               </h1>
 
               <div className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-2xl font-light space-y-3 text-justify">
-                {isGreek ? (
-                  <p>{t('home.hero_tagline')}</p>
-                ) : (
-                  <>
-                    <p>
-                      La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, desde <strong>Mayo 2017</strong> es <strong>miembro activo de la EUROCAMARA Argentina</strong>, y compone nodo de la red <strong>EEN (Europe Enterprise Network)</strong> de la <strong>Unión Europea</strong>.
-                    </p>
-                    <p>
-                      Desde hace más de una década, es <strong>miembro activo de la UCCEB</strong> (<strong>Unión de Cámaras Comerciales Extranjeras Binacionales</strong>), compuesta actualmente de <strong>32 cámaras</strong>.
-                    </p>
-                    <p>
-                      La <strong>Cámara de Industria y Comercio Heleno Argentina</strong>, reconocida por el <strong>gobierno griego el 18 de septiembre de 1998</strong>, y por el <strong>gobierno argentino el 1 de noviembre de 1989</strong>, cada día está tomando mayor relevancia.
-                    </p>
-                  </>
-                )}
+                <p>
+                  {t(
+                    'home.hero_p1',
+                    'La Cámara de Industria y Comercio Heleno Argentina, desde Mayo 2017 es miembro activo de la EUROCAMARA Argentina, y compone nodo de la red EEN (Europe Enterprise Network) de la Unión Europea.'
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'home.hero_p2',
+                    'Desde hace más de una década, es miembro activo de la UCCEB (Unión de Cámaras Comerciales Extranjeras Binacionales), compuesta actualmente de 32 cámaras.'
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'home.hero_p3',
+                    'La Cámara de Industria y Comercio Heleno Argentina, reconocida por el gobierno griego el 18 de septiembre de 1998, y por el gobierno argentino el 1 de noviembre de 1989, cada día está tomando mayor relevancia.'
+                  )}
+                </p>
               </div>
 
               {/* Action Buttons */}
@@ -328,15 +322,15 @@ export const HomePage: React.FC = () => {
               <div className="pt-4 border-t border-blue-900/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-cicha-sky shrink-0" />
-                  <span>Miembro EUROCAMARA (2017)</span>
+                  <span>{t('home.check_eurocamara', 'Miembro EUROCAMARA (2017)')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>Nodo EEN Unión Europea</span>
+                  <span>{t('home.check_een', 'Nodo EEN Unión Europea')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Miembro UCCEB (32 Cámaras)</span>
+                  <span>{t('home.check_ucceb', 'Miembro UCCEB (32 Cámaras)')}</span>
                 </div>
               </div>
             </div>
@@ -346,26 +340,36 @@ export const HomePage: React.FC = () => {
               {/* Tarjeta 1: Trayectoria & Representación */}
               <div className="bg-gradient-to-b from-[#0E2E54] to-[#081C33] rounded-3xl p-6 sm:p-7 border border-blue-800/80 shadow-2xl space-y-5">
                 <div className="flex items-center justify-between border-b border-blue-800 pb-3">
-                  <h2 className="font-serif font-bold text-lg text-white">Trayectoria & Representación</h2>
-                  <Badge variant="gold">Oficial</Badge>
+                  <h2 className="font-serif font-bold text-lg text-white">
+                    {t('home.stats_card_title', 'Trayectoria & Representación')}
+                  </h2>
+                  <Badge variant="gold">{t('home.stats_card_badge', 'Oficial')}</Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3.5">
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-cicha-sky/40 transition-all flex flex-col justify-center">
                     <CounterDisplay target={38} prefix="+" className="text-3xl font-extrabold text-[#00AEEF] font-serif" />
-                    <p className="text-xs text-slate-300 mt-1 font-medium">Años de Trayectoria Bilateral (1989)</p>
+                    <p className="text-xs text-slate-300 mt-1 font-medium">
+                      {t('home.stats_years_label', 'Años de Trayectoria Bilateral (1989)')}
+                    </p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-blue-400/40 transition-all flex flex-col justify-center">
                     <CounterDisplay target={38} className="text-3xl font-extrabold text-blue-400 font-serif" />
-                    <p className="text-xs text-slate-300 mt-1 font-medium">Cámaras Binacionales en UCCEB</p>
+                    <p className="text-xs text-slate-300 mt-1 font-medium">
+                      {t('home.stats_chambers_label', 'Cámaras Binacionales en UCCEB')}
+                    </p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-white/40 transition-all flex flex-col justify-center">
                     <CounterDisplay target={60} suffix="+" className="text-3xl font-extrabold text-white font-serif" />
-                    <p className="text-xs text-slate-300 mt-1 font-medium">Países en Red Enterprise Europe Network</p>
+                    <p className="text-xs text-slate-300 mt-1 font-medium">
+                      {t('home.stats_countries_label', 'Países en Red Enterprise Europe Network')}
+                    </p>
                   </div>
                   <div className="p-4 rounded-2xl bg-blue-950/60 border border-blue-900/80 hover:border-[#F5A623]/40 transition-all flex flex-col justify-center">
                     <CounterDisplay target={100} suffix="%" className="text-3xl font-extrabold text-[#F5A623] font-serif" />
-                    <p className="text-xs text-slate-300 mt-1 font-medium">Articulación Público-Privada</p>
+                    <p className="text-xs text-slate-300 mt-1 font-medium">
+                      {t('home.stats_public_private_label', 'Articulación Público-Privada')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -376,52 +380,97 @@ export const HomePage: React.FC = () => {
                   events={data?.upcoming_events}
                   variant="dark"
                   compact={true}
-                  title="Agenda Bilateral"
-                  subtitle="Próximos foros y encuentros oficiales"
+                  title={t('home.agenda_card_title', 'Agenda Bilateral')}
+                  subtitle={t('home.agenda_card_subtitle', 'Próximos foros y encuentros oficiales')}
                 />
               </div>
             </div>
           </div>
 
-          {/* MISIÓN & OBJETO INSTITUCIONAL EXPANDIDO */}
+          {/* SECCIONES INSTITUCIONALES DINÁMICAS (Misión, Objeto y Nuevas Secciones de Inicio) */}
           <div className="pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Tarjeta de Misión */}
-            <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
-              <div className="w-2 rounded-full h-8 bg-[#00AEEF] absolute left-0 top-6" />
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-[#00AEEF]">
-                  <Target className="w-5 h-5 text-[#00AEEF]" />
-                  <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
-                    Nuestra Misión
-                  </h3>
+            {data?.institutional_sections && data.institutional_sections.length > 0 ? (
+              data.institutional_sections.map((sec, idx) => {
+                const isOdd = idx % 2 === 1;
+                const accentColor = isOdd ? '#F5A623' : '#00AEEF';
+                const IconComponent = isOdd ? ShieldCheck : Target;
+                return (
+                  <div
+                    key={sec.id}
+                    className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all flex flex-col justify-between"
+                  >
+                    <div
+                      className="w-2 rounded-full h-8 absolute left-0 top-6"
+                      style={{ backgroundColor: accentColor }}
+                    />
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2" style={{ color: accentColor }}>
+                          <IconComponent className="w-5 h-5" style={{ color: accentColor }} />
+                          <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                            {t(`home.${sec.section_key}_title`, sec.title)}
+                          </h3>
+                        </div>
+                        {sec.subtitle && (
+                          <p className="text-xs font-semibold tracking-wide" style={{ color: accentColor }}>
+                            {t(`home.${sec.section_key}_subtitle`, sec.subtitle)}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
+                        {t(`home.${sec.section_key}_text`, sec.content)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                {/* Fallback Tarjeta de Misión */}
+                <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
+                  <div className="w-2 rounded-full h-8 bg-[#00AEEF] absolute left-0 top-6" />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-[#00AEEF]">
+                      <Target className="w-5 h-5 text-[#00AEEF]" />
+                      <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                        {t('home.mission_title', 'Nuestra Misión')}
+                      </h3>
+                    </div>
+                    <p className="text-xs font-semibold text-[#00AEEF] tracking-wide">
+                      {t('home.mission_subtitle', 'Fuerza creadora para el desarrollo bilateral equitativo')}
+                    </p>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
+                    {t(
+                      'home.mission_text',
+                      'La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia - en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.'
+                    )}
+                  </p>
                 </div>
-                <p className="text-xs font-semibold text-[#00AEEF] tracking-wide">
-                  Fuerza creadora para el desarrollo bilateral equitativo
-                </p>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
-                La misión de la Cámara de Industria y Comercio Heleno Argentina, es ser una fuerza creadora -entre Argentina y Grecia - en un ambiente de negocios que contribuya al desarrollo de nuestra sociedad, enmarcando con justicia e igualdad de oportunidades. Promover el desarrollo de negocios sustentables, comercio bilateral, inversión productiva genuina, alentando emprendimientos privados y una economía de mercado, todo eso enmarcado con responsabilidad, ética y transparencia. Articular foros de conocimiento entre sus socios y facilitar el diálogo entre los sectores públicos y privados.
-              </p>
-            </div>
 
-            {/* Tarjeta de Objeto */}
-            <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
-              <div className="w-2 rounded-full h-8 bg-[#F5A623] absolute left-0 top-6" />
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-[#F5A623]">
-                  <ShieldCheck className="w-5 h-5 text-[#F5A623]" />
-                  <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
-                    Objeto de la Cámara
-                  </h3>
+                {/* Fallback Tarjeta de Objeto */}
+                <div className="bg-gradient-to-br from-[#0B2545]/90 to-[#07172A]/90 p-6 sm:p-7 rounded-3xl border border-cicha-sky/30 shadow-xl space-y-3 backdrop-blur-md relative overflow-hidden group hover:border-cicha-sky/60 transition-all">
+                  <div className="w-2 rounded-full h-8 bg-[#F5A623] absolute left-0 top-6" />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-[#F5A623]">
+                      <ShieldCheck className="w-5 h-5 text-[#F5A623]" />
+                      <h3 className="font-serif font-bold text-lg text-white uppercase tracking-wider">
+                        {t('home.object_title', 'Objeto de la Cámara')}
+                      </h3>
+                    </div>
+                    <p className="text-xs font-semibold text-[#F5A623] tracking-wide">
+                      {t('home.object_subtitle', 'Representación y articulación del empresariado heleno y bilateral')}
+                    </p>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
+                    {t(
+                      'home.object_text',
+                      'La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina. Fomenta el intercambio comercial, industrial, tecnológico y cultural entre ambas naciones.'
+                    )}
+                  </p>
                 </div>
-                <p className="text-xs font-semibold text-[#F5A623] tracking-wide">
-                  Representación y articulación del empresariado heleno y bilateral
-                </p>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-light text-justify">
-                La Cámara de Industria y Comercio Heleno Argentina, tiene como nucleamiento y representación del empresariado griego o de ascendencia griega, residente en la Argentina, así como en general, de ambos o de terceros países con intereses, operaciones o inversiones en Grecia y/o Argentina. Fomenta el intercambio comercial, industrial, tecnológico y cultural entre ambas naciones.
-              </p>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -433,13 +482,16 @@ export const HomePage: React.FC = () => {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 text-cicha-sky text-xs font-bold uppercase tracking-wider">
               <TrendingUp className="w-4 h-4" />
-              Comercio Exterior & Inversión Egea
+              {t('home.opp_tag', 'Comercio Exterior & Inversión Egea')}
             </div>
             <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
-              Oportunidades Comerciales Bilaterales
+              {t('home.opp_title', 'Oportunidades Comerciales Bilaterales')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-light">
-              Demandas y ofertas comerciales activas gestionadas a través de CICHA y el nodo Enterprise Europe Network.
+              {t(
+                'home.opp_subtitle',
+                'Demandas y ofertas comerciales activas gestionadas a través de CICHA y el nodo Enterprise Europe Network.'
+              )}
             </p>
           </div>
 
@@ -498,8 +550,12 @@ export const HomePage: React.FC = () => {
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
-                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Actualidad</span>
-                <h2 className="font-serif font-bold text-2xl text-cicha-navy">Noticias & Comunicados</h2>
+                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                  {t('home.news_tag', 'Actualidad')}
+                </span>
+                <h2 className="font-serif font-bold text-2xl text-cicha-navy">
+                  {t('home.news_title', 'Noticias & Comunicados')}
+                </h2>
               </div>
               <Link
                 to="/noticias"
@@ -560,8 +616,12 @@ export const HomePage: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
-                <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Agenda</span>
-                <h2 className="font-serif font-bold text-2xl text-cicha-navy">Próximos Eventos</h2>
+                <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                  {t('home.events_tag', 'Agenda')}
+                </span>
+                <h2 className="font-serif font-bold text-2xl text-cicha-navy">
+                  {t('home.events_title', 'Próximos Eventos')}
+                </h2>
               </div>
               <Link
                 to="/eventos"
@@ -610,22 +670,33 @@ export const HomePage: React.FC = () => {
                         </span>
                       </div>
 
-                      {event.registration_url && (
-                        <a
-                          href={event.registration_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 pt-1"
-                        >
-                          Inscribirse al evento <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <div className="flex flex-wrap items-center gap-3 pt-1">
+                        {event.registration_url && (
+                          <a
+                            href={event.registration_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700"
+                          >
+                            Link Evento <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+
+                        {event.album_id && (
+                          <Link
+                            to={event.album_slug ? `/galeria/${event.album_slug}` : '/galeria'}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 hover:text-indigo-900"
+                          >
+                            Ver Fotos <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">
-                  No hay eventos programados en este momento.
+                  {t('home.events_empty', 'No hay eventos programados en este momento.')}
                 </div>
               )}
             </div>
@@ -637,12 +708,15 @@ export const HomePage: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-blue-900 to-cicha-navy rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-2xl">
-            <Badge variant="gold">Comunidad Empresarial</Badge>
+            <Badge variant="gold">{t('home.community_badge', 'Comunidad Empresarial')}</Badge>
             <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
-              Súmese a la Red Empresarial Heleno Argentina
+              {t('home.community_title', 'Súmese a la Red Empresarial Heleno Argentina')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Integre una comunidad influyente con acceso a Eurocámara, rondas comerciales de la Unión Europea y vínculos institucionales directos con Grecia y el Cono Sur.
+              {t(
+                'home.community_subtitle',
+                'Integre una comunidad influyente con acceso a Eurocámara, rondas comerciales de la Unión Europea y vínculos institucionales directos con Grecia y el Cono Sur.'
+              )}
             </p>
           </div>
 
