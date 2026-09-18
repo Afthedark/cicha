@@ -12,7 +12,22 @@ class PartnerBenefitsController extends ResourceController
     public function index()
     {
         $model = new PartnerBenefitModel();
-        $items = $model->orderBy('created_at', 'DESC')->findAll();
+        $q = $this->request->getGet('q');
+        $category = $this->request->getGet('category');
+
+        $builder = $model->orderBy('created_at', 'DESC');
+        if (!empty($q)) {
+            $builder->groupStart()
+                ->like('title', $q)
+                ->orLike('provider_company', $q)
+                ->orLike('discount_description', $q)
+                ->groupEnd();
+        }
+        if (!empty($category) && $category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        $items = $builder->findAll();
         return $this->respond(['status' => 200, 'data' => $items]);
     }
 

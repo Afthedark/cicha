@@ -22,7 +22,7 @@ class PhotoAlbumModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function getWithPhotos($id = null)
+    public function getWithPhotos($id = null, $search = null, $category = null, $limit = null)
     {
         if ($id !== null) {
             $album = $this->find($id);
@@ -33,7 +33,25 @@ class PhotoAlbumModel extends Model
             return $album;
         }
 
-        $albums = $this->orderBy('order_num', 'ASC')->orderBy('event_date', 'DESC')->findAll();
+        $builder = $this->orderBy('order_num', 'ASC')->orderBy('event_date', 'DESC');
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('title', $search)
+                ->orLike('description', $search)
+                ->orLike('category', $search)
+                ->groupEnd();
+        }
+
+        if (!empty($category) && $category !== 'all') {
+            $builder->where('category', $category);
+        }
+
+        if ($limit !== null && $limit > 0) {
+            $builder->limit($limit);
+        }
+
+        $albums = $builder->findAll();
         $photoModel = new GalleryPhotoModel();
 
         foreach ($albums as &$album) {

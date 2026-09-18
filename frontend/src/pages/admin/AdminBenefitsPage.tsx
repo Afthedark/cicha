@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Gift,
   Plus,
@@ -11,14 +11,16 @@ import {
   AlertCircle,
   Building2,
   Calendar,
-  Percent,
+  PercentCircle,
   Eye,
   EyeOff,
-  PercentCircle,
+  ChevronDown,
   Sparkles,
+  ExternalLink,
+  Users,
 } from 'lucide-react';
 import { adminApi, resolveImageUrl } from '../../services/api';
-import type { PartnerBenefit, Category } from '../../types';
+import type { PartnerBenefit, Category, Member } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -26,6 +28,7 @@ import { Modal } from '../../components/common/Modal';
 export const AdminBenefitsPage: React.FC = () => {
   const [benefits, setBenefits] = useState<PartnerBenefit[]>([]);
   const [categories, setBenefitCategories] = useState<Category[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCats, setLoadingCats] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +47,7 @@ export const AdminBenefitsPage: React.FC = () => {
   const [benForm, setBenForm] = useState({
     title: '',
     provider_company: '',
-    category: 'Logística & Transporte',
+    category: '',
     discount_description: '',
     how_to_claim: '',
     logo_url: '',
@@ -52,60 +55,67 @@ export const AdminBenefitsPage: React.FC = () => {
     is_active: 1,
   });
 
+  // Category Dropdown Search in Benefit Modal
+  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
+  const [catSearchTerm, setCatSearchTerm] = useState('');
+
+  // Provider / Member Search in Benefit Modal
+  const [isMemberDropdownOpen, setIsMemberDropdownOpen] = useState(false);
+  const [memberSearchTerm, setMemberSearchTerm] = useState('');
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchBenefitCategories = () => {
+  // Cargar categorías reales desde base de datos
+  const fetchBenefitCategories = async () => {
     setLoadingCats(true);
-    adminApi
-      .getCategories('benefits')
-      .then((data) => {
-        if (data && data.length > 0) {
-          setBenefitCategories(data);
-        } else {
-          const defaults: Category[] = [
-            { id: 1, name: 'Logística & Transporte', slug: 'logistica-transporte', type: 'benefits' },
-            { id: 2, name: 'Networking Internacional', slug: 'networking-internacional', type: 'benefits' },
-            { id: 3, name: 'Servicios Profesionales', slug: 'servicios-profesionales', type: 'benefits' },
-            { id: 4, name: 'Comercio Exterior', slug: 'comercio-exterior', type: 'benefits' },
-            { id: 5, name: 'Asesoría Legal & Tributaria', slug: 'asesoria-legal-tributaria', type: 'benefits' },
-            { id: 6, name: 'Hotelería & Eventos', slug: 'hoteleria-eventos', type: 'benefits' },
-            { id: 7, name: 'Comercial', slug: 'comercial', type: 'benefits' },
-          ];
-          setBenefitCategories(defaults);
-        }
-      })
-      .catch(() => {
-        setBenefitCategories([
-          { id: 1, name: 'Logística & Transporte', slug: 'logistica-transporte', type: 'benefits' },
-          { id: 2, name: 'Networking Internacional', slug: 'networking-internacional', type: 'benefits' },
-          { id: 3, name: 'Servicios Profesionales', slug: 'servicios-profesionales', type: 'benefits' },
-          { id: 4, name: 'Comercio Exterior', slug: 'comercio-exterior', type: 'benefits' },
-          { id: 5, name: 'Asesoría Legal & Tributaria', slug: 'asesoria-legal-tributaria', type: 'benefits' },
-          { id: 6, name: 'Hotelería & Eventos', slug: 'hoteleria-eventos', type: 'benefits' },
-          { id: 7, name: 'Comercial', slug: 'comercial', type: 'benefits' },
-        ]);
-      })
-      .finally(() => setLoadingCats(false));
+    try {
+      const data = await adminApi.getCategories('benefits');
+      setBenefitCategories(data || []);
+    } catch (err) {
+      console.error('Error fetching benefit categories:', err);
+      setBenefitCategories([]);
+    } finally {
+      setLoadingCats(false);
+    }
   };
 
-  const fetchBenefits = () => {
+  // Cargar socios para selección rápida al crear beneficio
+  const fetchMembers = async () => {
+    try {
+      const data = await adminApi.getMembers();
+      setMembers(data || []);
+    } catch (err) {
+      console.error('Error fetching members:', err);
+    }
+  };
+
+  // Cargar beneficios
+  const fetchBenefits = async () => {
     setLoading(true);
-    adminApi
-      .getPartnerBenefits()
-      .then((data) => {
-        setBenefits(data || []);
-      })
-      .catch((err) => console.error('Error fetching partner benefits:', err))
-      .finally(() => setLoading(false));
+    try {
+      const data = await adminApi.getPartnerBenefits();
+      setBenefits(data || []);
+    } catch (err) {
+      console.error('Error fetching partner benefits:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchBenefits();
     fetchBenefitCategories();
+    fetchMembers();
   }, []);
 
   const handleOpenCreate = () => {
     setEditingBen(null);
+    setSelectedMember(null);
+    setMemberSearchTerm('');
+    setCatSearchTerm('');
+    setIsCatDropdownOpen(false);
+    setIsMemberDropdownOpen(false);
     setBenForm({
       title: '',
       provider_company: '',
@@ -121,14 +131,25 @@ export const AdminBenefitsPage: React.FC = () => {
 
   const handleOpenEdit = (ben: PartnerBenefit) => {
     setEditingBen(ben);
+    setMemberSearchTerm('');
+    setCatSearchTerm('');
+    setIsCatDropdownOpen(false);
+    setIsMemberDropdownOpen(false);
+    
+    // Intentar asociar con socio si coincide el nombre
+    const matchedMember = members.find(
+      (m) => m.company_name.trim().toLowerCase() === (ben.provider_company || '').trim().toLowerCase()
+    );
+    setSelectedMember(matchedMember || null);
+
     setBenForm({
       title: ben.title,
       provider_company: ben.provider_company,
-      category: ben.category || (categories.length > 0 ? categories[0].name : 'Logística & Transporte'),
+      category: ben.category || (categories.length > 0 ? categories[0].name : 'General'),
       discount_description: ben.discount_description,
       how_to_claim: ben.how_to_claim || '',
       logo_url: ben.logo_url || '',
-      valid_until: ben.valid_until || '',
+      valid_until: ben.valid_until ? ben.valid_until.slice(0, 10) : '',
       is_active: ben.is_active ? 1 : 0,
     });
     setIsBenModalOpen(true);
@@ -149,7 +170,7 @@ export const AdminBenefitsPage: React.FC = () => {
         await adminApi.createPartnerBenefit(benForm);
       }
       setIsBenModalOpen(false);
-      fetchBenefits();
+      await fetchBenefits();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error al guardar el beneficio.');
     } finally {
@@ -173,7 +194,7 @@ export const AdminBenefitsPage: React.FC = () => {
     if (!window.confirm(`¿Estás seguro de eliminar el beneficio "${title}"?`)) return;
     try {
       await adminApi.deletePartnerBenefit(id);
-      fetchBenefits();
+      await fetchBenefits();
     } catch (err) {
       alert('Error al eliminar beneficio.');
     }
@@ -186,17 +207,19 @@ export const AdminBenefitsPage: React.FC = () => {
     setCatActionLoading(true);
     setCatError(null);
     try {
-      const slug = catNameInput.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const name = catNameInput.trim();
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       if (editingCat) {
-        await adminApi.updateCategory(editingCat.id, { name: catNameInput, slug, type: 'benefits' });
+        await adminApi.updateCategory(editingCat.id, { name, slug, type: 'benefits' });
       } else {
-        await adminApi.createCategory({ name: catNameInput, slug, type: 'benefits' });
+        await adminApi.createCategory({ name, slug, type: 'benefits' });
       }
       setCatNameInput('');
       setEditingCat(null);
-      fetchBenefitCategories();
+      await fetchBenefitCategories();
+      await fetchBenefits();
     } catch (err: any) {
-      setCatError(err.response?.data?.messages?.name || 'Error al guardar la categoría.');
+      setCatError(err.response?.data?.messages?.name || err.response?.data?.message || 'Error al guardar la categoría.');
     } finally {
       setCatActionLoading(false);
     }
@@ -206,24 +229,46 @@ export const AdminBenefitsPage: React.FC = () => {
     if (!window.confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
     try {
       await adminApi.deleteCategory(cat.id);
-      fetchBenefitCategories();
-    } catch (err) {
-      alert('Error al eliminar categoría.');
+      await fetchBenefitCategories();
+      await fetchBenefits();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar categoría.');
     }
   };
 
-  const filteredBenefits = benefits.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch =
-      !searchTerm ||
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.provider_company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.discount_description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Filtrado de socios en el selector de empresa
+  const filteredMembers = useMemo(() => {
+    if (!memberSearchTerm.trim()) return members.slice(0, 15);
+    const q = memberSearchTerm.toLowerCase();
+    return members.filter(
+      (m) =>
+        m.company_name.toLowerCase().includes(q) ||
+        (m.representative_name && m.representative_name.toLowerCase().includes(q)) ||
+        (m.sector && m.sector.toLowerCase().includes(q))
+    );
+  }, [members, memberSearchTerm]);
+
+  // Filtrado de categorías en el dropdown del formulario
+  const filteredFormCategories = useMemo(() => {
+    if (!catSearchTerm.trim()) return categories;
+    return categories.filter((c) => c.name.toLowerCase().includes(catSearchTerm.toLowerCase()));
+  }, [categories, catSearchTerm]);
+
+  // Filtrado principal de beneficios en el listado
+  const filteredBenefits = useMemo(() => {
+    return benefits.filter((item) => {
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      const matchesSearch =
+        !searchTerm ||
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.provider_company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.discount_description.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [benefits, selectedCategory, searchTerm]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-cicha-navy via-[#004b87] to-cicha-navy p-6 sm:p-8 rounded-3xl text-white border border-blue-400/20 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -251,7 +296,8 @@ export const AdminBenefitsPage: React.FC = () => {
             }}
             className="px-4 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all flex items-center gap-2 cursor-pointer shadow-xs"
           >
-            <Tag className="w-4 h-4 text-amber-300" /> Categorías
+            <Tag className="w-4 h-4 text-amber-300" />
+            <span>Categorías ({categories.length})</span>
           </button>
           <button
             onClick={handleOpenCreate}
@@ -272,8 +318,17 @@ export const AdminBenefitsPage: React.FC = () => {
               placeholder="Buscar por beneficio, empresa o descuento..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           <div className="text-xs font-semibold text-slate-500">
@@ -291,21 +346,27 @@ export const AdminBenefitsPage: React.FC = () => {
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Todos
+            Todos ({benefits.length})
           </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedCategory(c.name)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                selectedCategory === c.name
-                  ? 'bg-cicha-navy text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
+          {categories.map((c) => {
+            const count = benefits.filter((b) => b.category === c.name).length;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(c.name)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  selectedCategory === c.name
+                    ? 'bg-cicha-navy text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <span>{c.name}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${selectedCategory === c.name ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -321,6 +382,12 @@ export const AdminBenefitsPage: React.FC = () => {
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             No hay registros que coincidan con la búsqueda o la categoría seleccionada.
           </p>
+          <button
+            onClick={handleOpenCreate}
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-xs hover:bg-blue-700 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Crear Primer Beneficio
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -335,18 +402,25 @@ export const AdminBenefitsPage: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-[#004b87] flex items-center justify-center font-bold shrink-0 overflow-hidden">
+                    <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-[#004b87] flex items-center justify-center font-bold shrink-0 overflow-hidden shadow-2xs p-1">
                       {ben.logo_url ? (
-                        <img src={resolveImageUrl(ben.logo_url)} alt={ben.provider_company} className="w-full h-full object-cover" />
+                        <img
+                          src={resolveImageUrl(ben.logo_url)}
+                          alt={ben.provider_company}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
                       ) : (
                         <Building2 className="w-5 h-5 text-cicha-navy" />
                       )}
                     </div>
-                    <div>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide truncate">
                         {ben.provider_company}
                       </p>
-                      <h3 className="font-serif font-bold text-base text-slate-900 leading-snug">
+                      <h3 className="font-serif font-bold text-base text-slate-900 leading-snug line-clamp-2">
                         {ben.title}
                       </h3>
                     </div>
@@ -362,7 +436,7 @@ export const AdminBenefitsPage: React.FC = () => {
                   <div className="flex items-center gap-1 font-bold text-amber-800 text-[11px]">
                     <PercentCircle className="w-3.5 h-3.5" /> Descuento / Ventaja:
                   </div>
-                  <p>{ben.discount_description}</p>
+                  <p className="line-clamp-3">{ben.discount_description}</p>
                 </div>
 
                 {/* Claim instruction for partners */}
@@ -418,16 +492,18 @@ export const AdminBenefitsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Benefit Modal */}
+      {/* Benefit Modal with Searchable Provider & Category */}
       <Modal
         isOpen={isBenModalOpen}
         onClose={() => setIsBenModalOpen(false)}
         title={editingBen ? 'Editar Beneficio' : 'Nuevo Beneficio / Convenio'}
+        maxWidth="2xl"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {/* Título */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Título del Beneficio *
+              Título del Beneficio / Convenio *
             </label>
             <input
               type="text"
@@ -440,38 +516,191 @@ export const AdminBenefitsPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Empresa Proveedora / Aliada *
-              </label>
-              <input
-                type="text"
-                required
-                value={benForm.provider_company}
-                onChange={(e) => setBenForm({ ...benForm, provider_company: e.target.value })}
-                placeholder="Ej: Naviera Helénica del Sur"
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-              />
+            {/* Empresa Proveedora con Buscador de Socios */}
+            <div className="space-y-1.5 relative">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700">
+                  Empresa Proveedora / Aliada *
+                </label>
+                <span className="text-[10px] text-blue-600 font-semibold flex items-center gap-1">
+                  <Users className="w-3 h-3" /> Buscar socio
+                </span>
+              </div>
+
+              {/* Botón selector con buscador desplegable */}
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={benForm.provider_company}
+                  onChange={(e) => {
+                    setBenForm({ ...benForm, provider_company: e.target.value });
+                    setMemberSearchTerm(e.target.value);
+                    setIsMemberDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsMemberDropdownOpen(true)}
+                  placeholder="Escriba o busque en socios registrados..."
+                  className="w-full px-3.5 py-2.5 pr-8 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none bg-white font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsMemberDropdownOpen(!isMemberDropdownOpen)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isMemberDropdownOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                </button>
+
+                {/* Dropdown de Socios */}
+                {isMemberDropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 p-2 space-y-2 max-h-60 flex flex-col">
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Filtrar por nombre o sector..."
+                        value={memberSearchTerm}
+                        onChange={(e) => setMemberSearchTerm(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        autoFocus
+                      />
+                    </div>
+
+                    <div className="overflow-y-auto flex-1 divide-y divide-slate-100">
+                      {filteredMembers.length > 0 ? (
+                        filteredMembers.map((m) => {
+                          const isSelected = benForm.provider_company === m.company_name;
+                          return (
+                            <button
+                              key={m.id}
+                              type="button"
+                              onClick={() => {
+                                setBenForm({
+                                  ...benForm,
+                                  provider_company: m.company_name,
+                                  logo_url: m.logo_url || benForm.logo_url,
+                                });
+                                setSelectedMember(m);
+                                setIsMemberDropdownOpen(false);
+                              }}
+                              className={`w-full text-left p-2 rounded-xl flex items-center justify-between gap-2 text-xs transition-colors hover:bg-blue-50/80 cursor-pointer ${
+                                isSelected ? 'bg-blue-50 font-bold text-blue-700' : 'text-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 shrink-0 p-0.5 flex items-center justify-center overflow-hidden">
+                                  {m.logo_url ? (
+                                    <img src={resolveImageUrl(m.logo_url)} alt={m.company_name} className="w-full h-full object-contain" />
+                                  ) : (
+                                    <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                                  )}
+                                </div>
+                                <div className="truncate">
+                                  <p className="truncate font-medium">{m.company_name}</p>
+                                  {m.sector && <p className="text-[10px] text-slate-400 truncate">{m.sector}</p>}
+                                </div>
+                              </div>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="p-3 text-center text-[11px] text-slate-400">
+                          No se encontraron socios con ese nombre. Puedes escribir una empresa externa manualmente arriba.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Categoría *
-              </label>
-              <select
-                value={benForm.category}
-                onChange={(e) => setBenForm({ ...benForm, category: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none bg-white"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+            {/* Categoría con Buscador Integrado */}
+            <div className="space-y-1.5 relative">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700">
+                  Categoría *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCatModalOpen(true);
+                  }}
+                  className="text-[11px] text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 hover:underline"
+                >
+                  <Tag className="w-3 h-3" /> + Gestionar
+                </button>
+              </div>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-left flex items-center justify-between transition-all bg-white text-xs font-medium"
+                >
+                  <span className="truncate">
+                    {benForm.category || 'Seleccione una categoría...'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isCatDropdownOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                </button>
+
+                {isCatDropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 p-2 space-y-2 max-h-60 flex flex-col">
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Buscar categoría..."
+                        value={catSearchTerm}
+                        onChange={(e) => setCatSearchTerm(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        autoFocus
+                      />
+                    </div>
+
+                    <div className="overflow-y-auto flex-1 divide-y divide-slate-100">
+                      {filteredFormCategories.length > 0 ? (
+                        filteredFormCategories.map((c) => {
+                          const isSelected = benForm.category === c.name;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setBenForm({ ...benForm, category: c.name });
+                                setIsCatDropdownOpen(false);
+                              }}
+                              className={`w-full text-left p-2 rounded-xl flex items-center justify-between text-xs transition-colors hover:bg-blue-50/80 cursor-pointer ${
+                                isSelected ? 'bg-blue-50 font-bold text-blue-700' : 'text-slate-700'
+                              }`}
+                            >
+                              <span>{c.name}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="p-3 text-center text-[11px] text-slate-400">
+                          No hay categorías coincidentes.{' '}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsCatDropdownOpen(false);
+                              setIsCatModalOpen(true);
+                            }}
+                            className="text-blue-600 underline font-bold"
+                          >
+                            Crear nueva
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
+          {/* Descripción del Descuento / Beneficio */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
               Descripción del Descuento / Beneficio *
@@ -482,10 +711,11 @@ export const AdminBenefitsPage: React.FC = () => {
               value={benForm.discount_description}
               onChange={(e) => setBenForm({ ...benForm, discount_description: e.target.value })}
               placeholder="Detalla el beneficio, porcentaje de descuento o condición especial aplicable a los socios..."
-              className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
             />
           </div>
 
+          {/* Instrucciones de Reclamo */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
               Instrucciones de Reclamo (Exclusivo para Socios)
@@ -495,24 +725,40 @@ export const AdminBenefitsPage: React.FC = () => {
               value={benForm.how_to_claim}
               onChange={(e) => setBenForm({ ...benForm, how_to_claim: e.target.value })}
               placeholder="Ej: Presentar código CICHA-VIP2026 o contactar a info@empresa.com"
-              className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Logo URL */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 URL del Logotipo / Imagen
               </label>
-              <input
-                type="text"
-                value={benForm.logo_url}
-                onChange={(e) => setBenForm({ ...benForm, logo_url: e.target.value })}
-                placeholder="https://... o ruta de imagen"
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={benForm.logo_url}
+                  onChange={(e) => setBenForm({ ...benForm, logo_url: e.target.value })}
+                  placeholder="https://... o ruta de imagen"
+                  className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+                />
+                {benForm.logo_url && (
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0">
+                    <img
+                      src={resolveImageUrl(benForm.logo_url)}
+                      alt="Preview"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Válido Hasta */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Válido Hasta (Opcional)
@@ -521,18 +767,19 @@ export const AdminBenefitsPage: React.FC = () => {
                 type="date"
                 value={benForm.valid_until}
                 onChange={(e) => setBenForm({ ...benForm, valid_until: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
               />
             </div>
           </div>
 
+          {/* Switch Activo */}
           <div className="flex items-center gap-2 pt-2">
             <input
               type="checkbox"
               id="is_active_ben"
               checked={benForm.is_active === 1}
               onChange={(e) => setBenForm({ ...benForm, is_active: e.target.checked ? 1 : 0 })}
-              className="w-4 h-4 text-blue-600 rounded border-slate-300"
+              className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer"
             />
             <label htmlFor="is_active_ben" className="text-xs font-bold text-slate-700 cursor-pointer">
               Beneficio activo y visible en la web pública y portal de socios
@@ -558,28 +805,30 @@ export const AdminBenefitsPage: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Category Manager Modal */}
+      {/* Category Manager Modal con CRUD 100% Real */}
       <Modal
         isOpen={isCatModalOpen}
         onClose={() => setIsCatModalOpen(false)}
         title="Administrar Categorías de Beneficios"
+        maxWidth="lg"
       >
-        <div className="space-y-4">
+        <div className="space-y-4 text-xs">
           <form onSubmit={handleSaveCategory} className="flex gap-2">
             <input
               type="text"
               required
-              placeholder="Nueva categoría (ej: Hotelería)..."
+              placeholder="Nombre de categoría (ej: Hotelería & Turismo)..."
               value={catNameInput}
               onChange={(e) => setCatNameInput(e.target.value)}
-              className="flex-1 px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+              autoFocus
             />
             <button
               type="submit"
               disabled={catActionLoading}
               className="px-4 py-2 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
             >
-              {editingCat ? 'Actualizar' : 'Agregar'}
+              {catActionLoading ? 'Guardando...' : editingCat ? 'Actualizar' : 'Agregar'}
             </button>
             {editingCat && (
               <button
@@ -596,40 +845,57 @@ export const AdminBenefitsPage: React.FC = () => {
           </form>
 
           {catError && (
-            <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs flex items-center gap-1.5">
+            <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs flex items-center gap-1.5 border border-rose-200">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{catError}</span>
             </div>
           )}
 
-          <div className="space-y-1.5 max-h-60 overflow-y-auto pt-2 border-t border-slate-100">
-            {categories.map((c) => (
-              <div
-                key={c.id}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium"
-              >
-                <span>{c.name}</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => {
-                      setEditingCat(c);
-                      setCatNameInput(c.name);
-                    }}
-                    className="p-1 text-slate-500 hover:text-blue-700"
-                    title="Editar categoría"
+          <div className="space-y-1.5 max-h-64 overflow-y-auto pt-2 border-t border-slate-100">
+            {categories.length > 0 ? (
+              categories.map((c) => {
+                const count = benefits.filter((b) => b.category === c.name).length;
+                return (
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium hover:bg-blue-50/40 transition-colors"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCategory(c)}
-                    className="p-1 text-slate-400 hover:text-rose-600"
-                    title="Eliminar categoría"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="font-semibold text-slate-800">{c.name}</span>
+                      <span className="text-[10px] text-slate-400">({count} beneficios)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCat(c);
+                          setCatNameInput(c.name);
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-colors"
+                        title="Editar categoría"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCategory(c)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
+                        title="Eliminar categoría"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-6 text-slate-400">
+                <Tag className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
+                <p className="text-xs">No hay categorías registradas.</p>
+                <p className="text-[11px] text-slate-400">Agrega tu primera categoría arriba.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </Modal>

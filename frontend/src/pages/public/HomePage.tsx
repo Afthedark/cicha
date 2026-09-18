@@ -389,8 +389,11 @@ export const HomePage: React.FC = () => {
 
           {/* SECCIONES INSTITUCIONALES DINÁMICAS (Misión, Objeto y Nuevas Secciones de Inicio) */}
           <div className="pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data?.institutional_sections && data.institutional_sections.length > 0 ? (
-              data.institutional_sections.map((sec, idx) => {
+            {data?.institutional_sections &&
+            data.institutional_sections.filter((s) => s.section_key !== 'home_oportunidades').length > 0 ? (
+              data.institutional_sections
+                .filter((s) => s.section_key !== 'home_oportunidades')
+                .map((sec, idx) => {
                 const isOdd = idx % 2 === 1;
                 const accentColor = isOdd ? '#F5A623' : '#00AEEF';
                 const IconComponent = isOdd ? ShieldCheck : Target;
@@ -476,33 +479,37 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. BILATERAL COMMERCIAL OPPORTUNITIES */}
-      <section className="bg-gradient-to-br from-cicha-navy-dark via-cicha-navy to-cicha-navy-deep text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border-2 border-cicha-sky/30 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cicha-sky/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-cicha-sky/20">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 text-cicha-sky text-xs font-bold uppercase tracking-wider">
-              <TrendingUp className="w-4 h-4" />
-              {t('home.opp_tag', 'Comercio Exterior & Inversión Egea')}
-            </div>
-            <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
-              {t('home.opp_title', 'Oportunidades Comerciales Bilaterales')}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-light">
-              {t(
-                'home.opp_subtitle',
-                'Demandas y ofertas comerciales activas gestionadas a través de CICHA y el nodo Enterprise Europe Network.'
-              )}
-            </p>
-          </div>
+      {(() => {
+        const oppSec = data?.institutional_sections?.find((s) => s.section_key === 'home_oportunidades');
+        return (
+          <section className="bg-gradient-to-br from-cicha-navy-dark via-cicha-navy to-cicha-navy-deep text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border-2 border-cicha-sky/30 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-cicha-sky/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-cicha-sky/20">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 text-cicha-sky text-xs font-bold uppercase tracking-wider">
+                  <TrendingUp className="w-4 h-4" />
+                  {t('home.opp_tag', oppSec?.subtitle || 'Comercio Exterior & Inversión Egea')}
+                </div>
+                <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white">
+                  {t('home.opp_title', oppSec?.title || 'Oportunidades Comerciales Bilaterales')}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-light">
+                  {t(
+                    'home.opp_subtitle',
+                    oppSec?.content ||
+                      'Demandas y ofertas comerciales activas gestionadas a través de CICHA y el nodo Enterprise Europe Network.'
+                  )}
+                </p>
+              </div>
 
-          <Link
-            to="/asociarse"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white text-xs font-bold shadow-lg shadow-cicha-sky/20 transition-all shrink-0"
-          >
-            Asociarse
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+              <Link
+                to="/asociarse"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cicha-sky to-cicha-aegean hover:from-cicha-sky-hover hover:to-cicha-blue text-white text-xs font-bold shadow-lg shadow-cicha-sky/20 transition-all shrink-0"
+              >
+                Asociarse
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {data?.opportunities?.map((opp) => (
@@ -541,7 +548,9 @@ export const HomePage: React.FC = () => {
             </div>
           ))}
         </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* 4. NEWS & UPCOMING EVENTS GRID */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -88,7 +88,7 @@ export const AdminLayout: React.FC = () => {
           roles: ['admin', 'secretario'],
         },
         {
-          name: 'Historia & Estatutos',
+          name: 'Contenido Administrable Web',
           path: '/admin/institucional',
           icon: FileText,
           roles: ['admin', 'secretario'],

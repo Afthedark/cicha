@@ -49,25 +49,25 @@ php spark migrate
 Tablas generadas en la base de datos:
 - `users`: Usuarios, roles (`admin`, `secretario`, `socio`) y vinculación a socios.
 - `settings`: Configuración institucional, contactos, teléfonos, sede, redes sociales y metadatos SEO.
-- `institutional_sections`: Secciones institucionales administrables independientemente por página (`page_target`: `inicio`, `presentacion`, `la-camara`).
+- `institutional_sections`: Secciones institucionales administrables independientemente por página (`page_target`: `home`, `presentacion`, `la_camara`), incluyendo el bloque de Oportunidades (`home_oportunidades`).
 - `authorities`: Comisión Directiva, Comisión Revisora y autoridades de la Cámara.
 - `alliances`: Redes estratégicas (EUROCAMARA, EEN Unión Europea, UCCEB, Embajada).
-- `categories`: Taxonomía para noticias, eventos, rubros de socios, oportunidades comerciales, actas (`minutes`) y beneficios (`benefits`).
+- `categories`: Taxonomía para noticias, eventos, rubros de socios, oportunidades comerciales, actas (`minutes`), beneficios (`benefits`) y galería (`gallery`).
 - `articles`: Noticias, prensa y comunicados institucionales.
 - `blogs`: Módulo editorial de artículos de análisis, opinión y notas técnicas.
-- `photo_albums`: Álbumes y grupos temáticos de la galería fotográfica.
+- `photo_albums`: Álbumes y grupos temáticos de la galería fotográfica categorizados.
 - `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
 - `banners`: Portadas y slides dinámicos del Home con selector de rutas.
-- `events`: Agenda de foros, webinars y encuentros bilaterales con soporte para **Foto de Portada**, **Link Evento** (redes sociales / enlaces externos) y **vinculación de Álbum Fotográfico** (`album_id`).
-- `b2b_meetings`: **Reuniones B2B & Resultados (campos públicos y confidenciales de socios con informes de acuerdos y dossiers PDF)**.
+- `events`: Agenda de foros, webinars y encuentros bilaterales con soporte para **Doble Foto de Portada (`image_url`, `image_url_2`)**, **Link Evento** (redes sociales / enlaces externos) y **búsqueda asíncrona de Álbum Fotográfico vinculado (`album_id`)**.
+- `b2b_meetings`: **Reuniones B2B & Resultados (campos públicos limpios y confidenciales de socios con informes de acuerdos y dossiers PDF)**.
 - `members`: Directorio de empresas socias (soporta múltiples categorías/sectores, campos `address`, `phone` y orden `order_num`).
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
 - `partner_resources`: Biblioteca de informes sectoriales y guías con control de descargas (PDF / URL).
 - `partner_minutes`: Actas institucionales y resoluciones colaborativas entre socios categorizadas (PDF / URL).
 - `partner_news`: **Boletín informativo y noticias exclusivas para la comunidad de socios**.
 - `decrees`: Decretos oficiales y resoluciones gubernamentales administrables (PDF / URL).
-- `greek_translations`: **Traducciones manuales de textos solemnes y acreditaciones a Griego (`text_el`) e Inglés (`text_en`) con texto original en Español editable (`original_es`) y segmentación por `page_target`**.
-- `partner_benefits`: Convenios corporativos y club de beneficios para socios y público categorizados.
+- `greek_translations`: **Traducciones manuales de textos solemnes y acreditaciones a Griego (`text_el`) e Inglés (`text_en`) con texto original en Español editable (`original_es`), claves `home.opp_*` y segmentación por `page_target`**.
+- `partner_benefits`: Convenios corporativos y club de beneficios para socios y público categorizados con buscador interactivo.
 - `membership_applications`: Bandeja de solicitudes de afiliación con gestión de estados.
 - `contact_messages`: Bandeja de mensajes de contacto y consultas.
 
@@ -97,8 +97,8 @@ La API cuenta con una arquitectura de seguridad por capas:
 ### Cuentas de Acceso Preconfiguradas:
 | Rol | Email | Contraseña | Permisos |
 | :--- | :--- | :--- | :--- |
-| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total: Staff (`admin`, `secretario`), Contenidos Institucionales (`page_target`), Beneficios Públicos/Socios, Eventos & Galerías vinculadas, Reuniones B2B, Decretos, Boletín Socios, Traducciones (ES/EL/EN), Categorías, Cuentas de Socios (`socio`), Ajustes, Portadas, Blogs, Galería, Noticias, Eventos, Socios y Portal de Socios. |
-| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos: Contenidos Institucionales, Beneficios, Eventos con galerías, Reuniones B2B, Decretos, Boletín Socios, Categorías de Actas/Beneficios, Traducciones, Blogs, Galería de Fotos, Noticias, Oportunidades, Socios, Recursos (PDFs/URLs), Bandejas y **Cuentas de Socios (`role=socio`)**. |
+| **`admin`** | `admin@cicha.com.ar` | `admin123` | Control total: Staff (`admin`, `secretario`), Contenido Administrable Web (`page_target`), Beneficios Públicos/Socios con CRUD de categorías, Eventos con 2 fotos & Galerías vinculadas con búsqueda backend, Reuniones B2B, Decretos, Boletín Socios, Traducciones (ES/EL/EN), Categorías (galería/beneficios/actas), Cuentas de Socios (`socio`), Ajustes, Portadas, Blogs, Galería, Noticias, Eventos, Socios y Portal de Socios. |
+| **`secretario`** | `secretaria@cicha.com.ar` | `sec123` | Gestión de contenidos: Contenido Administrable Web, Beneficios, Eventos con 2 fotos y galerías, Reuniones B2B, Decretos, Boletín Socios, Categorías de Actas/Beneficios/Galería, Traducciones, Blogs, Galería de Fotos, Noticias, Oportunidades, Socios, Recursos (PDFs/URLs), Bandejas y **Cuentas de Socios (`role=socio`)**. |
 | **`socio`** | `socio@cicha.com.ar` | `socio123` | Intranet de socios: **Informes B2B detallados & acuerdos**, **Boletín de noticias exclusivo**, Biblioteca de recursos, **Actas colaborativas categorizadas**, **Decretos oficiales**, oportunidades VIP, club de beneficios y directorio de socios. |
 
 ---
@@ -119,18 +119,18 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | :--- | :--- | :--- | :--- |
 | `GET` | `/public/home` | Datos de portada (hero, misión, estadísticas, destacados) | Público |
 | `GET` | `/public/banners` | Lista de portadas/banners activos para el carrusel | Público |
-| `GET` | `/public/institutional` | Secciones institucionales (`inicio`, `presentacion`, `la-camara`), comisión directiva y alianzas | Público |
+| `GET` | `/public/institutional` | Secciones institucionales (`home`, `presentacion`, `la_camara`), comisión directiva y alianzas | Público |
 | `GET` | `/public/benefits` | **Catálogo público de Beneficios y Convenios con buscador (`q`) y filtro por categoría** | Público |
-| `GET` | `/public/translations/el` | **Diccionario dinámico de traducciones en Griego moderno (Ελληνικά) con `page_target`** | Público |
-| `GET` | `/public/translations/en` | **Diccionario dinámico de traducciones en Inglés (English) con `page_target`** | Público |
+| `GET` | `/public/translations/el` | **Diccionario dinámico de traducciones en Griego moderno (Ελληνικά) con `page_target` y claves `home.opp_*`** | Público |
+| `GET` | `/public/translations/en` | **Diccionario dinámico de traducciones en Inglés (English) con `page_target` y claves `home.opp_*`** | Público |
 | `GET` | `/public/articles` | Noticias y comunicados con filtros por categoría y búsqueda | Público |
 | `GET` | `/public/articles/{slug}` | Detalle de noticia por slug con artículos relacionados | Público |
 | `GET` | `/public/blogs` | Catálogo de blogs con filtros por categoría y buscador | Público |
 | `GET` | `/public/blogs/{slug}` | Detalle de artículo de blog con posts recomendados | Público |
 | `GET` | `/public/gallery` | Álbumes fotográficos activos, mosaico de fotos y categorías | Público |
 | `GET` | `/public/gallery/{slug}` | Detalle de álbum con todas sus fotografías en alta resolución | Público |
-| `GET` | `/public/events` | Agenda de eventos con foto de portada, **Link Evento** y **metadatos de álbum fotográfico asociado (`album_id`, `album_slug`, `photos_count`)** | Público |
-| `GET` | `/public/b2b-meetings` | **Listado de reuniones B2B (versión pública básica: resumen, sectores y métricas)** | Público |
+| `GET` | `/public/events` | Agenda de eventos con hasta **2 Fotos de Portada (`image_url`, `image_url_2`)**, **Link Evento** y **metadatos de álbum fotográfico asociado (`album_id`, `album_slug`, `photos_count`)** | Público |
+| `GET` | `/public/b2b-meetings` | **Listado de reuniones B2B (versión pública optimizada: sin contadores fijos redundantes)** | Público |
 | `GET` | `/public/b2b-meetings/{slug}` | **Ficha pública de reunión B2B por slug** | Público |
 | `GET` | `/public/members` | Catálogo de empresas socias (incluye dirección y teléfono), filtrable por sector y búsqueda (`?search=...`), ordenado por `order_num` | Público |
 | `GET` | `/public/opportunities` | Oportunidades comerciales abiertas | Público |
@@ -159,7 +159,7 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | `GET` | `/partner/opportunities` | Oportunidades comerciales VIP con datos de contacto directo |
 | `GET` | `/partner/benefits` | Club de beneficios y convenios con descuentos exclusivos (categorías dinámicas) |
 | `GET` | `/partner/directory` | Directorio privado de socios con dirección, teléfono y correo prellenado |
-| `GET` | `/partner/categories` | Consulta de categorías de actas, beneficios y miembros |
+| `GET` | `/partner/categories` | Consulta de categorías de actas, beneficios, galería y miembros |
 
 ### 4. CMS Administrativo (`/api/admin`)
 *Requiere JWT con rol `admin` o `secretario`. Organizado en 5 grupos temáticos coincidentes con el Sidebar del CMS:*
@@ -173,21 +173,22 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | Método | Endpoint | Descripción | Rol Requerido |
 | :--- | :--- | :--- | :--- |
 | `CRUD` | `/admin/banners` | Gestión de portadas y banners del Home | `admin`, `secretario` |
-| `CRUD` | `/admin/institutional`| **Gestión de secciones institucionales con selector de página (`inicio`, `presentacion`, `la-camara`)** | `admin`, `secretario` |
-| `CRUD` | `/admin/partner-benefits` | **Gestión de Beneficios y Convenios (públicos y para socios con categorías)** | `admin`, `secretario` |
+| `CRUD` | `/admin/institutional`| **Contenido Administrable Web (`page_target`: `home`, `presentacion`, `la_camara`, incluyendo `home_oportunidades`)** | `admin`, `secretario` |
+| `CRUD` | `/admin/partner-benefits` | **Gestión de Beneficios y Convenios (públicos y socios con categorías y buscador)** | `admin`, `secretario` |
 | `GET`  | `/admin/translations` | **Catálogo completo de frases para traducción manual con filtros por página** | `admin`, `secretario` |
 | `PUT`  | `/admin/translations/{id}` | **Actualiza texto original en Español (`original_es`) o traducción en Griego (`text_el`) / Inglés (`text_en`)** | `admin`, `secretario` |
 | `POST` | `/admin/translations/batch`| **Actualización masiva por lote de traducciones y textos originales** | `admin`, `secretario` |
 | `CRUD` | `/admin/authorities` | Gestión de Comisión Directiva, Comisión Revisora y autoridades | `admin`, `secretario` |
 | `CRUD` | `/admin/articles` | Gestión completa de noticias y comunicados | `admin`, `secretario` |
 | `CRUD` | `/admin/blogs` | Gestión de artículos de blogs editoriales | `admin`, `secretario` |
-| `CRUD` | `/admin/gallery` | Gestión de álbumes fotográficos | `admin`, `secretario` |
+| `CRUD` | `/admin/gallery` | Gestión de álbumes fotográficos con modal de categorías en línea | `admin`, `secretario` |
+| `GET`  | `/admin/gallery/search` | **Búsqueda asíncrona de álbumes para vinculación en eventos (`?search=...`)** | `admin`, `secretario` |
 | `POST` | `/admin/gallery/{id}/photos`| Subida de fotos individuales a un álbum | `admin`, `secretario` |
 | `DELETE`| `/admin/gallery/photos/{id}`| Eliminación de una foto de álbum | `admin`, `secretario` |
-| `CRUD` | `/admin/events` | **Agenda de eventos con subida de 1 Foto de Portada, Link Evento (redes/externo) y Selector de Álbum de Fotos vinculado (`album_id`)** | `admin`, `secretario` |
+| `CRUD` | `/admin/events` | **Agenda de eventos con 2 Fotos de Portada (`image_url`, `image_url_2`), Link Evento y Selector con Búsqueda Backend de Álbum vinculado** | `admin`, `secretario` |
 | `CRUD` | `/admin/b2b-meetings` | **Gestión de Reuniones B2B (Datos Públicos e Informes Exclusivos Socios)** | `admin`, `secretario` |
 | `CRUD` | `/admin/members` | Catálogo de empresas socias (dirección, teléfono, sectores, `order_num`) | `admin`, `secretario` |
-| `CRUD` | `/admin/categories` | **Gestión de categorías (noticias, eventos, miembros, actas y beneficios)** | `admin`, `secretario` |
+| `CRUD` | `/admin/categories` | **Gestión unificada de categorías (noticias, eventos, miembros, actas, beneficios y galería)** | `admin`, `secretario` |
 | `CRUD` | `/admin/alliances` | Convenios y alianzas estratégicas | `admin`, `secretario` |
 
 #### C. Portal de Socios & Intranet

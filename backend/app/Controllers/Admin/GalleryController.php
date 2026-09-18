@@ -13,7 +13,11 @@ class GalleryController extends ResourceController
     public function index()
     {
         $albumModel = new PhotoAlbumModel();
-        $albums = $albumModel->getWithPhotos();
+        $search = $this->request->getGet('q') ?: $this->request->getGet('search');
+        $category = $this->request->getGet('category');
+        $limit = $this->request->getGet('limit');
+
+        $albums = $albumModel->getWithPhotos(null, $search, $category, $limit ? (int)$limit : null);
         return $this->respond(['status' => 200, 'data' => $albums]);
     }
 

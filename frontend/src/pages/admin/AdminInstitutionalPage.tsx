@@ -157,9 +157,9 @@ export const AdminInstitutionalPage: React.FC = () => {
       {/* Header Panel */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif font-bold text-xl text-cicha-navy">Contenidos Institucionales</h1>
+          <h1 className="font-serif font-bold text-xl text-cicha-navy">Contenido Administrable Web</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Gestión completa de Historia, Trayectoria, Redes Estratégicas y Presentación de CICHA.
+            Gestión de textos, misión, trayectoria institucional y bloques informativos de Inicio, Presentación y La Cámara.
           </p>
         </div>
         <button
@@ -207,7 +207,7 @@ export const AdminInstitutionalPage: React.FC = () => {
           <FileText className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="text-base font-bold text-slate-800">No hay secciones registradas en esta página</h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Puedes crear una nueva sección institucional haciendo clic en el botón "Nueva Sección" superior.
+            Puedes crear una nueva sección de contenido haciendo clic en el botón "Nueva Sección" superior.
           </p>
           <button
             onClick={handleOpenCreate}
@@ -336,7 +336,7 @@ export const AdminInstitutionalPage: React.FC = () => {
             setIsModalOpen(false);
             setEditingSec(null);
           }}
-          title={editingSec ? `Editar Sección: ${editingSec.title}` : 'Nueva Sección Institucional'}
+          title={editingSec ? `Editar Sección: ${editingSec.title}` : 'Nueva Sección de Contenido'}
           maxWidth="2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2,
@@ -17,6 +17,9 @@ import {
   Loader2,
   UserCheck,
   MapPin,
+  Filter,
+  X,
+  ChevronRight,
 } from 'lucide-react';
 import { publicApi, resolveImageUrl } from '../../services/api';
 import type { Member, Settings } from '../../types';
@@ -70,13 +73,19 @@ export const MembersDirectoryPage: React.FC = () => {
 
   // Cargar lista completa y settings al inicio
   useEffect(() => {
-    publicApi.getMembers().then((res) => {
-      setAllMembers(res || []);
-    }).catch(console.error);
+    publicApi
+      .getMembers()
+      .then((res) => {
+        setAllMembers(res || []);
+      })
+      .catch(console.error);
 
-    publicApi.getSettings().then((st) => {
-      setSettings(st || {});
-    }).catch(console.error);
+    publicApi
+      .getSettings()
+      .then((st) => {
+        setSettings(st || {});
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -98,34 +107,36 @@ export const MembersDirectoryPage: React.FC = () => {
       });
   };
 
-  // Extraer sectores únicos individuales de los socios registrados más los oficiales
-  const defaultSectors = [
-    'Marítimo & Logística',
-    'Agroindustria & Alimentos',
-    'Energía & Sustentabilidad',
-    'Servicios Jurídicos & Finanzas',
-  ];
-
-  const extractedSectorsFromMembers = allMembers
-    .flatMap((m) => (m.sector ? m.sector.split(',').map((s) => s.trim()) : []))
-    .filter(Boolean);
-
-  const dynamicSectorNames = Array.from(
-    new Set([...defaultSectors, ...extractedSectorsFromMembers])
-  );
-
-  const sectors = [
+  // Sectores principales destacados para acceso rápido
+  const primarySectors = [
     { label: 'Todos los Sectores', value: 'all' },
-    ...dynamicSectorNames.map((sec) => ({
-      label: sec,
-      value: sec,
-    })),
+    { label: 'Marítimo & Logística', value: 'Marítimo & Logística' },
+    { label: 'Agroindustria & Alimentos', value: 'Agroindustria & Alimentos' },
+    { label: 'Energía & Sustentabilidad', value: 'Energía & Sustentabilidad' },
+    { label: 'Servicios Jurídicos & Finanzas', value: 'Servicios Jurídicos & Finanzas' },
+    { label: 'Turismo & Comercio Exterior', value: 'Turismo & Comercio Exterior' },
   ];
+
+  // Extraer todos los sectores individuales ordenados para el selector completo
+  const allUniqueSectors = useMemo(() => {
+    const defaultSectors = [
+      'Marítimo & Logística',
+      'Agroindustria & Alimentos',
+      'Energía & Sustentabilidad',
+      'Servicios Jurídicos & Finanzas',
+      'Turismo & Comercio Exterior',
+    ];
+    const extracted = allMembers
+      .flatMap((m) => (m.sector ? m.sector.split(',').map((s) => s.trim()) : []))
+      .filter(Boolean);
+    const set = Array.from(new Set([...defaultSectors, ...extracted]));
+    return set.sort((a, b) => a.localeCompare(b));
+  }, [allMembers]);
 
   return (
-    <div className="space-y-16 pb-20">
-      {/* 1. Header Banner / Portada Directorio de Socios */}
-      <section className="relative overflow-hidden bg-[#004b87] text-white py-14 sm:py-18 lg:py-20 px-4 sm:px-6 lg:px-12 border-b-4 border-amber-400/80 shadow-2xl">
+    <div className="space-y-12 pb-24 bg-slate-50/50 min-h-screen">
+      {/* 1. Header Banner / Portada Directorio de Socios con espacio superior amplio */}
+      <section className="relative overflow-hidden bg-[#004b87] text-white pt-16 sm:pt-20 lg:pt-24 pb-14 sm:pb-18 lg:pb-20 px-4 sm:px-6 lg:px-12 border-b-4 border-amber-400 shadow-2xl">
         {/* Background Static Image 3.jpeg */}
         <div className="absolute inset-0 z-0">
           <img
@@ -134,48 +145,48 @@ export const MembersDirectoryPage: React.FC = () => {
             className="w-full h-full object-cover object-[center_35%]"
           />
           {/* Gradients: Left darkening for high-contrast text, clear right for Santorini view */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#003666]/95 via-[#004b87]/75 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#00284d]/60 via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#002b54]/95 via-[#004077]/85 to-[#004077]/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#001c38]/80 via-transparent to-black/30" />
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Tagline, Title, Subtitle */}
           <div className="lg:col-span-8 space-y-4 sm:space-y-5">
             {/* Top decorative line + Sub-slogan */}
-            <div className="space-y-1.5">
-              <div className="w-10 h-0.5 bg-amber-400 rounded-full" />
-              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400 uppercase leading-snug">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-1 bg-amber-400 rounded-full" />
+              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400 uppercase leading-none">
                 NUESTROS SOCIOS
               </p>
             </div>
 
             {/* Main Title */}
-            <h1 className="font-serif font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[52px] text-white tracking-tight leading-[1.08] drop-shadow-md">
+            <h1 className="font-serif font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[50px] text-white tracking-tight leading-[1.12] drop-shadow-lg">
               EMPRESAS QUE<br />
               CONSTRUYEN PUENTES
             </h1>
 
             {/* Description */}
-            <p className="text-slate-100 text-xs sm:text-sm md:text-base font-normal max-w-2xl leading-relaxed drop-shadow">
-              Una red de empresas comprometidas con el desarrollo del intercambio heleno-argentino.
+            <p className="text-slate-100 text-sm sm:text-base md:text-lg font-normal max-w-2xl leading-relaxed drop-shadow">
+              Una red de empresas y profesionales comprometidos con el desarrollo del intercambio comercial, cultural y productivo heleno-argentino.
             </p>
           </div>
 
           {/* Right Column: Cursive artistic slogan */}
           <div className="lg:col-span-4 flex justify-center lg:justify-end">
-            <div className="text-center lg:text-right space-y-0.5 relative pr-2">
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg opacity-95 [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
+            <div className="text-center lg:text-right space-y-1 relative bg-black/20 lg:bg-transparent backdrop-blur-xs lg:backdrop-blur-none p-4 rounded-2xl border border-white/10 lg:border-none">
+              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg [text-shadow:_0_2px_12px_rgba(0,0,0,0.6)]">
                 Más negocios
               </span>
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg opacity-95 [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
+              <span className="block text-2xl sm:text-3xl lg:text-4xl text-sky-200 font-serif italic tracking-wide drop-shadow-lg [text-shadow:_0_2px_12px_rgba(0,0,0,0.6)]">
                 Más cooperación
               </span>
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white font-serif italic tracking-wide drop-shadow-lg opacity-95 [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
+              <span className="block text-2xl sm:text-3xl lg:text-4xl text-amber-300 font-serif italic tracking-wide drop-shadow-lg [text-shadow:_0_2px_12px_rgba(0,0,0,0.6)]">
                 Un mismo horizonte
               </span>
               {/* Decorative dynamic curve */}
               <div className="mt-2 flex justify-center lg:justify-end">
-                <svg className="w-36 sm:w-44 h-3 text-sky-300/80" viewBox="0 0 160 12" fill="none">
+                <svg className="w-36 sm:w-44 h-3 text-sky-300/90" viewBox="0 0 160 12" fill="none">
                   <path d="M2 10C50 2 110 2 158 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               </div>
@@ -186,39 +197,107 @@ export const MembersDirectoryPage: React.FC = () => {
 
       {/* Directory Grid & Filters */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Filter bar */}
-        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            {sectors.map((sec) => (
-              <button
-                key={sec.value}
-                onClick={() => setSelectedSector(sec.value)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  selectedSector === sec.value
-                    ? 'bg-cicha-navy text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {sec.label}
-              </button>
-            ))}
+        {/* Modern Filter Card */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-4">
+          {/* Top Row: Search Input + Sector Dropdown + Clear Filters */}
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch md:items-center justify-between">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Buscar por empresa, servicio, representante o país..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-2xs"
+              />
+              <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-3 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+                  title="Limpiar búsqueda"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown Selector for all sectors */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-full md:w-64">
+                <select
+                  value={selectedSector}
+                  onChange={(e) => setSelectedSector(e.target.value)}
+                  className="w-full appearance-none pl-9 pr-8 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs"
+                >
+                  <option value="all">Todos los Sectores ({allUniqueSectors.length})</option>
+                  {allUniqueSectors.map((sec) => (
+                    <option key={sec} value={sec}>
+                      {sec}
+                    </option>
+                  ))}
+                </select>
+                <Filter className="w-4 h-4 text-blue-600 absolute left-3 top-3.5 pointer-events-none" />
+                <div className="absolute right-3 top-4 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-500 w-0 h-0" />
+              </div>
+
+              {/* Reset Button when filters active */}
+              {(selectedSector !== 'all' || search.trim() !== '') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSector('all');
+                    setSearch('');
+                  }}
+                  className="px-3.5 py-3 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
+                  title="Restablecer filtros"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="hidden sm:inline">Limpiar</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="relative w-full md:w-72">
-            <input
-              type="text"
-              placeholder="Buscar por empresa o servicio..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-            />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          {/* Bottom Row: Quick Sector Pills (Scrollable horizontally) */}
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-thin scrollbar-thumb-slate-200 w-full">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
+                Sectores:
+              </span>
+              {primarySectors.map((sec) => {
+                const isActive = selectedSector === sec.value;
+                return (
+                  <button
+                    key={sec.value}
+                    onClick={() => setSelectedSector(sec.value)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-cicha-navy text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700'
+                    }`}
+                  >
+                    {sec.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Results Count Badge */}
+            <div className="shrink-0 hidden md:block">
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
+                {members.length} {members.length === 1 ? 'socio' : 'socios'}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Directory Grid */}
         {loading ? (
-          <Loader text="Cargando directorio de socios..." />
+          <div className="py-16">
+            <Loader text="Cargando directorio de socios..." />
+          </div>
         ) : members.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {members.map((member) => {
@@ -227,117 +306,142 @@ export const MembersDirectoryPage: React.FC = () => {
                 <div
                   key={member.id}
                   onClick={() => setActiveMember(member)}
-                  className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+                  className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-400/80 transition-all duration-300 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
                 >
-                  <div className="flex flex-col sm:flex-row h-full">
-                    {/* Left Column: Independent Large Logo Showcase */}
-                    <div className="w-full sm:w-44 md:w-48 lg:w-52 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 p-4 sm:p-5 border-b sm:border-b-0 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0 min-h-[140px] sm:min-h-[190px] relative overflow-hidden group/logo">
-                      {resolvedLogo ? (
-                        <div className="w-full h-24 sm:h-32 flex items-center justify-center p-2">
+                  {/* Card Main Body */}
+                  <div className="p-5 sm:p-6 space-y-4">
+                    {/* Header: Logo + Title + Country & Featured */}
+                    <div className="flex items-start gap-4">
+                      {/* Logo Container */}
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border border-slate-200/90 p-2 shrink-0 flex items-center justify-center overflow-hidden shadow-2xs group-hover:border-blue-300 transition-colors">
+                        {resolvedLogo ? (
                           <img
                             src={resolvedLogo}
                             alt={member.company_name}
-                            className="max-h-full max-w-full object-contain filter drop-shadow-sm transform transition-all duration-300 ease-out group-hover:scale-120 group-hover:-translate-y-1 group-hover:drop-shadow-md"
+                            className="max-h-full max-w-full object-contain filter drop-shadow-xs transform transition-transform duration-300 group-hover:scale-110"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = 'none';
-                              (e.target as HTMLElement).parentElement?.classList.add('fallback-icon');
                             }}
                           />
+                        ) : (
+                          <div className="w-full h-full rounded-xl bg-blue-50/80 flex items-center justify-center text-blue-700">
+                            <Building2 className="w-8 h-8 group-hover:scale-110 transition-transform" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Title & Top Metadata */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5">
+                          {member.country && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">
+                              <Globe className="w-3 h-3 text-blue-600" />
+                              {member.country}
+                            </span>
+                          )}
+                          {member.is_featured && (
+                            <Badge variant="gold">Destacada</Badge>
+                          )}
                         </div>
-                      ) : (
-                        <div className="w-20 h-20 rounded-2xl bg-blue-50/90 flex items-center justify-center border border-blue-100 text-blue-700">
-                          <Building2 className="w-10 h-10 transform transition-transform duration-300 group-hover:scale-120" />
+
+                        <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug line-clamp-2">
+                          {member.company_name}
+                        </h3>
+
+                        {member.representative_name && (
+                          <div className="inline-flex items-center gap-1.5 text-xs text-blue-900 font-semibold bg-blue-50/90 border border-blue-100 px-2.5 py-0.5 rounded-md max-w-full">
+                            <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <span className="truncate">Rep.: {member.representative_name}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Sector Badges */}
+                    {member.sector && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {member.sector
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean)
+                          .map((sec) => (
+                            <span
+                              key={sec}
+                              className="text-[11px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/70"
+                            >
+                              {sec}
+                            </span>
+                          ))}
+                      </div>
+                    )}
+
+                    {/* Contact Pills */}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {(member.contact_phone || member.phone) && (
+                        <div className="flex items-center gap-1 text-slate-600 bg-slate-50 border border-slate-200/80 px-2 py-1 rounded-md">
+                          <Phone className="w-3 h-3 text-blue-600 shrink-0" />
+                          <span>{member.contact_phone || member.phone}</span>
                         </div>
                       )}
-                      
-                      {/* Sub-badge in logo section if featured */}
-                      {member.is_featured && (
-                        <div className="absolute top-2 left-2">
-                          <Badge variant="gold">Destacada</Badge>
+                      {member.address && (
+                        <div className="flex items-center gap-1 text-slate-600 bg-slate-50 border border-slate-200/80 px-2 py-1 rounded-md max-w-full">
+                          <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                          <span className="truncate">{member.address}</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Right Column: Member Details, Badges & Footer */}
-                    <div className="flex-1 flex flex-col justify-between p-5 sm:p-6 space-y-4">
-                      <div className="space-y-3">
-                        {/* Sector Badges */}
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="flex flex-wrap gap-1.5">
-                            {member.sector
-                              ? member.sector
-                                  .split(',')
-                                  .map((s) => s.trim())
-                                  .filter(Boolean)
-                                  .map((sec) => (
-                                    <span
-                                      key={sec}
-                                      className="text-[10.5px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 shadow-2xs"
-                                    >
-                                      {sec}
-                                    </span>
-                                  ))
-                              : null}
-                          </div>
-                          <span className="text-slate-400 text-xs flex items-center gap-1 font-medium shrink-0">
-                            <Globe className="w-3.5 h-3.5" />
-                            {member.country}
-                          </span>
-                        </div>
+                    {/* Truncated Description */}
+                    <div className="pt-1">
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3 [overflow-wrap:anywhere]">
+                        {member.description || 'Miembro oficial de la Cámara de Industria y Comercio Heleno-Argentina.'}
+                      </p>
+                      {member.description && member.description.length > 100 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMember(member);
+                          }}
+                          className="mt-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
+                        >
+                          Ver más detalles...
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Title / Company Name */}
-                        <h3 className="font-serif font-bold text-lg sm:text-xl text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug break-words">
-                          {member.company_name}
-                        </h3>
+                  {/* Card Footer Actions */}
+                  <div className="px-5 sm:px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
+                    {member.website_url ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const cleanUrl = member.website_url?.startsWith('http')
+                            ? member.website_url
+                            : `https://${member.website_url}`;
+                          setWebViewer({
+                            isOpen: true,
+                            url: cleanUrl,
+                            companyName: member.company_name,
+                            logoUrl: member.logo_url,
+                            loading: true,
+                            isBlocked: false,
+                          });
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 transition-colors cursor-pointer"
+                      >
+                        <Globe className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Sitio Web</span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-slate-400">Socio Oficial CICHA</span>
+                    )}
 
-                        {/* Representative, Phone & Address Info */}
-                        <div className="flex flex-wrap gap-2 pt-0.5">
-                          {member.representative_name && (
-                            <div className="flex items-center gap-1.5 text-xs text-blue-900 font-semibold bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded-lg w-fit shadow-2xs">
-                              <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                              <span className="truncate">Rep.: {member.representative_name}</span>
-                            </div>
-                          )}
-                          {(member.contact_phone || member.phone) && (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg w-fit shadow-2xs">
-                              <Phone className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                              <span>{member.contact_phone || member.phone}</span>
-                            </div>
-                          )}
-                          {member.address && (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg w-fit shadow-2xs">
-                              <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                              <span className="truncate max-w-[260px]">{member.address}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Truncated Description with 'Ver más...' modal trigger */}
-                        <div className="pt-1">
-                          <p className="text-xs text-slate-600 leading-relaxed break-words line-clamp-3 [overflow-wrap:anywhere]">
-                            {member.description || 'Miembro oficial de la Cámara Heleno Argentina.'}
-                          </p>
-                          {member.description && member.description.length > 120 && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveMember(member);
-                              }}
-                              className="mt-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
-                            >
-                              Ver más...
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Card Footer Button */}
-                      <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
-                        <span className="text-xs font-bold text-blue-700 group-hover:text-blue-900 flex items-center gap-1.5 transition-colors">
-                          Ver Perfil Completo <ExternalLink className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
+                    <div className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 group-hover:text-blue-900 transition-colors">
+                      <span>Ver Perfil y Contacto</span>
+                      <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </div>
@@ -345,10 +449,25 @@ export const MembersDirectoryPage: React.FC = () => {
             })}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-2">
-            <Users className="w-10 h-10 text-slate-400 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">No se encontraron socios.</p>
-            <p className="text-xs text-slate-500">Pruebe ajustando el filtro de búsqueda.</p>
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
+            <Users className="w-12 h-12 text-slate-300 mx-auto" />
+            <p className="text-base font-bold text-slate-700">No se encontraron socios</p>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              No hay empresas que coincidan con los criterios de búsqueda o sector seleccionado.
+            </p>
+            {(selectedSector !== 'all' || search) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSector('all');
+                  setSearch('');
+                }}
+                className="mt-2 px-4 py-2 rounded-xl bg-cicha-navy text-white text-xs font-bold hover:bg-blue-800 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Restablecer Búsqueda
+              </button>
+            )}
           </div>
         )}
       </section>

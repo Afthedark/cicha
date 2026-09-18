@@ -44,16 +44,30 @@ class CategoriesController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $slug = url_title($input['name'], '-', true);
         $type = $input['type'] ?? 'members';
+        $baseSlug = url_title($input['name'], '-', true);
+        if (empty($baseSlug)) {
+            $baseSlug = 'cat-' . time();
+        }
+
+        $model = new CategoryModel();
+        $slug = $baseSlug;
+        $counter = 1;
+        while ($model->where('slug', $slug)->first()) {
+            $slug = $baseSlug . '-' . $type . ($counter > 1 ? "-{$counter}" : '');
+            $counter++;
+            if ($counter > 15) {
+                $slug = $baseSlug . '-' . substr(md5(uniqid()), 0, 6);
+                break;
+            }
+        }
 
         $data = [
-            'name' => $input['name'],
+            'name' => trim($input['name']),
             'slug' => $slug,
             'type' => $type,
         ];
 
-        $model = new CategoryModel();
         $id = $model->insert($data);
 
         return $this->respondCreated(['status' => 201, 'message' => 'Categoría / Rubro creado con éxito', 'id' => $id]);
@@ -68,14 +82,44 @@ class CategoriesController extends ResourceController
         $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [];
-        if (isset($input['name'])) {
-            $data['name'] = $input['name'];
-            $data['slug'] = url_title($input['name'], '-', true);
+        if (isset($input['name']) && !empty(trim($input['name']))) {
+            $newName = trim($input['name']);
+            $targetType = $input['type'] ?? $existing['type'];
+            $baseSlug = url_title($newName, '-', true);
+            if (empty($baseSlug)) {
+                $baseSlug = 'cat-' . time();
+            }
+
+            $slug = $baseSlug;
+            $counter = 1;
+            while ($model->where('slug', $slug)->where('id !=', $id)->first()) {
+                $slug = $baseSlug . '-' . $targetType . ($counter > 1 ? "-{$counter}" : '');
+                $counter++;
+                if ($counter > 15) {
+                    $slug = $baseSlug . '-' . substr(md5(uniqid()), 0, 6);
+                    break;
+                }
+            }
+
+            $data['name'] = $newName;
+            $data['slug'] = $slug;
 
             // Si es de tipo members, actualizar también en cascada el sector en los socios asociados
             if ($existing['type'] === 'members') {
                 $memberModel = new MemberModel();
-                $memberModel->where('sector', $existing['name'])->set(['sector' => $input['name']])->update();
+                $memberModel->where('sector', $existing['name'])->set(['sector' => $newName])->update();
+            }
+
+            // Si es de tipo gallery, actualizar también en cascada en los álbumes de fotos asociados
+            if ($existing['type'] === 'gallery') {
+                $albumModel = new \App\Models\PhotoAlbumModel();
+                $albumModel->where('category', $existing['name'])->set(['category' => $newName])->update();
+            }
+
+            // Si es de tipo benefits, actualizar también en cascada en los beneficios asociados
+            if ($existing['type'] === 'benefits') {
+                $benefitModel = new \App\Models\PartnerBenefitModel();
+                $benefitModel->where('category', $existing['name'])->set(['category' => $newName])->update();
             }
         }
         if (isset($input['type'])) $data['type'] = $input['type'];

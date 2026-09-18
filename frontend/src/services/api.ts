@@ -380,7 +380,12 @@ export const adminApi = {
   deleteBlog: (id: number) => apiClient.delete(`/admin/blogs/${id}`).then((res) => res.data),
 
   // Gallery / Photo Albums (Admin & Secretario)
-  getAlbums: () => apiClient.get<{ status: number; data: PhotoAlbum[] }>('/admin/gallery').then((res) => res.data.data),
+  getAlbums: (search?: string, category?: string) =>
+    apiClient
+      .get<{ status: number; data: PhotoAlbum[] }>('/admin/gallery', {
+        params: { q: search || undefined, category: category !== 'all' ? category : undefined },
+      })
+      .then((res) => res.data.data),
   getAlbum: (id: number) => apiClient.get<{ status: number; data: PhotoAlbum }>(`/admin/gallery/${id}`).then((res) => res.data.data),
   createAlbum: (data: Partial<PhotoAlbum> & { photos?: Array<{ image_url: string; caption?: string } | string> }) =>
     apiClient.post('/admin/gallery', data).then((res) => res.data),
@@ -446,8 +451,8 @@ export const adminApi = {
     apiClient.delete(`/admin/partner-resources/${id}`).then((res) => res.data),
 
   // Partner Benefits (Admin & Secretario)
-  getPartnerBenefits: () =>
-    apiClient.get<{ status: number; data: PartnerBenefit[] }>('/admin/partner-benefits').then((res) => res.data.data),
+  getPartnerBenefits: (params?: { q?: string; category?: string }) =>
+    apiClient.get<{ status: number; data: PartnerBenefit[] }>('/admin/partner-benefits', { params }).then((res) => res.data.data),
   createPartnerBenefit: (data: Partial<PartnerBenefit>) =>
     apiClient.post('/admin/partner-benefits', data).then((res) => res.data),
   updatePartnerBenefit: (id: number, data: Partial<PartnerBenefit>) =>

@@ -52,6 +52,7 @@ class EventsController extends ResourceController
             'location_address' => $input['location_address'] ?? '',
             'registration_url' => $input['registration_url'] ?? '',
             'image_url'        => $input['image_url'] ?? '',
+            'gallery_images'   => isset($input['gallery_images']) ? (is_array($input['gallery_images']) ? json_encode(array_values(array_filter($input['gallery_images']))) : $input['gallery_images']) : null,
             'organizer'        => $input['organizer'] ?? 'CICHA',
             'is_featured'      => !empty($input['is_featured']) ? 1 : 0,
             'status'           => $input['status'] ?? 'upcoming',
@@ -84,6 +85,9 @@ class EventsController extends ResourceController
         if (isset($input['location_address'])) $data['location_address'] = $input['location_address'];
         if (isset($input['registration_url'])) $data['registration_url'] = $input['registration_url'];
         if (isset($input['image_url'])) $data['image_url'] = $input['image_url'];
+        if (isset($input['gallery_images'])) {
+            $data['gallery_images'] = is_array($input['gallery_images']) ? json_encode(array_values(array_filter($input['gallery_images']))) : $input['gallery_images'];
+        }
         if (isset($input['organizer'])) $data['organizer'] = $input['organizer'];
         if (isset($input['is_featured'])) $data['is_featured'] = !empty($input['is_featured']) ? 1 : 0;
         if (isset($input['status'])) $data['status'] = $input['status'];

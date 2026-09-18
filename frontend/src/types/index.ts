@@ -184,6 +184,7 @@ export interface EventItem {
   location_address?: string;
   registration_url?: string;
   image_url?: string;
+  gallery_images?: string[] | string;
   organizer: string;
   is_featured: number | boolean;
   status: 'upcoming' | 'completed' | 'cancelled';

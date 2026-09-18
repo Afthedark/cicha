@@ -192,6 +192,14 @@ export function App() {
             }
           />
           <Route
+            path="/galeria/:slug"
+            element={
+              <PublicLayout>
+                <GalleryPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/eventos"
             element={
               <PublicLayout>

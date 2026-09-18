@@ -219,6 +219,13 @@ class PublicController extends ResourceController
             } else {
                 $event['photos_count'] = 0;
             }
+
+            if (!empty($event['gallery_images']) && is_string($event['gallery_images'])) {
+                $decoded = json_decode($event['gallery_images'], true);
+                $event['gallery_images'] = is_array($decoded) ? $decoded : [];
+            } else if (empty($event['gallery_images'])) {
+                $event['gallery_images'] = [];
+            }
         }
 
         return $this->respond([

@@ -24,77 +24,78 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-### 1. 🏛️ Gestión Independiente de Contenidos Institucionales (`AdminInstitutionalPage.tsx`, `HomePage.tsx`, `PresentationPage.tsx` y `InstitutionalPage.tsx`)
-- **Segmentación por Página (`page_target`)**: Cada sección institucional se administra de manera independiente:
-  - 🏠 **Inicio (`/`)**: Tarjetas de Misión, Objeto Estatutario, Reseña Histórica, Trayectoria y Reconocimientos Oficiales.
+### 1. 🏛️ "Contenido Administrable Web" y Traducciones Independientes (`AdminInstitutionalSectionsPage.tsx`, `HomePage.tsx`, `PresentationPage.tsx` y `InstitutionalPage.tsx`)
+- **Renombrado Oficial del Módulo**: Módulo accesible desde `/admin/institucional` unificado bajo el nombre **"Contenido Administrable Web"**.
+- **Segmentación por Página (`page_target`)**:
+  - 🏠 **Inicio (`/`)**: Tarjetas de Misión, Objeto Estatutario, Reseña Histórica, Trayectoria, Reconocimientos y bloque **Oportunidades Comerciales Bilaterales** (`home_oportunidades`).
   - 📜 **Presentación (`/presentacion`)**: Documento fundacional ampliado, hitos históricos (Fundación Onassis 1940, Reconocimiento 1989/1998) y marco bilateral.
   - 🏛️ **La Cámara (`/la-camara`)**: Nómina de autoridades, comisiones directivas, estatutos y alianzas estratégicas.
   - 🌐 **Todas las Secciones**: Vista general para administradores con filtros por pestaña.
-- **Control Total en CMS**: Crear nuevas tarjetas, editar contenido, cambiar icono decorativo (`Award`, `Globe`, `Building`, etc.), alternar orden numérico y eliminar o pausar secciones con efecto inmediato en la web pública.
+- **Oportunidades Comerciales Bilaterales (`home_oportunidades`)**:
+  - Encabezado 100% dinámico: Tag superior (*"Comercio Exterior & Inversión Egea"*), Título principal (*"Oportunidades Comerciales Bilaterales"*) y Descripción administrables desde el CMS y traducibles a Griego e Inglés.
+  - Botón fijo *"Asociarse"* con enlace permanente a `/asociarse`.
 
-### 2. 🎁 Módulo Público y CMS de "Beneficios" (`BenefitsPage.tsx` y `AdminBenefitsPage.tsx`)
+### 2. 🎁 Módulo de "Beneficios & Convenios" con CRUD de Categorías y Buscador (`BenefitsPage.tsx` y `AdminBenefitsPage.tsx`)
 - **Web Pública (`/beneficios`)**:
   - Hero visual con estética greco-argentina y buscador por palabra clave en tiempo real.
   - Pestañas de filtrado horizontal por categorías comerciales (*Logística, Comercio Exterior, Servicios Profesionales, Hotelería & Viajes, Tecnología*).
   - Tarjetas de beneficio con imagen/logo de empresa, porcentaje o tipo de descuento destacado, vigencia, requisitos y botones de canje o contacto directo.
 - **CMS Admin (`/admin/beneficios`)**:
-  - Módulo completo para dar de alta convenios comerciales, cargar imagen de portada o logotipo del aliado, asignar categorías dinámicas, definir términos y condiciones y controlar visibilidad pública o exclusiva para socios.
+  - Módulo completo para dar de alta convenios comerciales, cargar imagen de portada o logotipo del aliado, asignar categorías dinámicas y controlar visibilidad pública o exclusiva para socios.
+  - **CRUD Directo de Categorías de Beneficios**: Modal emergente para dar de alta, modificar y eliminar categorías (`type = 'benefits'`).
+  - **Buscador en el Selector de Categorías**: Permite escribir y encontrar rápidamente la categoría deseada al crear o editar el beneficio.
 
-### 3. 📅 Gestión Avanzada de Eventos & Galería Vinculada (`AdminEventsPage.tsx`, `EventsPage.tsx` y `HomePage.tsx`)
-- **Subida de Foto de Portada**: Integración de `ImageUploader` para cargar 1 imagen representativa de alta calidad por evento.
-- **Link Evento (Redes Sociales / Enlace Externo)**: Campo `registration_url` renombrado a **"Link Evento"**, permitiendo enlazar publicaciones de Instagram, LinkedIn, Facebook, plataformas de streaming o páginas de inscripción directa.
-- **Selector de Álbum Fotográfico Vinculado (`album_id`)**:
-  - En el CMS, selector desplegable de los álbumes fotográficos existentes creados en `/admin/galeria`.
-  - En la Web Pública (**Agenda de Eventos** e **Inicio**), si el evento posee un álbum vinculado, exhibe badge con contador de fotos y botón directo **"Ver Galería de Fotos"** con navegación directa a `/galeria/:slug`.
+### 3. 📅 Gestión Avanzada de Eventos con Doble Foto & Buscador de Álbumes (`AdminEventsPage.tsx`, `EventsPage.tsx` y `HomePage.tsx`)
+- **Soporte de Hasta 2 Fotos Principales**: Componentes dedicados `ImageUploader` para subir y previsualizar Foto Principal 1 (`image_url`) y Foto Principal 2 (`image_url_2`).
+- **Link Evento (Redes Sociales / Enlace Externo)**: Enlace optimizado para Instagram, LinkedIn, Facebook o registro directo.
+- **Buscador Asíncrono de Álbum Fotográfico Vinculado (`album_id`)**:
+  - Selector con búsqueda en tiempo real conectado al endpoint de búsqueda de álbumes del backend.
+  - En la Web Pública (**Agenda de Eventos** e **Inicio**), badge interactivo **"Ver Galería de Fotos ({photos_count})"** con redirección fluida a `/galeria/:slug`.
 
-### 4. 🌐 Traducciones Manuales con Edición de Español Original (`LanguageContext.tsx` y `AdminTranslationsPage.tsx`)
+### 4. 🖼️ Galería Fotográfica con Gestión de Categorías en Línea (`AdminGalleryPage.tsx` y `GalleryPage.tsx`)
+- **Administración de Categorías Integrada**: Modal dentro del CMS de Galería para gestionar categorías temáticas (`type = 'gallery'`) en tiempo real sin abandonar la vista de álbumes.
+- **Visualización Pública**: Mosaico con filtros por categoría, lightbox de alta resolución y conteo dinámico de imágenes por álbum.
+
+### 5. 🌐 Traducciones Manuales con Edición de Español Original (`LanguageContext.tsx` y `AdminTranslationsPage.tsx`)
 - **Panel de Traducción Tripartito**:
   - 🇦🇷 **Texto Original en Español (`original_es`)**: Totalmente editable por el administrador para corregir o actualizar la redacción base en castellano.
   - 🇬🇷 **Griego Moderno (`text_el`)**: Editor sincronizado en tiempo real.
   - 🇬🇧 **Inglés Internacional (`text_en`)**: Editor sincronizado en tiempo real.
-- **Filtros por Página**: Pestañas de navegación rápida para filtrar frases solemnes por `Inicio`, `Presentación`, `La Cámara`, `Acreditaciones Header` y `General`.
-- **Guardado Individual y Masivo**: Botón de guardado rápido por tarjeta y botón flotante de **"Guardar Todas las Traducciones"** por lote.
+- **Filtros por Página**: Pestañas para `Inicio` (incluyendo `home.opp_*`), `Presentación`, `La Cámara`, `Acreditaciones Header` y `General`.
+- **Guardado Individual y Masivo**: Guardado rápido individual y botón flotante de **"Guardar Todas las Traducciones"** por lote.
 
-### 5. 🤝 Módulo de "Reuniones B2B & Resultados" (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
-- **Web Pública (`/reuniones-b2b`)**:
-  - Hero institucional con contadores de impacto comercial (Reuniones 1-a-1, Empresas participantes, Acuerdos alcanzados).
-  - Filtros por sector (*Alimentos & Bebidas, Logística Portuaria, Tecnología & Energía, Multisectorial*) y buscador en vivo.
-  - Tarjetas con imagen de portada, badges de estado, fecha, modalidad, resumen ejecutivo y métricas.
-  - Modal de **Ficha Pública** con resumen del encuentro.
+### 6. 🤝 Módulo de "Reuniones B2B & Resultados" (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
+- **Web Pública Optimizada (`/reuniones-b2b`)**:
+  - Cabecera limpia y ejecutiva (sin contadores fijos redundantes).
+  - Filtros por sector y buscador en vivo.
+  - Tarjetas con imagen, badges de modalidad (Presencial, Híbrido, Virtual), resumen ejecutivo y modal de **Ficha Pública**.
 - **Portal de Socios (`/portal-socios/reuniones-b2b`)**:
-  - Estética VIP con badge de acceso exclusivo.
-  - Modal exhaustivo con:
-    - 📊 Métricas cuantitativas de la ronda.
-    - 📝 **Informe Detallado de Resultados y Acuerdos Comerciales** celebrados.
-    - 🏢 **Empresas Participantes & Contrapartes** con demandas identificadas.
-    - 💡 **Conclusiones Estratégicas y Recomendaciones**.
-    - 📑 **Descarga de Dossier / Minuta Oficial en PDF**.
-- **CMS Admin (`/admin/reuniones-b2b`)**: Formulario organizado en dos pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*) con CRUD completo.
+  - Acceso exclusivo con informe exhaustivo de acuerdos, empresas contrapartes, conclusiones y **Descarga de Dossier en PDF**.
+- **CMS Admin (`/admin/reuniones-b2b`)**: Formulario en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*).
 
-### 6. 📑 Categorización Dinámica de Actas de Socios (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
-- **Gestor en CMS (`/admin/decretos`)**: Modal interactivo para que Administradores y Secretaría administren categorías de actas (`type = 'minutes'`).
-- **Formulario de Carga**: Selector dinámico de categorías al compartir actas (PDF o URL).
-- **Filtros por Categoría**: Pestañas de filtrado horizontal y badge con icono `Tag` en cada tarjeta.
-
-### 7. 🏢 Directorio de Socios & Contacto Directo (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
-- **Truncamiento Inteligente en Tarjetas**: Aplicación de `line-clamp-3` en descripciones extensas para preservar la estética uniforme de la grilla.
-- **Enlace Interactivo "Ver más..."**: Abre directamente el modal detallado de la empresa socia con texto íntegro, scroll formateado, representantes y datos de contacto.
-- **Campos de Dirección (`address`) y Teléfono (`phone`)**: Información de contacto directo exhibida claramente en las fichas del socio.
+### 7. 🏢 Directorio de Socios & Fichas Optimizadas (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
+- **Diseño Armónico en Grilla Pública**:
+  - Tarjetas de altura simétrica con truncamiento inteligente (`line-clamp-3`) y botón *"Ver más..."*.
+  - Modal detallado con teléfono directo (`phone`), dirección (`address`), autoridades y visor web seguro (*In-App Browser*).
 - **Asignación Múltiple en CMS (`/admin/socios`)**: Selector interactivo de sectores y categorías con buscador y badges con eliminación rápida (`X`).
-- **Visor Web Integrado (In-App Browser)**: Modal seguro para navegar sitios oficiales dentro de CICHA con fallback automático.
 
-### 8. 📰 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
-- **Módulo CMS (`/admin/boletin-socios`)**: Módulo de administración para crear, editar y eliminar noticias exclusivas de socios, con subida de imagen de portada, categorías, editor enriquecido y switch de visibilidad.
-- **Portal de Socios (`/portal-socios/boletin`)**: Cartelera informativa de noticias internas para empresas socias con buscador en vivo, filtrado por categorías y vista detallada de lectura.
+### 8. 📑 Categorización Dinámica de Actas de Socios (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
+- **Gestor en CMS (`/admin/decretos`)**: Modal interactivo para administrar categorías de actas (`type = 'minutes'`).
+- **Formulario de Carga**: Selector dinámico de categorías al compartir actas (PDF o URL).
+- **Filtros por Categoría**: Pestañas de filtrado horizontal y badge temático.
 
-### 9. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
-- **CMS Admin (`/admin/decretos`)**: CRUD completo con selector de logo/escudo oficial, subida dual de archivo PDF (hasta 30MB) o enlace URL, número de decreto/expediente, descripción, fecha de emisión y visibilidad.
-- **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional de decretos en tarjetas con logo/escudo destacado, buscador en tiempo real y descarga de PDF o apertura de enlace oficial.
+### 9. 📰 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
+- **Módulo CMS (`/admin/boletin-socios`)**: Creación y edición de noticias exclusivas con imagen de portada, categorías y switch de visibilidad.
+- **Portal de Socios (`/portal-socios/boletin`)**: Cartelera informativa tipo magazine para empresas socias.
 
-### 10. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (21 Módulos) (`AdminLayout.tsx`)
+### 10. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
+- **CMS Admin (`/admin/decretos`)**: Carga dual de PDF o URL externa con logo/escudo oficial y fecha de emisión.
+- **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional con buscador en tiempo real y descarga de PDF o enlace web.
+
+### 11. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (21 Módulos) (`AdminLayout.tsx`)
 - Menú de administración lateral modularizado:
   - **RESUMEN GENERAL**: Panel Principal (`/admin/dashboard`).
-  - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners, Contenidos Institucionales (`/admin/institucional`), Beneficios & Convenios (`/admin/beneficios`), Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés (`AdminTranslationsPage.tsx`).
+  - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners, Contenido Administrable Web (`/admin/institucional`), Beneficios & Convenios (`/admin/beneficios`), Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés (`AdminTranslationsPage.tsx`).
   - **PORTAL DE SOCIOS & INTRANET**: Cuentas de Socios, Decretos Oficiales, Boletín para Socios, Documentos & Informes, Oportunidades VIP.
   - **GESTIÓN & CONTACTO**: Solicitudes de Ingreso, Bandeja de Contacto.
   - **SISTEMA & STAFF**: Ajustes Generales, Staff & Administradores.
@@ -124,7 +125,7 @@ frontend/src/
 │   └── LanguageContext.tsx  # Motor de traducciones manuales (Español editable, Griego, Inglés)
 ├── pages/
 │   ├── public/              # 14 Vistas del Portal Público
-│   │   ├── HomePage.tsx                           # Inicio con tarjetas independientes de Trayectoria y Agenda
+│   │   ├── HomePage.tsx                           # Inicio con tarjetas de Trayectoria, Oportunidades y Agenda
 │   │   ├── InstitutionalPage.tsx                  # La Cámara (/la-camara) con nómina jerárquica
 │   │   ├── PresentationPage.tsx                   # Presentación institucional Full-Width
 │   │   ├── BenefitsPage.tsx                       # Beneficios y Convenios (/beneficios)
@@ -132,8 +133,8 @@ frontend/src/
 │   │   ├── BlogsPage.tsx & BlogDetailPage.tsx
 │   │   ├── GalleryPage.tsx
 │   │   ├── SocialFeedPage.tsx                     # Feed Dual Facebook & Instagram
-│   │   ├── EventsPage.tsx                         # Agenda de eventos con foto, Link Evento y galería vinculada
-│   │   ├── B2BMeetingsPublicPage.tsx              # Reuniones B2B & Resultados (Versión Pública)
+│   │   ├── EventsPage.tsx                         # Agenda con 2 fotos, Link Evento y galería vinculada
+│   │   ├── B2BMeetingsPublicPage.tsx              # Reuniones B2B & Resultados (Versión Pública limpia)
 │   │   ├── MembersDirectoryPage.tsx               # Directorio con tarjetas y datos de contacto directo
 │   │   ├── MembershipApplyPage.tsx
 │   │   ├── TradeBilateralPage.tsx
@@ -151,12 +152,12 @@ frontend/src/
 │   └── admin/               # 21 Módulos Administrativos del CMS
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
-│       ├── AdminInstitutionalPage.tsx             # Gestión de Contenidos Institucionales (Inicio, Presentación, La Cámara)
-│       ├── AdminBenefitsPage.tsx                  # Gestión de Beneficios y Convenios Comerciales
+│       ├── AdminInstitutionalSectionsPage.tsx     # Contenido Administrable Web (Inicio, Presentación, La Cámara)
+│       ├── AdminBenefitsPage.tsx                  # Gestión de Beneficios, Convenios y Categorías
 │       ├── AdminArticlesPage.tsx
 │       ├── AdminBlogsPage.tsx
-│       ├── AdminGalleryPage.tsx
-│       ├── AdminEventsPage.tsx                    # Agenda de Eventos con Foto, Link Evento y Álbum vinculado
+│       ├── AdminGalleryPage.tsx                   # Galería de Fotos & Categorías en línea
+│       ├── AdminEventsPage.tsx                    # Agenda de Eventos con 2 Fotos, Link Evento y Álbum vinculado
 │       ├── AdminB2BMeetingsPage.tsx               # Gestión de Reuniones B2B & Resultados
 │       ├── AdminMembersPage.tsx
 │       ├── AdminOpportunitiesPage.tsx

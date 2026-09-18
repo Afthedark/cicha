@@ -4,25 +4,14 @@ import {
   Handshake,
   Calendar,
   MapPin,
-  Users,
-  TrendingUp,
-  FileCheck,
   Search,
   ArrowRight,
-  ExternalLink,
-  Shield,
-  Layers,
-  Sparkles,
   Lock,
   X,
-  CheckCircle2,
-  Building2,
-  Globe2,
 } from 'lucide-react';
 import { publicApi, resolveImageUrl } from '../../services/api';
 import type { B2BMeeting } from '../../types';
 import { Loader } from '../../components/common/Loader';
-import { Badge } from '../../components/common/Badge';
 
 export const B2BMeetingsPublicPage: React.FC = () => {
   const [meetings, setMeetings] = useState<B2BMeeting[]>([]);
@@ -63,11 +52,6 @@ export const B2BMeetingsPublicPage: React.FC = () => {
     'Multisectorial',
   ];
 
-  // Calculate macro totals from data
-  const totalParticipants = meetings.reduce((acc, m) => acc + (m.participants_count || 0), 0);
-  const totalMeetings = meetings.reduce((acc, m) => acc + (m.meetings_count || 0), 0);
-  const totalAgreements = meetings.reduce((acc, m) => acc + (m.agreements_count || 0), 0);
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
@@ -96,7 +80,7 @@ export const B2BMeetingsPublicPage: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-cicha-navy via-[#002f57] to-cicha-navy text-white py-16 md:py-24 overflow-hidden border-b border-blue-900/40">
+      <section className="relative bg-gradient-to-b from-cicha-navy via-[#002f57] to-cicha-navy text-white py-14 md:py-20 overflow-hidden border-b border-blue-900/40">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -113,57 +97,6 @@ export const B2BMeetingsPublicPage: React.FC = () => {
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans font-light">
               Misiones comerciales, encuentros empresariales bilaterales y mesas de negociación directa facilitadas por CICHA para conectar importadores, exportadores e inversores de Argentina y Grecia.
             </p>
-          </div>
-
-          {/* Key Public Impact Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-8 border-t border-white/10">
-            <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold">
-                  <Handshake className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-white">+{totalMeetings || 320}</div>
-                  <div className="text-[11px] text-slate-300">Reuniones 1-a-1</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-sky-400/20 text-sky-400 flex items-center justify-center font-bold">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-white">+{totalParticipants || 135}</div>
-                  <div className="text-[11px] text-slate-300">Empresas Participantes</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-400/20 text-emerald-400 flex items-center justify-center font-bold">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-white">+{totalAgreements || 45}</div>
-                  <div className="text-[11px] text-slate-300">Acuerdos Comerciales</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-400/20 text-purple-400 flex items-center justify-center font-bold">
-                  <Globe2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-white">32</div>
-                  <div className="text-[11px] text-slate-300">Cámaras EUROCAMARA</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>

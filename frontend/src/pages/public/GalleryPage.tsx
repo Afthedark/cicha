@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Images,
   Calendar,
@@ -22,12 +23,14 @@ import { Badge } from '../../components/common/Badge';
 import bgHeader from '../../assets/static/9.jpeg';
 
 export const GalleryPage: React.FC = () => {
+  const { slug } = useParams<{ slug?: string }>();
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [allPhotos, setAllPhotos] = useState<GalleryPhoto[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'albums' | 'masonry'>('albums');
   const [loading, setLoading] = useState(true);
+  const [highlightedAlbum, setHighlightedAlbum] = useState<PhotoAlbum | null>(null);
 
   // Lightbox Modal State with 3D Cube Transitions & Auto-Play Slideshow
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
@@ -47,6 +50,19 @@ export const GalleryPage: React.FC = () => {
   useEffect(() => {
     fetchGallery();
   }, [selectedCategory]);
+
+  // When accessed via /galeria/:slug, find matching album and open lightbox automatically
+  useEffect(() => {
+    if (slug && albums.length > 0) {
+      const target = albums.find(
+        (a) => a.slug === slug || String(a.id) === slug
+      );
+      if (target) {
+        setHighlightedAlbum(target);
+        openAlbumLightbox(target);
+      }
+    }
+  }, [slug, albums]);
 
   const fetchGallery = async () => {
     setLoading(true);
@@ -182,7 +198,38 @@ export const GalleryPage: React.FC = () => {
       </section>
 
       {/* 2. Main Gallery Controls & Switcher */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Banner if linked from an event */}
+        {highlightedAlbum && (
+          <div className="bg-gradient-to-r from-cicha-navy via-[#003866] to-cicha-navy text-white rounded-3xl p-5 sm:p-6 border-2 border-amber-400/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl animate-in fade-in duration-300">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shrink-0 shadow-md">
+                <Images className="w-6 h-6" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="text-[11px] uppercase tracking-wider text-amber-300 font-extrabold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Álbum de Fotos Asociado al Evento</span>
+                </div>
+                <h3 className="font-serif font-bold text-base sm:text-lg text-white leading-tight">
+                  {highlightedAlbum.title}
+                </h3>
+                <p className="text-xs text-sky-200 font-light">
+                  {highlightedAlbum.photos_count || (highlightedAlbum.photos ? highlightedAlbum.photos.length : 0)} fotos disponibles en alta resolución
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => openAlbumLightbox(highlightedAlbum)}
+              className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-xs shadow-md transition-all shrink-0 cursor-pointer flex items-center gap-2 self-end sm:self-auto"
+            >
+              <Play className="w-3.5 h-3.5 fill-slate-950" />
+              <span>Ver Fotos del Evento</span>
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-200">
           {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
@@ -254,11 +301,15 @@ export const GalleryPage: React.FC = () => {
         ) : viewMode === 'albums' ? (
           /* 4. View Mode: ALBUMS GRID WITH 3D CUBE ELEVATION */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-container">
-            {albums.map((alb) => (
+            {albums.map((alb) => {
+              const isTargetAlbum = highlightedAlbum?.id === alb.id || slug === alb.slug;
+              return (
               <div
                 key={alb.id}
                 onClick={() => openAlbumLightbox(alb)}
-                className="cube-card-3d bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer group"
+                className={`cube-card-3d bg-white rounded-3xl border shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer group transition-all ${
+                  isTargetAlbum ? 'ring-4 ring-amber-400 border-amber-400 shadow-xl' : 'border-slate-200'
+                }`}
               >
                 <div className="space-y-3">
                   {/* Album Cover */}
@@ -311,15 +362,16 @@ export const GalleryPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-6 pt-0 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    Ver álbum con efecto 3D
-                  </span>
-                  <ChevronRight className="w-4 h-4" />
+                  <div className="p-6 pt-0 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      Ver álbum con efecto 3D
+                    </span>
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           /* 5. View Mode: MASONRY / MOSAICO DINÁMICO 3D */
