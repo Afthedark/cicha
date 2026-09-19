@@ -27,8 +27,8 @@ import type {
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
-//const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
-const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
+const API_BASE_URL = 'http://127.0.0.1:8080/index.php/api';
+//const API_BASE_URL = 'https://api.cicha.com.ar/index.php/api';
 
 /**
  * Resuelve URLs de imágenes ya sean absolutas (http/https), rutas relativas de uploads (/uploads/...) o blobs locales.
@@ -142,8 +142,16 @@ export const publicApi = {
 
   getB2BMeetings: (sector?: string, search?: string) =>
     apiClient
-      .get<{ status: number; data: B2BMeeting[] }>('/public/b2b-meetings', { params: { sector, q: search } })
-      .then((res) => res.data.data),
+      .get<{ status: number; data: { meetings: B2BMeeting[]; categories: Category[] } | B2BMeeting[] }>('/public/b2b-meetings', {
+        params: { sector, q: search },
+      })
+      .then((res) => {
+        const data = res.data.data;
+        if (data && typeof data === 'object' && 'meetings' in data) {
+          return data as { meetings: B2BMeeting[]; categories: Category[] };
+        }
+        return { meetings: (data as B2BMeeting[]) || [], categories: [] };
+      }),
 
   getB2BMeeting: (slug: string) =>
     apiClient
@@ -212,8 +220,16 @@ export const partnerApi = {
 
   getB2BMeetings: (sector?: string, search?: string) =>
     apiClient
-      .get<{ status: number; data: B2BMeeting[] }>('/partner/b2b-meetings', { params: { sector, q: search } })
-      .then((res) => res.data.data),
+      .get<{ status: number; data: { meetings: B2BMeeting[]; categories: Category[] } | B2BMeeting[] }>('/partner/b2b-meetings', {
+        params: { sector, q: search },
+      })
+      .then((res) => {
+        const data = res.data.data;
+        if (data && typeof data === 'object' && 'meetings' in data) {
+          return data as { meetings: B2BMeeting[]; categories: Category[] };
+        }
+        return { meetings: (data as B2BMeeting[]) || [], categories: [] };
+      }),
 
   getB2BMeetingDetail: (slugOrId: string | number) =>
     apiClient

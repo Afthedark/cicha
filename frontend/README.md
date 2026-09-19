@@ -64,35 +64,52 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 - **Filtros por Página**: Pestañas para `Inicio` (incluyendo `home.opp_*`), `Presentación`, `La Cámara`, `Acreditaciones Header` y `General`.
 - **Guardado Individual y Masivo**: Guardado rápido individual y botón flotante de **"Guardar Todas las Traducciones"** por lote.
 
-### 6. 🤝 Módulo de "Reuniones B2B & Resultados" (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
+### 6. 🤝 Módulo de "Reuniones B2B & Resultados" con Categorías Dinámicas (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
 - **Web Pública Optimizada (`/reuniones-b2b`)**:
   - Cabecera limpia y ejecutiva (sin contadores fijos redundantes).
-  - Filtros por sector y buscador en vivo.
+  - Píldoras de filtrado dinámicas por categoría y sector comercial (`data.categories`), y buscador en vivo.
   - Tarjetas con imagen, badges de modalidad (Presencial, Híbrido, Virtual), resumen ejecutivo y modal de **Ficha Pública**.
 - **Portal de Socios (`/portal-socios/reuniones-b2b`)**:
   - Acceso exclusivo con informe exhaustivo de acuerdos, empresas contrapartes, conclusiones y **Descarga de Dossier en PDF**.
-- **CMS Admin (`/admin/reuniones-b2b`)**: Formulario en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*).
+- **CMS Admin (`/admin/reuniones-b2b`)**:
+  - Modal **"Categorías ({total})"** para crear, renombrar y eliminar sectores comerciales (`type = 'b2b'`).
+  - Selector dinámico de categorías en el formulario organizado en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*).
 
-### 7. 🏢 Directorio de Socios & Fichas Optimizadas (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
+### 7. 📰 Módulo de "Noticias & Prensa" con Categorías Administrables (`AdminArticlesPage.tsx`, `ArticlesPage.tsx` y `ArticleDetailPage.tsx`)
+- **Web Pública (`/noticias`)**:
+  - Comunicados oficiales y gacetillas con barra de categorías reactiva que consume `data.categories` desde la API pública.
+- **CMS Admin (`/admin/noticias`)**:
+  - Módulo enfocado exclusivamente en noticias y prensa (desacoplado de la Agenda de Eventos).
+  - Modal interactivo de **"Categorías ({total})"** (`type = 'news'`) con soporte CRUD.
+  - Sincronización en cascada al renombrar y reasignación segura (*safe-delete*) a `'General'` al eliminar categorías.
+
+### 8. ✍️ Módulo de "Blogs & Artículos Editoriales" con Categorías en Tiempo Real (`AdminBlogsPage.tsx`, `BlogsPage.tsx` y `BlogDetailPage.tsx`)
+- **Web Pública (`/blogs`)**:
+  - Artículos y columnas editoriales con selector dinámico de categorías y buscador.
+- **CMS Admin (`/admin/blogs`)**:
+  - Botón de gestión **"Categorías ({total})"** (`type = 'blogs'`) con modal de creación, edición inline y eliminación segura.
+  - Selector `<select>` dinámico de categorías dentro del formulario modal de creación/edición de blogs.
+
+### 9. 🏢 Directorio de Socios & Fichas Optimizadas (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
 - **Diseño Armónico en Grilla Pública**:
   - Tarjetas de altura simétrica con truncamiento inteligente (`line-clamp-3`) y botón *"Ver más..."*.
   - Modal detallado con teléfono directo (`phone`), dirección (`address`), autoridades y visor web seguro (*In-App Browser*).
 - **Asignación Múltiple en CMS (`/admin/socios`)**: Selector interactivo de sectores y categorías con buscador y badges con eliminación rápida (`X`).
 
-### 8. 📑 Categorización Dinámica de Actas de Socios (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
+### 10. 📑 Categorización Dinámica de Actas de Socios (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
 - **Gestor en CMS (`/admin/decretos`)**: Modal interactivo para administrar categorías de actas (`type = 'minutes'`).
 - **Formulario de Carga**: Selector dinámico de categorías al compartir actas (PDF o URL).
 - **Filtros por Categoría**: Pestañas de filtrado horizontal y badge temático.
 
-### 9. 📰 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
+### 11. 📩 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
 - **Módulo CMS (`/admin/boletin-socios`)**: Creación y edición de noticias exclusivas con imagen de portada, categorías y switch de visibilidad.
 - **Portal de Socios (`/portal-socios/boletin`)**: Cartelera informativa tipo magazine para empresas socias.
 
-### 10. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
+### 12. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
 - **CMS Admin (`/admin/decretos`)**: Carga dual de PDF o URL externa con logo/escudo oficial y fecha de emisión.
 - **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional con buscador en tiempo real y descarga de PDF o enlace web.
 
-### 11. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (21 Módulos) (`AdminLayout.tsx`)
+### 13. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (21 Módulos) (`AdminLayout.tsx`)
 - Menú de administración lateral modularizado:
   - **RESUMEN GENERAL**: Panel Principal (`/admin/dashboard`).
   - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners, Contenido Administrable Web (`/admin/institucional`), Beneficios & Convenios (`/admin/beneficios`), Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés (`AdminTranslationsPage.tsx`).

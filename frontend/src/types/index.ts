@@ -88,7 +88,7 @@ export interface Category {
 
 export interface Article {
   id: number;
-  category_id?: number;
+  category_id?: number | null;
   category_name?: string;
   category_slug?: string;
   title: string;

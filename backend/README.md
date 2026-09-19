@@ -52,14 +52,14 @@ Tablas generadas en la base de datos:
 - `institutional_sections`: Secciones institucionales administrables independientemente por página (`page_target`: `home`, `presentacion`, `la_camara`), incluyendo el bloque de Oportunidades (`home_oportunidades`).
 - `authorities`: Comisión Directiva, Comisión Revisora y autoridades de la Cámara.
 - `alliances`: Redes estratégicas (EUROCAMARA, EEN Unión Europea, UCCEB, Embajada).
-- `categories`: Taxonomía para noticias, eventos, rubros de socios, oportunidades comerciales, actas (`minutes`), beneficios (`benefits`) y galería (`gallery`).
-- `articles`: Noticias, prensa y comunicados institucionales.
-- `blogs`: Módulo editorial de artículos de análisis, opinión y notas técnicas.
+- `categories`: Taxonomía dinámica unificada con soporte para Noticias (`news`), Blogs (`blogs`), Reuniones B2B (`b2b`), Beneficios (`benefits`), Galería (`gallery`), Actas (`minutes`), Eventos (`events`) y Sectores de Socios (`members`). Cuenta con cascada en renombramientos y reasignación segura (*safe-delete*) a `'General'` al eliminar categorías para preservar la integridad de datos.
+- `articles`: Noticias, comunicados institucionales y gacetillas de prensa con categoría administrable.
+- `blogs`: Módulo editorial de artículos de análisis, opinión y notas técnicas con categoría administrable.
 - `photo_albums`: Álbumes y grupos temáticos de la galería fotográfica categorizados.
 - `gallery_photos`: Fotografías individuales vinculadas a los álbumes con eliminación en cascada.
 - `banners`: Portadas y slides dinámicos del Home con selector de rutas.
 - `events`: Agenda de foros, webinars y encuentros bilaterales con soporte para **Doble Foto de Portada (`image_url`, `image_url_2`)**, **Link Evento** (redes sociales / enlaces externos) y **búsqueda asíncrona de Álbum Fotográfico vinculado (`album_id`)**.
-- `b2b_meetings`: **Reuniones B2B & Resultados (campos públicos limpios y confidenciales de socios con informes de acuerdos y dossiers PDF)**.
+- `b2b_meetings`: **Reuniones B2B & Resultados (campos públicos con sector/categoría dinámica e informes confidenciales de socios con acuerdos y dossiers PDF)**.
 - `members`: Directorio de empresas socias (soporta múltiples categorías/sectores, campos `address`, `phone` y orden `order_num`).
 - `commercial_opportunities`: Demandas y ofertas bilaterales Grecia-Argentina.
 - `partner_resources`: Biblioteca de informes sectoriales y guías con control de descargas (PDF / URL).
@@ -71,7 +71,13 @@ Tablas generadas en la base de datos:
 - `membership_applications`: Bandeja de solicitudes de afiliación con gestión de estados.
 - `contact_messages`: Bandeja de mensajes de contacto y consultas.
 
-### 3. Auto-Migración con 1 Clic para Producción (Sin SSH)
+### 3. Migraciones de Sembrado de Categorías por Defecto
+El sistema incluye migraciones batch automáticas para inicializar y poblar categorías por defecto con su respectivo `type`:
+- `SeedNewsCategories`: Categorías por defecto de noticias (`Acuerdos Bilaterales`, `Comercio Exterior`, `Institucional`, `Cultura Helénica`, `Inversiones & Negocios`, `Eventos & Encuentros`).
+- `SeedB2BCategories`: Sectores comerciales de rondas B2B (`Agroindustria & Alimentos`, `Energía & Renovables`, `Logística & Puertos`, `Turismo & Hotelería`, `Tecnología & Software`, `Servicios Profesionales`, `Comercio Exterior`).
+- `SeedBlogCategories`: Categorías editoriales (`Economía & Comercio`, `Cultura & Tradición Helénica`, `Oportunidades de Negocios`, `Geopolítica & UE`, `Logística & Puertos`, `Tecnología & Energía`).
+
+### 4. Auto-Migración con 1 Clic para Producción (Sin SSH)
 Para entornos de hosting cPanel sin consola de comandos:
 - **Endpoint**: `GET /api/admin/migrate?secret=cicha_migration_secret_key_2026`
 - Ejecuta automáticamente todas las migraciones pendientes sin afectar los datos existentes de usuarios ni socios.

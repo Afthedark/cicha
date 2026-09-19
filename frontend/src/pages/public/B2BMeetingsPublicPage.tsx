@@ -15,6 +15,7 @@ import { Loader } from '../../components/common/Loader';
 
 export const B2BMeetingsPublicPage: React.FC = () => {
   const [meetings, setMeetings] = useState<B2BMeeting[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState<string>('all');
@@ -28,8 +29,15 @@ export const B2BMeetingsPublicPage: React.FC = () => {
     setLoading(true);
     publicApi
       .getB2BMeetings(selectedSector === 'all' ? undefined : selectedSector, searchQuery || undefined)
-      .then((data) => {
-        setMeetings(data || []);
+      .then((res: any) => {
+        if (res && typeof res === 'object' && 'meetings' in res) {
+          setMeetings(res.meetings || []);
+          setCategories(res.categories || []);
+        } else if (Array.isArray(res)) {
+          setMeetings(res);
+        } else {
+          setMeetings([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -43,12 +51,18 @@ export const B2BMeetingsPublicPage: React.FC = () => {
     fetchMeetings();
   };
 
-  const sectors = [
+  const dynamicSectors = [
+    'all',
+    ...categories.map((c) => c.name),
+  ];
+  // Fallback si no hay cargadas aún
+  const sectors = dynamicSectors.length > 1 ? dynamicSectors : [
     'all',
     'Alimentos & Bebidas',
     'Logística Portuaria',
     'Tecnología & Energía',
     'Servicios Profesionales',
+    'Comercio Exterior',
     'Multisectorial',
   ];
 

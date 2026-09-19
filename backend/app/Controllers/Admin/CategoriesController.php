@@ -121,6 +121,18 @@ class CategoriesController extends ResourceController
                 $benefitModel = new \App\Models\PartnerBenefitModel();
                 $benefitModel->where('category', $existing['name'])->set(['category' => $newName])->update();
             }
+
+            // Si es de tipo b2b, actualizar también en cascada el sector en las reuniones B2B asociadas
+            if ($existing['type'] === 'b2b') {
+                $b2bModel = new \App\Models\B2BMeetingModel();
+                $b2bModel->where('sector', $existing['name'])->set(['sector' => $newName])->update();
+            }
+
+            // Si es de tipo blogs, actualizar también en cascada la categoría en las notas editoriales asociadas
+            if ($existing['type'] === 'blogs') {
+                $blogModel = new \App\Models\BlogModel();
+                $blogModel->where('category', $existing['name'])->set(['category' => $newName])->update();
+            }
         }
         if (isset($input['type'])) $data['type'] = $input['type'];
 
@@ -136,6 +148,24 @@ class CategoriesController extends ResourceController
         $model = new CategoryModel();
         $existing = $model->find($id);
         if (!$existing) return $this->failNotFound('Categoría no encontrada');
+
+        // Si es de tipo noticias, desvincular de forma segura los artículos asociados (soft detach)
+        if ($existing['type'] === 'news' || $existing['type'] === 'events') {
+            $articleModel = new \App\Models\ArticleModel();
+            $articleModel->where('category_id', $id)->set(['category_id' => null])->update();
+        }
+
+        // Si es de tipo b2b, reasignar de forma segura a Multisectorial
+        if ($existing['type'] === 'b2b') {
+            $b2bModel = new \App\Models\B2BMeetingModel();
+            $b2bModel->where('sector', $existing['name'])->set(['sector' => 'Multisectorial'])->update();
+        }
+
+        // Si es de tipo blogs, reasignar de forma segura a General
+        if ($existing['type'] === 'blogs') {
+            $blogModel = new \App\Models\BlogModel();
+            $blogModel->where('category', $existing['name'])->set(['category' => 'General'])->update();
+        }
 
         $model->delete($id);
         return $this->respondDeleted(['status' => 200, 'message' => 'Categoría eliminada']);

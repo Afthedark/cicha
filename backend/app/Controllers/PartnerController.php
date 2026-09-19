@@ -453,10 +453,15 @@ class PartnerController extends ResourceController
         }
 
         $items = $builder->orderBy('meeting_date', 'DESC')->findAll();
+        $categoryModel = new \App\Models\CategoryModel();
+        $categories = $categoryModel->where('type', 'b2b')->orderBy('name', 'ASC')->findAll();
 
         return $this->respond([
             'status' => 200,
-            'data'   => $items
+            'data'   => [
+                'meetings'   => $items,
+                'categories' => $categories
+            ]
         ]);
     }
 

@@ -149,7 +149,7 @@ class PublicController extends ResourceController
 
         $articles = $builder->orderBy('articles.published_at', 'DESC')->get()->getResultArray();
         $categoryModel = new CategoryModel();
-        $categories = $categoryModel->where('type', 'news')->findAll();
+        $categories = $categoryModel->where('type', 'news')->orderBy('name', 'ASC')->findAll();
 
         return $this->respond([
             'status' => 200,
@@ -422,17 +422,24 @@ class PublicController extends ResourceController
 
         $blogs = $blogModel->getPublished($category, $search);
 
-        // Extract available categories
-        $allCategories = $blogModel->where('status', 'published')
-            ->select('category')
-            ->distinct()
-            ->findAll();
+        // Extract available categories from CategoryModel
+        $categoryModel = new \App\Models\CategoryModel();
+        $blogCategories = $categoryModel->where('type', 'blogs')->orderBy('name', 'ASC')->findAll();
+        $categoriesList = array_map(function($c) { return $c['name']; }, $blogCategories);
+
+        if (empty($categoriesList)) {
+            $allCategories = $blogModel->where('status', 'published')
+                ->select('category')
+                ->distinct()
+                ->findAll();
+            $categoriesList = array_values(array_filter(array_map(function($c) { return $c['category']; }, $allCategories)));
+        }
 
         return $this->respond([
             'status' => 200,
             'data'   => [
                 'blogs'      => $blogs,
-                'categories' => array_map(function($c) { return $c['category']; }, $allCategories),
+                'categories' => $categoriesList,
             ]
         ]);
     }
@@ -583,10 +590,15 @@ class PublicController extends ResourceController
         }
 
         $items = $builder->orderBy('meeting_date', 'DESC')->findAll();
+        $categoryModel = new \App\Models\CategoryModel();
+        $categories = $categoryModel->where('type', 'b2b')->orderBy('name', 'ASC')->findAll();
 
         return $this->respond([
             'status' => 200,
-            'data'   => $items
+            'data'   => [
+                'meetings'   => $items,
+                'categories' => $categories
+            ]
         ]);
     }
 

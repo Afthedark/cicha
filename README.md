@@ -52,36 +52,57 @@ Plataforma digital integral para la **Cámara de Industria y Comercio Heleno Arg
 - **Visualización Pública Optimizada (`GalleryPage.tsx`)**:
   - Mosaico responsivo con selector de categorías, visualización de álbumes, visor lightbox de alta resolución y conteo exacto de fotos.
 
-### 5. 🤝 Módulo de "Reuniones B2B & Resultados" (`/reuniones-b2b`, `/portal-socios/reuniones-b2b` y `/admin/reuniones-b2b`)
+### 5. 🤝 Módulo de "Reuniones B2B & Resultados" con Categorías/Sectores Administrables (`/reuniones-b2b`, `/portal-socios/reuniones-b2b` y `/admin/reuniones-b2b`)
 - **Web Pública Optimizada (`B2BMeetingsPublicPage.tsx`)**:
   - Presentación ejecutiva y limpia, sin contadores fijos redundantes en la cabecera.
-  - Filtros por sector, buscador en vivo, tarjetas con modalidad (Presencial, Híbrido, Virtual), resumen público y ficha informativa con invitación al Portal de Socios.
+  - Píldoras de filtrado por categoría y sector comercial dinámicas (`data.categories`), buscador en vivo, tarjetas con modalidad (Presencial, Híbrido, Virtual), resumen público y ficha informativa con invitación al Portal de Socios.
 - **Portal de Socios VIP (`PartnerB2BMeetingsPage.tsx`)**:
   - Acceso confidencial al **Informe Exhaustivo de Resultados y Acuerdos Comerciales**, listado de empresas contrapartes (Grecia / UE / Cono Sur), conclusiones estratégicas, recomendaciones y descarga directa de **Dossier Oficial en PDF**.
-- **CMS Admin (`AdminB2BMeetingsPage.tsx`)**: Formulario organizado en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*) con CRUD completo.
+- **CMS Admin & CRUD de Sectores B2B (`AdminB2BMeetingsPage.tsx`)**:
+  - Botón **"Categorías ({total})"** para administrar sectores comerciales (`type = 'b2b'`) en línea.
+  - Selector dinámico de categorías al registrar o editar reuniones B2B.
+  - Formulario organizado en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*) con CRUD completo.
 
-### 6. 🏢 Directorio de Socios con Visualización y Ficha Mejorada (`/socios`, `/portal-socios/directorio` y `/admin/socios`)
+### 6. 📰 Módulo de "Noticias & Prensa" con CRUD de Categorías y Safe-Delete (`/noticias` y `/admin/noticias`)
+- **Web Pública (`ArticlesPage.tsx`)**:
+  - Comunicados oficiales, noticias bilaterales y novedades institucionales.
+  - Barra de filtrado horizontal dinámica con categorías activas sincronizadas desde la base de datos.
+- **CMS Admin (`AdminArticlesPage.tsx`)**:
+  - Módulo dedicado exclusivamente a la publicación periodística y notas de prensa (desacoplado de la Agenda de Eventos).
+  - Modal **"Categorías ({total})"** para crear, renombrar en tiempo real y eliminar categorías (`type = 'news'`).
+  - **Edición en Cascada & Safe-Delete**: Renombrar una categoría actualiza automáticamente todos los artículos vinculados (`articles.category`); eliminar una categoría reasigna de manera segura los artículos a `'General'` sin pérdidas de datos.
+
+### 7. ✍️ Módulo de "Blogs & Artículos Editoriales" con Categorías Administrables (`/blogs` y `/admin/blogs`)
+- **Web Pública (`BlogsPage.tsx`)**:
+  - Artículos de opinión, análisis de comercio exterior, cultura helénica y notas de expertos.
+  - Píldoras interactivas de filtrado por categoría sincronizadas con el CMS.
+- **CMS Admin (`AdminBlogsPage.tsx`)**:
+  - Botón y modal de **"Categorías ({total})"** (`type = 'blogs'`) con soporte CRUD en línea.
+  - Selector dinámico `<select>` en el modal de creación y edición de blogs.
+  - Actualización en cascada al renombrar y reasignación de seguridad a `'General'` al eliminar categorías.
+
+### 8. 🏢 Directorio de Socios con Visualización y Ficha Mejorada (`/socios`, `/portal-socios/directorio` y `/admin/socios`)
 - **Diseño Armónico en Grilla Pública**:
   - Tarjetas con altura uniforme, soporte multilogo, truncamiento inteligente de descripciones (`line-clamp-3`) y botón interactivo *"Ver más..."*.
   - Modal detallado de empresa socia con texto completo, autoridades, teléfono directo (`phone`), dirección (`address`) y visor web seguro.
 - **CMS de Gestión Multicategoría (`AdminMembersPage.tsx`)**:
   - Selector de múltiples sectores por empresa con badges de remoción rápida (`X`) y control de orden jerárquico (`order_num`).
 
-### 7. 📑 Categorización Dinámica de Actas de Socios (`/admin/decretos` y `/portal-socios/actas`)
+### 9. 📑 Categorización Dinámica de Actas de Socios (`/admin/decretos` y `/portal-socios/actas`)
 - **Gestión de Categorías desde Administración de Decretos (`AdminDecreesPage.tsx`)**: Botón *"Categorías de Actas"* con modal interactivo para dar de alta, editar y eliminar categorías de actas (`type = 'minutes'`).
 - **Portal de Socios (`PartnerMinutesPage.tsx`)**: Selector dinámico de categorías al subir/compartir nuevas actas (PDF o URL), barra de filtrado por categoría horizontal y badge temático.
 
-### 8. 🌐 Traducciones Manuales Bilaterales (Griego & Inglés) (`/admin/traducciones` y Web Pública)
+### 10. 🌐 Traducciones Manuales Bilaterales (Griego & Inglés) (`/admin/traducciones` y Web Pública)
 - **Administración en 3 Columnas (`AdminTranslationsPage.tsx`)**: Módulo individual en el CMS para gestionar traducciones de los textos solemnes de la Cámara (Español editable, Griego `text_el`, Inglés `text_en`).
 - **Sincronización con Secciones Institucionales**: Claves de Inicio (`home.*` incluyendo `home.opp_*`), Presentación (`presentacion.*`), La Cámara (`camara.*`) y Acreditaciones Oficiales del Header.
 
-### 9. 📰 Módulo de Boletín de Noticias para Socios (`/admin/boletin-socios` y `/portal-socios/boletin`)
+### 11. 📩 Módulo de Boletín de Noticias para Socios (`/admin/boletin-socios` y `/portal-socios/boletin`)
 - **Exclusivo para la Comunidad de Socios**: Novedades bilaterales, circulares gremiales y comunicados internos con soporte multimedia.
 
-### 10. 🏛️ Módulo de "Decretos Oficiales" (`/admin/decretos` y `/portal-socios/decretos`)
+### 12. 🏛️ Módulo de "Decretos Oficiales" (`/admin/decretos` y `/portal-socios/decretos`)
 - **Administración CMS**: Carga dual de PDF (hasta 30MB) o URL externa, escudo/logo oficial y fecha de promulgación.
 
-### 11. 🗂️ Sidebar del CMS Reorganizado en 5 Grupos Temáticos (`AdminLayout.tsx`)
+### 13. 🗂️ Sidebar del CMS Reorganizado en 5 Grupos Temáticos (`AdminLayout.tsx`)
 - Navegación optimizada en 5 grupos:
   - **Resumen General**: Panel Principal (`/admin/dashboard`).
   - **Web Pública & Contenidos**: Portadas & Banners, Contenido Administrable Web, Beneficios & Convenios, Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés.
