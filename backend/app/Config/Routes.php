@@ -43,6 +43,7 @@ $routes->group('api', static function ($routes) {
         $routes->get('b2b-meetings/(:segment)', 'PublicController::getB2BMeeting/$1');
         $routes->get('alliances', 'PublicController::getAlliances');
         $routes->get('benefits', 'PublicController::getBenefits');
+        $routes->get('interest-links', 'PublicController::getInterestLinks');
         $routes->get('settings', 'PublicController::getSettings');
         $routes->get('translations/el', 'PublicController::getGreekTranslations');
         $routes->get('translations/en', 'PublicController::getEnglishTranslations');
@@ -61,10 +62,8 @@ $routes->group('api', static function ($routes) {
         $routes->get('benefits', 'PartnerController::getBenefits');
         $routes->get('directory', 'PartnerController::getDirectory');
         $routes->get('categories', 'PartnerController::getCategories');
-        // Actas de Socios (PDF / URL)
+        // Actas Oficiales para Socios (Solo Lectura y Descarga Certificada)
         $routes->get('minutes', 'PartnerController::getMinutes');
-        $routes->post('minutes', 'PartnerController::createMinute');
-        $routes->delete('minutes/(:num)', 'PartnerController::deleteMinute/$1');
         $routes->post('minutes/(:num)/download', 'PartnerController::downloadMinute/$1');
         // Subida de Documentos para Socios (PDF / Archivos de Actas hasta 30MB)
         $routes->post('upload', 'Admin\UploadController::uploadImage');
@@ -113,8 +112,9 @@ $routes->group('api', static function ($routes) {
         // Commercial Opportunities
         $routes->resource('opportunities', ['controller' => 'Admin\OpportunitiesController']);
 
-        // Decrees (Admin CMS)
+        // Decrees & Actas Institucionales (Admin CMS)
         $routes->resource('decrees', ['controller' => 'Admin\DecreesController']);
+        $routes->resource('partner-minutes', ['controller' => 'Admin\PartnerMinutesController']);
 
         // Exclusive Partner Resources & Benefits Management
         $routes->resource('partner-resources', ['controller' => 'Admin\PartnerResourcesController']);
@@ -142,8 +142,10 @@ $routes->group('api', static function ($routes) {
         $routes->post('translations/batch', 'Admin\GreekTranslationsController::updateBatch');
         $routes->resource('translations', ['controller' => 'Admin\GreekTranslationsController']);
 
-        // Alliances
+        // Alliances & Interest Links
         $routes->resource('alliances', ['controller' => 'Admin\AlliancesController']);
+        $routes->resource('interest-links', ['controller' => 'Admin\InterestLinksController']);
+        $routes->post('interest-links/(:num)/restore', 'Admin\InterestLinksController::restore/$1');
 
         // Settings
         $routes->get('settings', 'Admin\SettingsController::index');

@@ -45,7 +45,7 @@ class CategoriesController extends ResourceController
         }
 
         $type = $input['type'] ?? 'members';
-        $baseSlug = url_title($input['name'], '-', true);
+        $baseSlug = clean_slug($input['name']);
         if (empty($baseSlug)) {
             $baseSlug = 'cat-' . time();
         }
@@ -85,7 +85,7 @@ class CategoriesController extends ResourceController
         if (isset($input['name']) && !empty(trim($input['name']))) {
             $newName = trim($input['name']);
             $targetType = $input['type'] ?? $existing['type'];
-            $baseSlug = url_title($newName, '-', true);
+            $baseSlug = clean_slug($newName);
             if (empty($baseSlug)) {
                 $baseSlug = 'cat-' . time();
             }

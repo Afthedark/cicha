@@ -163,12 +163,23 @@ class PublicController extends ResourceController
     public function getArticleBySlug($slug = null)
     {
         $articleModel = new ArticleModel();
-        $article = $articleModel->db->table('articles')
+        $decodedSlug = $slug ? urldecode($slug) : '';
+
+        $builder = $articleModel->db->table('articles')
             ->select('articles.*, categories.name as category_name, categories.slug as category_slug')
             ->join('categories', 'categories.id = articles.category_id', 'left')
-            ->where('articles.slug', $slug)
             ->where('articles.status', 'published')
-            ->get()->getRowArray();
+            ->groupStart()
+                ->where('articles.slug', $slug)
+                ->orWhere('articles.slug', $decodedSlug);
+
+        if ($slug && preg_match('/-(\d+)$/', $slug, $matches)) {
+            $builder->orWhere('articles.id', (int)$matches[1]);
+        } elseif (is_numeric($slug)) {
+            $builder->orWhere('articles.id', (int)$slug);
+        }
+
+        $article = $builder->groupEnd()->get()->getRowArray();
 
         if (!$article) {
             return $this->failNotFound('Artículo no encontrado.');
@@ -228,9 +239,16 @@ class PublicController extends ResourceController
             }
         }
 
+        $settingModel = new SettingModel();
+        $emptySetting = $settingModel->where('key_name', 'events_empty_message')->first();
+        $emptyMessage = !empty($emptySetting['value_text']) 
+            ? $emptySetting['value_text'] 
+            : 'En este momento estamos trabajando para los próximos eventos';
+
         return $this->respond([
-            'status' => 200,
-            'data'   => $events
+            'status'        => 200,
+            'data'          => $events,
+            'empty_message' => $emptyMessage
         ]);
     }
 
@@ -447,9 +465,20 @@ class PublicController extends ResourceController
     public function getBlogBySlug($slug = null)
     {
         $blogModel = new BlogModel();
-        $blog = $blogModel->where('slug', $slug)
-            ->where('status', 'published')
-            ->first();
+        $decodedSlug = $slug ? urldecode($slug) : '';
+
+        $builder = $blogModel->where('status', 'published')
+            ->groupStart()
+                ->where('slug', $slug)
+                ->orWhere('slug', $decodedSlug);
+
+        if ($slug && preg_match('/-(\d+)$/', $slug, $matches)) {
+            $builder->orWhere('id', (int)$matches[1]);
+        } elseif (is_numeric($slug)) {
+            $builder->orWhere('id', (int)$slug);
+        }
+
+        $blog = $builder->groupEnd()->first();
 
         if (!$blog) {
             return $this->failNotFound('Artículo de blog no encontrado');
@@ -656,6 +685,52 @@ class PublicController extends ResourceController
             ]
         ]);
     }
+
+    public function getInterestLinks()
+    {
+        $linkModel = new \App\Models\InterestLinkModel();
+        $categoryModel = new \App\Models\CategoryModel();
+
+        $category = $this->request->getGet('category');
+        $search   = $this->request->getGet('q');
+
+        $builder = $linkModel->select('interest_links.*, categories.name as category_name, categories.slug as category_slug')
+            ->join('categories', 'categories.id = interest_links.category_id', 'left')
+            ->where('interest_links.is_active', 1);
+
+        if ($category && $category !== 'all') {
+            if (is_numeric($category)) {
+                $builder->where('interest_links.category_id', (int) $category);
+            } else {
+                $builder->where('categories.slug', $category);
+            }
+        }
+
+        if ($search) {
+            $builder->groupStart()
+                ->like('interest_links.title', $search)
+                ->orLike('interest_links.description', $search)
+                ->orLike('interest_links.url', $search)
+                ->orLike('categories.name', $search)
+                ->groupEnd();
+        }
+
+        $links = $builder->orderBy('interest_links.is_featured', 'DESC')
+            ->orderBy('interest_links.order_num', 'ASC')
+            ->orderBy('interest_links.created_at', 'DESC')
+            ->findAll();
+
+        $categories = $categoryModel->where('type', 'links')->orderBy('name', 'ASC')->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => [
+                'links'      => $links,
+                'categories' => $categories,
+            ]
+        ]);
+    }
 }
+
 
 

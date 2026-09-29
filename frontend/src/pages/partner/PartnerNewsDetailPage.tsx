@@ -10,11 +10,15 @@ import {
   ShieldCheck,
   ChevronRight,
   Sparkles,
+  FileText,
+  Eye,
+  Download,
 } from 'lucide-react';
-import { partnerApi } from '../../services/api';
+import { partnerApi, resolveImageUrl } from '../../services/api';
 import type { PartnerNewsItem } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const PartnerNewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -22,6 +26,7 @@ export const PartnerNewsDetailPage: React.FC = () => {
   const [item, setItem] = useState<PartnerNewsItem | null>(null);
   const [related, setRelated] = useState<PartnerNewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -68,6 +73,7 @@ export const PartnerNewsDetailPage: React.FC = () => {
     );
   }
 
+  const hasPdf = Boolean(item.file_url);
   const paragraphs = (item.content || '').split('\n').filter((p) => p.trim().length > 0);
 
   return (
@@ -92,19 +98,39 @@ export const PartnerNewsDetailPage: React.FC = () => {
       <article className="bg-[#003866]/90 rounded-3xl border border-blue-400/25 overflow-hidden shadow-2xl">
         {/* Hero Header */}
         <div className="p-6 sm:p-10 space-y-5 border-b border-white/10 bg-gradient-to-b from-[#004b87]/60 to-transparent">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
-              {item.category}
-            </span>
-            <span className="text-xs text-sky-200 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-amber-400" />
-              {item.published_at ? item.published_at.slice(0, 10) : 'Fecha reciente'}
-            </span>
-            <span className="text-white/30">•</span>
-            <span className="text-xs text-sky-200 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-sky-300" />
-              {item.author}
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
+                {item.category}
+              </span>
+              <span className="text-xs text-sky-200 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                {item.published_at ? item.published_at.slice(0, 10) : 'Fecha reciente'}
+              </span>
+            </div>
+
+            {/* Author Avatar and Logo */}
+            <div className="flex items-center gap-2.5 bg-white/10 px-3 py-1 rounded-full border border-white/15">
+              {item.author_avatar_url ? (
+                <img
+                  src={resolveImageUrl(item.author_avatar_url)}
+                  alt=""
+                  className="w-6 h-6 rounded-full object-cover border border-white/30"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sky-300 text-[10px]">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+              )}
+              <span className="text-xs font-bold text-white">{item.author}</span>
+              {item.logo_url && (
+                <img
+                  src={resolveImageUrl(item.logo_url)}
+                  alt="Logo"
+                  className="w-5 h-5 rounded object-contain bg-white/90 p-0.5"
+                />
+              )}
+            </div>
           </div>
 
           <h1 className="font-serif font-bold text-2xl sm:text-4xl lg:text-[40px] text-white leading-tight tracking-tight">
@@ -122,21 +148,64 @@ export const PartnerNewsDetailPage: React.FC = () => {
         {item.image_url && (
           <div className="w-full max-h-[460px] bg-slate-950 overflow-hidden relative">
             <img
-              src={item.image_url}
+              src={resolveImageUrl(item.image_url)}
               alt={item.title}
               className="w-full h-full object-cover object-center"
             />
           </div>
         )}
 
+        {/* PDF Document Bar if attached */}
+        {hasPdf && (
+          <div className="mx-6 sm:mx-10 my-6 p-4 sm:p-5 rounded-2xl bg-white/10 border border-blue-300/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 font-bold shadow-md shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-xs sm:text-sm text-white">
+                  {item.file_name || 'Documento Oficial Adjunto (PDF)'}
+                </p>
+                <p className="text-[11px] text-sky-200">
+                  {item.file_size ? `${item.file_size} • ` : ''}Disponible para lectura en pantalla y descarga oficial.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setPdfModalOpen(true)}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Ver en Visor PDF</span>
+              </button>
+
+              <a
+                href={resolveImageUrl(item.file_url)}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 font-bold text-xs transition-all"
+                title="Descargar archivo"
+              >
+                <Download className="w-4 h-4 text-sky-300" />
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Body Content */}
-        <div className="p-6 sm:p-12 space-y-6 text-slate-100 leading-relaxed text-sm sm:text-base font-sans">
-          {paragraphs.map((p, idx) => (
-            <p key={idx} className="[overflow-wrap:anywhere] text-justify leading-loose">
-              {p}
-            </p>
-          ))}
-        </div>
+        {paragraphs.length > 0 && (
+          <div className="p-6 sm:p-12 space-y-6 text-slate-100 leading-relaxed text-sm sm:text-base font-sans">
+            {paragraphs.map((p, idx) => (
+              <p key={idx} className="[overflow-wrap:anywhere] text-justify leading-loose">
+                {p}
+              </p>
+            ))}
+          </div>
+        )}
 
         {/* Footer info box */}
         <div className="p-6 sm:p-8 bg-[#002b4d] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -191,6 +260,18 @@ export const PartnerNewsDetailPage: React.FC = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* PDF Modal Viewer */}
+      {hasPdf && (
+        <PdfViewerModal
+          isOpen={pdfModalOpen}
+          onClose={() => setPdfModalOpen(false)}
+          url={resolveImageUrl(item.file_url)}
+          title={item.title}
+          fileName={item.file_name}
+          fileSize={item.file_size}
+        />
       )}
     </div>
   );

@@ -37,7 +37,7 @@ class AlliancesController extends ResourceController
         }
 
         $name = $input['name'] ?? 'alianza';
-        $slug = url_title($name, '-', true) . '-' . time();
+        $slug = clean_slug($name) . '-' . time();
 
         $data = [
             'name'           => $name,
@@ -67,7 +67,7 @@ class AlliancesController extends ResourceController
         $data = [];
         if (isset($input['name'])) {
             $data['name'] = $input['name'];
-            $data['slug'] = url_title($input['name'], '-', true) . '-' . $id;
+            $data['slug'] = clean_slug($input['name']) . '-' . $id;
         }
         if (isset($input['category'])) $data['category'] = $input['category'];
         if (isset($input['description'])) $data['description'] = $input['description'];

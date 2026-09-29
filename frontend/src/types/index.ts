@@ -79,11 +79,33 @@ export interface Alliance {
   is_active: number | boolean;
 }
 
+export interface InterestLink {
+  id: number;
+  category_id?: number | null;
+  category_name?: string;
+  category_slug?: string;
+  title: string;
+  description?: string;
+  url: string;
+  logo_url?: string;
+  order_num: number;
+  is_featured: number | boolean;
+  is_active: number | boolean;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
 export interface Category {
   id: number;
   name: string;
   slug: string;
   type: 'news' | 'events' | 'members' | 'opportunities' | 'minutes' | string;
+}
+
+export interface ArticleSourceLink {
+  title: string;
+  url: string;
 }
 
 export interface Article {
@@ -97,9 +119,16 @@ export interface Article {
   content: string;
   image_url?: string;
   author: string;
+  author_avatar_url?: string;
+  logo_url?: string;
+  document_type?: 'text' | 'file' | 'both' | 'url';
+  file_url?: string;
+  file_name?: string;
+  file_size?: string;
   published_at: string;
   is_featured: number | boolean;
   status: 'published' | 'draft';
+  source_links?: ArticleSourceLink[] | string | null;
   created_at?: string;
 }
 
@@ -112,6 +141,12 @@ export interface PartnerNewsItem {
   content: string;
   image_url?: string;
   author: string;
+  author_avatar_url?: string;
+  logo_url?: string;
+  document_type?: 'text' | 'file' | 'both' | 'url';
+  file_url?: string;
+  file_name?: string;
+  file_size?: string;
   published_at: string;
   is_featured: number | boolean;
   status: 'published' | 'draft' | 'archived';
@@ -125,6 +160,12 @@ export interface Blog {
   slug: string;
   author: string;
   author_role?: string;
+  author_avatar_url?: string;
+  logo_url?: string;
+  document_type?: 'text' | 'file' | 'both' | 'url';
+  file_url?: string;
+  file_name?: string;
+  file_size?: string;
   summary?: string;
   content: string;
   image_url?: string;
@@ -312,9 +353,17 @@ export interface PartnerMinute {
   member_id?: number | null;
   title: string;
   category?: string;
+  categories?: string[] | string;
+  summary?: string;
   description?: string;
-  document_type: 'file' | 'url';
-  file_url: string;
+  content?: string;
+  image_url?: string;
+  cover_image_url?: string;
+  author?: string;
+  author_avatar_url?: string;
+  logo_url?: string;
+  document_type: 'file' | 'url' | 'text' | 'both';
+  file_url?: string;
   file_name?: string;
   file_size?: string;
   meeting_date?: string;
@@ -333,10 +382,16 @@ export interface Decree {
   id: number;
   title: string;
   decree_number?: string;
+  summary?: string;
   description?: string;
+  content?: string;
+  image_url?: string;
+  cover_image_url?: string;
+  author?: string;
+  author_avatar_url?: string;
   logo_url?: string;
-  document_type: 'file' | 'url';
-  file_url: string;
+  document_type: 'file' | 'url' | 'text' | 'both';
+  file_url?: string;
   file_name?: string;
   file_size?: string;
   issue_date?: string;

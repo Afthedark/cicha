@@ -16,6 +16,10 @@ class DecreeModel extends Model
         'title',
         'decree_number',
         'description',
+        'content',
+        'cover_image_url',
+        'author',
+        'author_avatar_url',
         'logo_url',
         'document_type',
         'file_url',
@@ -33,7 +37,7 @@ class DecreeModel extends Model
 
     protected $validationRules = [
         'title'         => 'required|min_length[3]|max_length[255]',
-        'file_url'      => 'required|max_length[1000]',
-        'document_type' => 'in_list[file,url]',
+        'file_url'      => 'permit_empty|max_length[1000]',
+        'document_type' => 'permit_empty|in_list[file,url,text,both]',
     ];
 }

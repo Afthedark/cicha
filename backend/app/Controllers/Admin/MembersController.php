@@ -48,7 +48,7 @@ class MembersController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $slug = url_title($input['company_name'] ?? 'empresa', '-', true) . '-' . time();
+        $slug = clean_slug($input['company_name'] ?? 'empresa') . '-' . time();
 
         $memberModel = new MemberModel();
 
@@ -99,7 +99,7 @@ class MembersController extends ResourceController
         $data = [];
         if (isset($input['company_name'])) {
             $data['company_name'] = $input['company_name'];
-            $data['slug'] = url_title($input['company_name'], '-', true) . '-' . $id;
+            $data['slug'] = clean_slug($input['company_name']) . '-' . $id;
         }
         if (isset($input['representative_name'])) $data['representative_name'] = $input['representative_name'];
         if (isset($input['sector'])) {

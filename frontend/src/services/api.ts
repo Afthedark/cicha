@@ -24,6 +24,7 @@ import type {
   Category,
   PartnerNewsItem,
   B2BMeeting,
+  InterestLink,
 } from '../types';
 
 // URL Base de la API del Backend (Modificar manualmente aquí para producción)
@@ -128,7 +129,21 @@ export const publicApi = {
     apiClient.get<{ status: number; data: PhotoAlbum }>(`/public/gallery/${slug}`).then((res) => res.data.data),
 
   getEvents: (filter?: 'upcoming' | 'past' | 'all') =>
-    apiClient.get<{ status: number; data: EventItem[] }>('/public/events', { params: { filter } }).then((res) => res.data.data),
+    apiClient
+      .get<{ status: number; data: EventItem[]; empty_message?: string }>('/public/events', { params: { filter } })
+      .then((res) => {
+        const events = res.data.data || [];
+        (events as any).empty_message = res.data.empty_message;
+        return events;
+      }),
+
+  getEventsWithMeta: (filter?: 'upcoming' | 'past' | 'all') =>
+    apiClient
+      .get<{ status: number; data: EventItem[]; empty_message?: string }>('/public/events', { params: { filter } })
+      .then((res) => ({
+        events: res.data.data || [],
+        empty_message: res.data.empty_message || 'En este momento estamos trabajando para los próximos eventos',
+      })),
 
   getMembers: (sector?: string, search?: string) =>
     apiClient
@@ -164,6 +179,13 @@ export const publicApi = {
   getBenefits: (category?: string, search?: string) =>
     apiClient
       .get<{ status: number; data: { benefits: PartnerBenefit[]; categories: Category[] } }>('/public/benefits', {
+        params: { category, q: search },
+      })
+      .then((res) => res.data.data),
+
+  getInterestLinks: (category?: string, search?: string) =>
+    apiClient
+      .get<{ status: number; data: { links: InterestLink[]; categories: Category[] } }>('/public/interest-links', {
         params: { category, q: search },
       })
       .then((res) => res.data.data),
@@ -456,6 +478,18 @@ export const adminApi = {
     apiClient.put(`/admin/decrees/${id}`, data).then((res) => res.data),
   deleteDecree: (id: number) => apiClient.delete(`/admin/decrees/${id}`).then((res) => res.data),
 
+  // Partner Minutes / Actas Institucionales (Admin & Secretario)
+  getMinutes: (search?: string, category?: string) =>
+    apiClient
+      .get<{ status: number; data: PartnerMinute[] }>('/admin/partner-minutes', { params: { q: search, category } })
+      .then((res) => res.data.data),
+  getMinute: (id: number | string) =>
+    apiClient.get<{ status: number; data: PartnerMinute }>(`/admin/partner-minutes/${id}`).then((res) => res.data.data),
+  createMinute: (data: Partial<PartnerMinute>) => apiClient.post('/admin/partner-minutes', data).then((res) => res.data),
+  updateMinute: (id: number | string, data: Partial<PartnerMinute>) =>
+    apiClient.put(`/admin/partner-minutes/${id}`, data).then((res) => res.data),
+  deleteMinute: (id: number | string) => apiClient.delete(`/admin/partner-minutes/${id}`).then((res) => res.data),
+
   // Partner Resources (Admin & Secretario)
   getPartnerResources: () =>
     apiClient.get<{ status: number; data: PartnerResource[] }>('/admin/partner-resources').then((res) => res.data.data),
@@ -497,6 +531,20 @@ export const adminApi = {
   createAlliance: (data: Partial<Alliance>) => apiClient.post('/admin/alliances', data).then((res) => res.data),
   updateAlliance: (id: number, data: Partial<Alliance>) => apiClient.put(`/admin/alliances/${id}`, data).then((res) => res.data),
   deleteAlliance: (id: number) => apiClient.delete(`/admin/alliances/${id}`).then((res) => res.data),
+
+  // Interest Links (Admin & Secretario)
+  getInterestLinks: (params?: { category_id?: string | number; status?: string; q?: string }) =>
+    apiClient.get<{ status: number; data: InterestLink[] }>('/admin/interest-links', { params }).then((res) => res.data.data),
+  getInterestLink: (id: number | string) =>
+    apiClient.get<{ status: number; data: InterestLink }>(`/admin/interest-links/${id}`).then((res) => res.data.data),
+  createInterestLink: (data: Partial<InterestLink>) =>
+    apiClient.post<{ status: number; message: string; data: InterestLink }>('/admin/interest-links', data).then((res) => res.data),
+  updateInterestLink: (id: number | string, data: Partial<InterestLink>) =>
+    apiClient.put<{ status: number; message: string; data: InterestLink }>(`/admin/interest-links/${id}`, data).then((res) => res.data),
+  deleteInterestLink: (id: number | string) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/interest-links/${id}`).then((res) => res.data),
+  restoreInterestLink: (id: number | string) =>
+    apiClient.post<{ status: number; message: string }>(`/admin/interest-links/${id}/restore`).then((res) => res.data),
 
   // Applications (Admin & Secretario)
   getApplications: (status?: string) =>

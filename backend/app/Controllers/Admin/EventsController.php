@@ -38,7 +38,7 @@ class EventsController extends ResourceController
         }
 
         $title = $input['title'] ?? 'evento';
-        $slug = url_title($title, '-', true) . '-' . time();
+        $slug = clean_slug($title) . '-' . time();
 
         $data = [
             'title'            => $title,
@@ -74,7 +74,7 @@ class EventsController extends ResourceController
         $data = [];
         if (isset($input['title'])) {
             $data['title'] = $input['title'];
-            $data['slug'] = url_title($input['title'], '-', true) . '-' . $id;
+            $data['slug'] = clean_slug($input['title']) . '-' . $id;
         }
         if (isset($input['category_id'])) $data['category_id'] = $input['category_id'] ?: null;
         if (isset($input['album_id'])) $data['album_id'] = !empty($input['album_id']) ? (int) $input['album_id'] : null;

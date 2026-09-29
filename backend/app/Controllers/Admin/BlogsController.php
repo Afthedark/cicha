@@ -31,8 +31,7 @@ class BlogsController extends ResourceController
         $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $rules = [
-            'title'   => 'required|min_length[3]',
-            'content' => 'required',
+            'title' => 'required|min_length[3]',
         ];
 
         if (!$this->validate($rules)) {
@@ -40,22 +39,30 @@ class BlogsController extends ResourceController
         }
 
         $title = $input['title'] ?? 'blog-post';
-        $slug = url_title($title, '-', true) . '-' . time();
+        $slug = clean_slug($title) . '-' . time();
+
+        $documentType = $input['document_type'] ?? (!empty($input['file_url']) && !empty($input['content']) ? 'both' : (!empty($input['file_url']) ? 'file' : 'text'));
 
         $data = [
-            'title'        => $title,
-            'slug'         => $slug,
-            'author'       => $input['author'] ?? 'Comisión Editorial CICHA',
-            'author_role'  => $input['author_role'] ?? '',
-            'summary'      => $input['summary'] ?? '',
-            'content'      => $input['content'] ?? '',
-            'image_url'    => $input['image_url'] ?? '',
-            'category'     => $input['category'] ?? 'General',
-            'tags'         => $input['tags'] ?? '',
-            'read_time'    => $input['read_time'] ?? '5 min de lectura',
-            'is_featured'  => !empty($input['is_featured']) ? 1 : 0,
-            'status'       => $input['status'] ?? 'published',
-            'published_at' => $input['published_at'] ?? date('Y-m-d H:i:s'),
+            'title'             => $title,
+            'slug'              => $slug,
+            'author'            => $input['author'] ?? 'Comisión Editorial CICHA',
+            'author_role'       => $input['author_role'] ?? '',
+            'author_avatar_url' => $input['author_avatar_url'] ?? '',
+            'summary'           => $input['summary'] ?? '',
+            'content'           => $input['content'] ?? '',
+            'image_url'         => $input['image_url'] ?? '',
+            'logo_url'          => $input['logo_url'] ?? '',
+            'category'          => $input['category'] ?? 'General',
+            'tags'              => $input['tags'] ?? '',
+            'read_time'         => $input['read_time'] ?? '5 min de lectura',
+            'document_type'     => $documentType,
+            'file_url'          => $input['file_url'] ?? '',
+            'file_name'         => $input['file_name'] ?? '',
+            'file_size'         => $input['file_size'] ?? '',
+            'is_featured'       => !empty($input['is_featured']) ? 1 : 0,
+            'status'            => $input['status'] ?? 'published',
+            'published_at'      => $input['published_at'] ?? date('Y-m-d H:i:s'),
         ];
 
         $blogModel = new BlogModel();
@@ -79,22 +86,28 @@ class BlogsController extends ResourceController
         $input = $this->request->getJSON(true) ?: $this->request->getRawInput() ?: $this->request->getVar();
 
         $data = [
-            'title'        => $input['title'] ?? $existing['title'],
-            'author'       => $input['author'] ?? $existing['author'],
-            'author_role'  => $input['author_role'] ?? $existing['author_role'],
-            'summary'      => $input['summary'] ?? $existing['summary'],
-            'content'      => $input['content'] ?? $existing['content'],
-            'image_url'    => $input['image_url'] ?? $existing['image_url'],
-            'category'     => $input['category'] ?? $existing['category'],
-            'tags'         => $input['tags'] ?? $existing['tags'],
-            'read_time'    => $input['read_time'] ?? $existing['read_time'],
-            'is_featured'  => isset($input['is_featured']) ? (int)$input['is_featured'] : $existing['is_featured'],
-            'status'       => $input['status'] ?? $existing['status'],
-            'published_at' => $input['published_at'] ?? $existing['published_at'],
+            'title'             => $input['title'] ?? $existing['title'],
+            'author'            => $input['author'] ?? $existing['author'],
+            'author_role'       => $input['author_role'] ?? $existing['author_role'],
+            'author_avatar_url' => $input['author_avatar_url'] ?? ($existing['author_avatar_url'] ?? ''),
+            'summary'           => $input['summary'] ?? $existing['summary'],
+            'content'           => $input['content'] ?? $existing['content'],
+            'image_url'         => $input['image_url'] ?? $existing['image_url'],
+            'logo_url'          => $input['logo_url'] ?? ($existing['logo_url'] ?? ''),
+            'category'          => $input['category'] ?? $existing['category'],
+            'tags'              => $input['tags'] ?? $existing['tags'],
+            'read_time'         => $input['read_time'] ?? $existing['read_time'],
+            'document_type'     => $input['document_type'] ?? ($existing['document_type'] ?? 'text'),
+            'file_url'          => $input['file_url'] ?? ($existing['file_url'] ?? ''),
+            'file_name'         => $input['file_name'] ?? ($existing['file_name'] ?? ''),
+            'file_size'         => $input['file_size'] ?? ($existing['file_size'] ?? ''),
+            'is_featured'       => isset($input['is_featured']) ? (int)$input['is_featured'] : $existing['is_featured'],
+            'status'            => $input['status'] ?? $existing['status'],
+            'published_at'      => $input['published_at'] ?? $existing['published_at'],
         ];
 
         if (!empty($input['title']) && $input['title'] !== $existing['title']) {
-            $data['slug'] = url_title($input['title'], '-', true) . '-' . $existing['id'];
+            $data['slug'] = clean_slug($input['title']) . '-' . $existing['id'];
         }
 
         $blogModel->update($id, $data);

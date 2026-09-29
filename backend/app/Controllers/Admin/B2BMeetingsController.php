@@ -39,7 +39,7 @@ class B2BMeetingsController extends ResourceController
         }
 
         $title = $input['title'];
-        $slug = !empty($input['slug']) ? url_title($input['slug'], '-', true) : url_title($title, '-', true);
+        $slug = !empty($input['slug']) ? clean_slug($input['slug']) : clean_slug($title);
 
         // Ensure unique slug
         $model = new B2BMeetingModel();
@@ -87,10 +87,10 @@ class B2BMeetingsController extends ResourceController
         if (isset($input['title'])) {
             $data['title'] = $input['title'];
             if (empty($input['slug'])) {
-                $data['slug'] = url_title($input['title'], '-', true);
+                $data['slug'] = clean_slug($input['title']);
             }
         }
-        if (isset($input['slug'])) $data['slug'] = url_title($input['slug'], '-', true);
+        if (isset($input['slug'])) $data['slug'] = clean_slug($input['slug']);
         if (isset($input['sector'])) $data['sector'] = $input['sector'];
         if (isset($input['meeting_date'])) $data['meeting_date'] = !empty($input['meeting_date']) ? $input['meeting_date'] : null;
         if (isset($input['location'])) $data['location'] = $input['location'];

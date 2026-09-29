@@ -10,11 +10,15 @@ import {
   Tag,
   ChevronRight,
   ShieldCheck,
+  FileText,
+  Eye,
+  Download,
 } from 'lucide-react';
-import { publicApi } from '../../services/api';
+import { publicApi, resolveImageUrl } from '../../services/api';
 import type { Blog } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -22,6 +26,7 @@ export const BlogDetailPage: React.FC = () => {
   const [related, setRelated] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -74,6 +79,8 @@ export const BlogDetailPage: React.FC = () => {
     );
   }
 
+  const hasPdf = Boolean(blog.file_url);
+
   return (
     <article className="space-y-12 pb-24">
       {/* 1. Header Hero */}
@@ -105,11 +112,28 @@ export const BlogDetailPage: React.FC = () => {
           {/* Author bar */}
           <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-900 border border-blue-700 flex items-center justify-center text-cicha-sky font-bold">
-                <UserIcon className="w-5 h-5" />
-              </div>
+              {blog.author_avatar_url ? (
+                <img
+                  src={resolveImageUrl(blog.author_avatar_url)}
+                  alt={blog.author}
+                  className="w-11 h-11 rounded-full object-cover border-2 border-cicha-sky/60 shadow-sm"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-900 border border-blue-700 flex items-center justify-center text-cicha-sky font-bold">
+                  <UserIcon className="w-5 h-5" />
+                </div>
+              )}
               <div>
-                <p className="text-xs font-bold text-white">{blog.author}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-bold text-white">{blog.author}</p>
+                  {blog.logo_url && (
+                    <img
+                      src={resolveImageUrl(blog.logo_url)}
+                      alt="Logo"
+                      className="w-5 h-5 rounded object-contain bg-white/90 p-0.5"
+                    />
+                  )}
+                </div>
                 {blog.author_role && <p className="text-[11px] text-slate-400">{blog.author_role}</p>}
               </div>
             </div>
@@ -122,7 +146,7 @@ export const BlogDetailPage: React.FC = () => {
 
               <button
                 onClick={handleShare}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 {copied ? '¡Enlace Copiado!' : 'Compartir'}
@@ -136,7 +160,7 @@ export const BlogDetailPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {blog.image_url && (
           <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-slate-100 max-h-[500px]">
-            <img src={blog.image_url} alt={blog.title} className="w-full h-full object-cover" />
+            <img src={resolveImageUrl(blog.image_url)} alt={blog.title} className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -146,10 +170,53 @@ export const BlogDetailPage: React.FC = () => {
           </div>
         )}
 
+        {/* PDF Document Bar if attached */}
+        {hasPdf && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50/70 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-xs shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-xs sm:text-sm text-slate-900">
+                  {blog.file_name || 'Documento PDF Adjunto'}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {blog.file_size ? `${blog.file_size} • ` : ''}Publicación completa disponible para lectura y descarga.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setPdfModalOpen(true)}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Ver en Visor PDF</span>
+              </button>
+
+              <a
+                href={resolveImageUrl(blog.file_url)}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs transition-all"
+                title="Descargar archivo"
+              >
+                <Download className="w-4 h-4 text-slate-500" />
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Article Body */}
-        <div className="prose prose-slate max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-6 whitespace-pre-line font-light">
-          {blog.content}
-        </div>
+        {blog.content && (
+          <div className="prose prose-slate max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-6 whitespace-pre-line font-light">
+            {blog.content}
+          </div>
+        )}
 
         {/* Tags */}
         {blog.tags && (
@@ -170,11 +237,28 @@ export const BlogDetailPage: React.FC = () => {
 
         {/* Author Bio Box */}
         <div className="bg-slate-50 rounded-3xl p-6 sm:p-8 border border-slate-200 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-          <div className="w-16 h-16 rounded-2xl bg-cicha-navy text-white flex items-center justify-center shrink-0 shadow-md">
-            <ShieldCheck className="w-8 h-8 text-cicha-sky" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="font-serif font-bold text-base text-cicha-navy">{blog.author}</h4>
+          {blog.author_avatar_url ? (
+            <img
+              src={resolveImageUrl(blog.author_avatar_url)}
+              alt={blog.author}
+              className="w-16 h-16 rounded-2xl object-cover border border-slate-300 shadow-md shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-cicha-navy text-white flex items-center justify-center shrink-0 shadow-md">
+              <ShieldCheck className="w-8 h-8 text-cicha-sky" />
+            </div>
+          )}
+          <div className="space-y-1 flex-1">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <h4 className="font-serif font-bold text-base text-cicha-navy">{blog.author}</h4>
+              {blog.logo_url && (
+                <img
+                  src={resolveImageUrl(blog.logo_url)}
+                  alt="Logo"
+                  className="w-6 h-6 rounded object-contain border border-slate-200 bg-white p-0.5"
+                />
+              )}
+            </div>
             <p className="text-xs text-blue-700 font-semibold">{blog.author_role || 'Publicación Editorial Oficial'}</p>
             <p className="text-xs text-slate-600 leading-relaxed pt-1">
               Artículo elaborado para la Cámara de Industria y Comercio Heleno Argentina (CICHA) en el marco de la integración bilateral y las redes de Eurocámara y EEN.
@@ -215,6 +299,18 @@ export const BlogDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* PDF Modal Viewer */}
+      {hasPdf && (
+        <PdfViewerModal
+          isOpen={pdfModalOpen}
+          onClose={() => setPdfModalOpen(false)}
+          url={resolveImageUrl(blog.file_url)}
+          title={blog.title}
+          fileName={blog.file_name}
+          fileSize={blog.file_size}
+        />
+      )}
     </article>
   );
 };

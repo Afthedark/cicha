@@ -3,6 +3,16 @@
 use CodeIgniter\Boot;
 use Config\Paths;
 
+// Set universal CORS headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authorization, x-authorization, X-API-KEY, Access-Control-Request-Method');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE');
+
+if (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
+}
+
 /*
  *---------------------------------------------------------------
  * CHECK PHP VERSION

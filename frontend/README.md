@@ -24,7 +24,32 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 
 ## 🌟 Principales Módulos y Nuevas Características
 
-### 1. 🏛️ "Contenido Administrable Web" y Traducciones Independientes (`AdminInstitutionalSectionsPage.tsx`, `HomePage.tsx`, `PresentationPage.tsx` y `InstitutionalPage.tsx`)
+### 1. 🔗 Nuevo Módulo: "Links de Interés" con Categorías & Soft Delete (`InterestLinksPage.tsx` y `AdminInterestLinksPage.tsx`)
+- **Portal Público (`/links-de-interes`)**:
+  - Directorio oficial de enlaces institucionales, gubernamentales, comerciales y consulares greco-argentinos.
+  - Filtro horizontal dinámico por categorías temáticas (`type = 'links'`), buscador instantáneo en tiempo real y contador de enlaces visibles.
+  - Tarjetas interactivas con logo/imagen institucional, resumen descriptivo, badge de categoría y botón de acceso directo seguro (*target="_blank"* con `rel="noopener noreferrer"`).
+- **CMS Admin (`/admin/links`)**:
+  - Panel integral de altas, bajas y modificaciones con soporte de **Soft Delete** (papelera y restauración con 1 clic).
+  - Gestión directa de categorías temáticas de enlaces (`type = 'links'`) mediante modal CRUD embebido.
+  - Selector de categorías dinámico con autocompletado y validación de URLs externas.
+
+### 2. 📄 Estandarización Multimedia & Visor de PDF Interactivo (`PdfViewerModal.tsx`)
+- **Visor In-App de Documentos PDF**:
+  - Modal enriquecido con barra de herramientas completa: zoom in/out, rotación a 90°, modo pantalla completa, paginación, descarga directa y apertura en nueva pestaña.
+  - Integrado de manera transversal en los 5 módulos clave:
+    1. **Noticias & Prensa** (`/noticias/:slug`).
+    2. **Blogs Editoriales** (`/blogs/:slug`).
+    3. **Actas & Resoluciones de Socios** (`/portal-socios/actas`).
+    4. **Decretos Oficiales** (`/portal-socios/decretos`).
+    5. **Boletín para Socios** (`/portal-socios/boletin/:slug`).
+- **4 Modalidades de Contenido Estandarizadas**:
+  - `text`: Artículo redactado tradicional con texto enriquecido.
+  - `file`: Archivo adjunto o documento PDF oficial con visor interactivo.
+  - `both`: Contenido híbrido con cuerpo de texto y visor/descarga de documento adjunto.
+  - `url`: Redirección segura o referencia a fuente/normativa externa.
+
+### 3. 🏛️ "Contenido Administrable Web" y Traducciones Independientes (`AdminInstitutionalSectionsPage.tsx`, `HomePage.tsx`, `PresentationPage.tsx` y `InstitutionalPage.tsx`)
 - **Renombrado Oficial del Módulo**: Módulo accesible desde `/admin/institucional` unificado bajo el nombre **"Contenido Administrable Web"**.
 - **Segmentación por Página (`page_target`)**:
   - 🏠 **Inicio (`/`)**: Tarjetas de Misión, Objeto Estatutario, Reseña Histórica, Trayectoria, Reconocimientos y bloque **Oportunidades Comerciales Bilaterales** (`home_oportunidades`).
@@ -35,7 +60,7 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Encabezado 100% dinámico: Tag superior (*"Comercio Exterior & Inversión Egea"*), Título principal (*"Oportunidades Comerciales Bilaterales"*) y Descripción administrables desde el CMS y traducibles a Griego e Inglés.
   - Botón fijo *"Asociarse"* con enlace permanente a `/asociarse`.
 
-### 2. 🎁 Módulo de "Beneficios & Convenios" con CRUD de Categorías y Buscador (`BenefitsPage.tsx` y `AdminBenefitsPage.tsx`)
+### 4. 🎁 Módulo de "Beneficios & Convenios" con CRUD de Categorías y Buscador (`BenefitsPage.tsx` y `AdminBenefitsPage.tsx`)
 - **Web Pública (`/beneficios`)**:
   - Hero visual con estética greco-argentina y buscador por palabra clave en tiempo real.
   - Pestañas de filtrado horizontal por categorías comerciales (*Logística, Comercio Exterior, Servicios Profesionales, Hotelería & Viajes, Tecnología*).
@@ -45,18 +70,18 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - **CRUD Directo de Categorías de Beneficios**: Modal emergente para dar de alta, modificar y eliminar categorías (`type = 'benefits'`).
   - **Buscador en el Selector de Categorías**: Permite escribir y encontrar rápidamente la categoría deseada al crear o editar el beneficio.
 
-### 3. 📅 Gestión Avanzada de Eventos con Doble Foto & Buscador de Álbumes (`AdminEventsPage.tsx`, `EventsPage.tsx` y `HomePage.tsx`)
+### 5. 📅 Gestión Avanzada de Eventos con Doble Foto & Buscador de Álbumes (`AdminEventsPage.tsx`, `EventsPage.tsx` y `HomePage.tsx`)
 - **Soporte de Hasta 2 Fotos Principales**: Componentes dedicados `ImageUploader` para subir y previsualizar Foto Principal 1 (`image_url`) y Foto Principal 2 (`image_url_2`).
 - **Link Evento (Redes Sociales / Enlace Externo)**: Enlace optimizado para Instagram, LinkedIn, Facebook o registro directo.
 - **Buscador Asíncrono de Álbum Fotográfico Vinculado (`album_id`)**:
   - Selector con búsqueda en tiempo real conectado al endpoint de búsqueda de álbumes del backend.
   - En la Web Pública (**Agenda de Eventos** e **Inicio**), badge interactivo **"Ver Galería de Fotos ({photos_count})"** con redirección fluida a `/galeria/:slug`.
 
-### 4. 🖼️ Galería Fotográfica con Gestión de Categorías en Línea (`AdminGalleryPage.tsx` y `GalleryPage.tsx`)
+### 6. 🖼️ Galería Fotográfica con Gestión de Categorías en Línea (`AdminGalleryPage.tsx` y `GalleryPage.tsx`)
 - **Administración de Categorías Integrada**: Modal dentro del CMS de Galería para gestionar categorías temáticas (`type = 'gallery'`) en tiempo real sin abandonar la vista de álbumes.
 - **Visualización Pública**: Mosaico con filtros por categoría, lightbox de alta resolución y conteo dinámico de imágenes por álbum.
 
-### 5. 🌐 Traducciones Manuales con Edición de Español Original (`LanguageContext.tsx` y `AdminTranslationsPage.tsx`)
+### 7. 🌐 Traducciones Manuales con Edición de Español Original (`LanguageContext.tsx` y `AdminTranslationsPage.tsx`)
 - **Panel de Traducción Tripartito**:
   - 🇦🇷 **Texto Original en Español (`original_es`)**: Totalmente editable por el administrador para corregir o actualizar la redacción base en castellano.
   - 🇬🇷 **Griego Moderno (`text_el`)**: Editor sincronizado en tiempo real.
@@ -64,7 +89,7 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 - **Filtros por Página**: Pestañas para `Inicio` (incluyendo `home.opp_*`), `Presentación`, `La Cámara`, `Acreditaciones Header` y `General`.
 - **Guardado Individual y Masivo**: Guardado rápido individual y botón flotante de **"Guardar Todas las Traducciones"** por lote.
 
-### 6. 🤝 Módulo de "Reuniones B2B & Resultados" con Categorías Dinámicas (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
+### 8. 🤝 Módulo de "Reuniones B2B & Resultados" con Categorías Dinámicas (`B2BMeetingsPublicPage.tsx`, `PartnerB2BMeetingsPage.tsx` y `AdminB2BMeetingsPage.tsx`)
 - **Web Pública Optimizada (`/reuniones-b2b`)**:
   - Cabecera limpia y ejecutiva (sin contadores fijos redundantes).
   - Píldoras de filtrado dinámicas por categoría y sector comercial (`data.categories`), y buscador en vivo.
@@ -75,7 +100,7 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Modal **"Categorías ({total})"** para crear, renombrar y eliminar sectores comerciales (`type = 'b2b'`).
   - Selector dinámico de categorías en el formulario organizado en 2 pestañas (*1. Datos Públicos* y *2. Informe Exclusivo para Socios*).
 
-### 7. 📰 Módulo de "Noticias & Prensa" con Categorías Administrables (`AdminArticlesPage.tsx`, `ArticlesPage.tsx` y `ArticleDetailPage.tsx`)
+### 9. 📰 Módulo de "Noticias & Prensa" con Categorías Administrables (`AdminArticlesPage.tsx`, `ArticlesPage.tsx` y `ArticleDetailPage.tsx`)
 - **Web Pública (`/noticias`)**:
   - Comunicados oficiales y gacetillas con barra de categorías reactiva que consume `data.categories` desde la API pública.
 - **CMS Admin (`/admin/noticias`)**:
@@ -83,36 +108,36 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
   - Modal interactivo de **"Categorías ({total})"** (`type = 'news'`) con soporte CRUD.
   - Sincronización en cascada al renombrar y reasignación segura (*safe-delete*) a `'General'` al eliminar categorías.
 
-### 8. ✍️ Módulo de "Blogs & Artículos Editoriales" con Categorías en Tiempo Real (`AdminBlogsPage.tsx`, `BlogsPage.tsx` y `BlogDetailPage.tsx`)
+### 10. ✍️ Módulo de "Blogs & Artículos Editoriales" con Categorías en Tiempo Real (`AdminBlogsPage.tsx`, `BlogsPage.tsx` y `BlogDetailPage.tsx`)
 - **Web Pública (`/blogs`)**:
   - Artículos y columnas editoriales con selector dinámico de categorías y buscador.
 - **CMS Admin (`/admin/blogs`)**:
   - Botón de gestión **"Categorías ({total})"** (`type = 'blogs'`) con modal de creación, edición inline y eliminación segura.
   - Selector `<select>` dinámico de categorías dentro del formulario modal de creación/edición de blogs.
 
-### 9. 🏢 Directorio de Socios & Fichas Optimizadas (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
+### 11. 🏢 Directorio de Socios & Fichas Optimizadas (`AdminMembersPage.tsx`, `MembersDirectoryPage.tsx` y `PartnerDirectoryPage.tsx`)
 - **Diseño Armónico en Grilla Pública**:
   - Tarjetas de altura simétrica con truncamiento inteligente (`line-clamp-3`) y botón *"Ver más..."*.
   - Modal detallado con teléfono directo (`phone`), dirección (`address`), autoridades y visor web seguro (*In-App Browser*).
 - **Asignación Múltiple en CMS (`/admin/socios`)**: Selector interactivo de sectores y categorías con buscador y badges con eliminación rápida (`X`).
 
-### 10. 📑 Categorización Dinámica de Actas de Socios (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
-- **Gestor en CMS (`/admin/decretos`)**: Modal interactivo para administrar categorías de actas (`type = 'minutes'`).
+### 12. 📑 Actas & Resoluciones Institucionales con Categorías Dinámicas (`PartnerMinutesPage.tsx` y `AdminDecreesPage.tsx`)
+- **Categorización Ampliada**: Soporte para *TEAM EUROPE*, *UCCEB*, *ECA*, *Asambleas Generales* y categorías personalizadas (`type = 'minutes'`).
+- **Gestor en CMS (`/admin/decretos`)**: Modal interactivo para administrar categorías de actas.
 - **Formulario de Carga**: Selector dinámico de categorías al compartir actas (PDF o URL).
-- **Filtros por Categoría**: Pestañas de filtrado horizontal y badge temático.
 
-### 11. 📩 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
+### 13. 📩 Boletín de Noticias para Socios (`AdminPartnerNewsPage.tsx`, `PartnerNewsPage.tsx` y `PartnerNewsDetailPage.tsx`)
 - **Módulo CMS (`/admin/boletin-socios`)**: Creación y edición de noticias exclusivas con imagen de portada, categorías y switch de visibilidad.
-- **Portal de Socios (`/portal-socios/boletin`)**: Cartelera informativa tipo magazine para empresas socias.
+- **Portal de Socios (`/portal-socios/boletin`)**: Cartelera informativa tipo magazine para empresas socias con soporte PDF.
 
-### 12. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
+### 14. 🏛️ Módulo de "Decretos Oficiales" (`AdminDecreesPage.tsx` y `PartnerDecreesPage.tsx`)
 - **CMS Admin (`/admin/decretos`)**: Carga dual de PDF o URL externa con logo/escudo oficial y fecha de emisión.
-- **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional con buscador en tiempo real y descarga de PDF o enlace web.
+- **Portal de Socios (`/portal-socios/decretos`)**: Visualización institucional con buscador en tiempo real, visor PDF integrado y descarga.
 
-### 13. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (21 Módulos) (`AdminLayout.tsx`)
+### 15. 🗂️ Sidebar del CMS en 5 Grupos Temáticos (22 Módulos) (`AdminLayout.tsx`)
 - Menú de administración lateral modularizado:
   - **RESUMEN GENERAL**: Panel Principal (`/admin/dashboard`).
-  - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners, Contenido Administrable Web (`/admin/institucional`), Beneficios & Convenios (`/admin/beneficios`), Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés (`AdminTranslationsPage.tsx`).
+  - **WEB PÚBLICA & CONTENIDOS**: Portadas & Banners, Contenido Administrable Web (`/admin/institucional`), Links de Interés (`/admin/links`), Beneficios & Convenios (`/admin/beneficios`), Comisión Directiva, Noticias & Prensa, Blogs & Artículos, Galería Fotográfica, Agenda de Eventos, Reuniones B2B & Resultados, Directorio de Socios, Alianzas Estratégicas, Traducción Griego / Inglés (`AdminTranslationsPage.tsx`).
   - **PORTAL DE SOCIOS & INTRANET**: Cuentas de Socios, Decretos Oficiales, Boletín para Socios, Documentos & Informes, Oportunidades VIP.
   - **GESTIÓN & CONTACTO**: Solicitudes de Ingreso, Bandeja de Contacto.
   - **SISTEMA & STAFF**: Ajustes Generales, Staff & Administradores.
@@ -124,30 +149,32 @@ Frontend SPA reactivo desarrollado con **React 19**, **Vite 8**, **TypeScript**,
 ```
 frontend/src/
 ├── components/
-│   ├── common/              # Modales, Badges, Loaders, EventCalendar, GoogleTranslate, DocumentUploader, ImageUploader
+│   ├── common/              # Modales, Badges, Loaders, Visor PDF, EventCalendar, GoogleTranslate, DocumentUploader, ImageUploader
 │   │   ├── Badge.tsx
 │   │   ├── Modal.tsx
 │   │   ├── Loader.tsx
+│   │   ├── PdfViewerModal.tsx   # Visor PDF interactivo (zoom, rotación, fullscreen, descarga)
 │   │   ├── EventCalendar.tsx    # Componente de calendario interactivo
 │   │   ├── DocumentUploader.tsx # Subida dual PDF nativo o enlace URL externo
 │   │   ├── ImageUploader.tsx    # Subida y preview de imágenes fotográficas
 │   │   └── GoogleTranslate.tsx  # Selector de idioma y banderas vectoriales (ES, EL, EN)
 │   └── layout/
-│       ├── Navbar.tsx       # Cabecera pública con botón dorado Ingreso Socios, menú Beneficios y traductor
-│       ├── Footer.tsx       # Pie institucional con botón dorado "Acceso Administración Web CMS"
+│       ├── Navbar.tsx       # Cabecera pública con menú de navegación, enlaces de interés, botón Ingreso Socios y traductor
+│       ├── Footer.tsx       # Pie institucional con enlaces de interés y botón dorado "Acceso Administración Web CMS"
 │       ├── PartnerLayout.tsx# Cabecera bicapa e intranet exclusiva para socios (9 módulos)
-│       └── AdminLayout.tsx  # CMS con navegación lateral organizada en 5 grupos temáticos (21 módulos)
+│       └── AdminLayout.tsx  # CMS con navegación lateral organizada en 5 grupos temáticos (22 módulos)
 ├── context/
 │   ├── AuthContext.tsx      # Autenticación JWT y helpers de rol (isAdmin, isSecretary, isSocio)
 │   └── LanguageContext.tsx  # Motor de traducciones manuales (Español editable, Griego, Inglés)
 ├── pages/
-│   ├── public/              # 14 Vistas del Portal Público
+│   ├── public/              # 15 Vistas del Portal Público
 │   │   ├── HomePage.tsx                           # Inicio con tarjetas de Trayectoria, Oportunidades y Agenda
 │   │   ├── InstitutionalPage.tsx                  # La Cámara (/la-camara) con nómina jerárquica
 │   │   ├── PresentationPage.tsx                   # Presentación institucional Full-Width
+│   │   ├── InterestLinksPage.tsx                  # Links de Interés (/links-de-interes) con categorías dinámicas
 │   │   ├── BenefitsPage.tsx                       # Beneficios y Convenios (/beneficios)
-│   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx
-│   │   ├── BlogsPage.tsx & BlogDetailPage.tsx
+│   │   ├── ArticlesPage.tsx & ArticleDetailPage.tsx # Noticias con visor PDF integrado
+│   │   ├── BlogsPage.tsx & BlogDetailPage.tsx     # Blogs editoriales con visor PDF integrado
 │   │   ├── GalleryPage.tsx
 │   │   ├── SocialFeedPage.tsx                     # Feed Dual Facebook & Instagram
 │   │   ├── EventsPage.tsx                         # Agenda con 2 fotos, Link Evento y galería vinculada
@@ -158,21 +185,22 @@ frontend/src/
 │   │   └── ContactPage.tsx
 │   ├── partner/             # 9 Módulos Exclusivos del Portal de Socios
 │   │   ├── PartnerDashboardPage.tsx
-│   │   ├── PartnerNewsPage.tsx & PartnerNewsDetailPage.tsx # Boletín de Noticias para Socios
+│   │   ├── PartnerNewsPage.tsx & PartnerNewsDetailPage.tsx # Boletín de Noticias para Socios (con visor PDF)
 │   │   ├── PartnerB2BMeetingsPage.tsx             # Reuniones B2B & Resultados (Informes Detallados)
 │   │   ├── PartnerResourcesPage.tsx               # Documentos & Informes
-│   │   ├── PartnerMinutesPage.tsx                 # Actas & Resoluciones (PDF / URL con Categorías)
-│   │   ├── PartnerDecreesPage.tsx                 # Decretos Oficiales (PDF / URL)
+│   │   ├── PartnerMinutesPage.tsx                 # Actas & Resoluciones (PDF / URL con Categorías y Visor)
+│   │   ├── PartnerDecreesPage.tsx                 # Decretos Oficiales (PDF / URL con Visor)
 │   │   ├── PartnerOpportunitiesPage.tsx           # Oportunidades VIP
 │   │   ├── PartnerBenefitsPage.tsx                # Club de Beneficios (Categorías dinámicas)
 │   │   └── PartnerDirectoryPage.tsx               # Directorio de Socios ("Socios")
-│   └── admin/               # 21 Módulos Administrativos del CMS
+│   └── admin/               # 22 Módulos Administrativos del CMS
 │       ├── AdminLoginPage.tsx
 │       ├── AdminDashboardPage.tsx
 │       ├── AdminInstitutionalSectionsPage.tsx     # Contenido Administrable Web (Inicio, Presentación, La Cámara)
+│       ├── AdminInterestLinksPage.tsx             # Gestión de Links de Interés, Categorías y Soft Delete
 │       ├── AdminBenefitsPage.tsx                  # Gestión de Beneficios, Convenios y Categorías
-│       ├── AdminArticlesPage.tsx
-│       ├── AdminBlogsPage.tsx
+│       ├── AdminArticlesPage.tsx                  # Noticias & Prensa con modalidades multimedia
+│       ├── AdminBlogsPage.tsx                     # Blogs & Artículos con modalidades multimedia
 │       ├── AdminGalleryPage.tsx                   # Galería de Fotos & Categorías en línea
 │       ├── AdminEventsPage.tsx                    # Agenda de Eventos con 2 Fotos, Link Evento y Álbum vinculado
 │       ├── AdminB2BMeetingsPage.tsx               # Gestión de Reuniones B2B & Resultados
@@ -191,3 +219,4 @@ frontend/src/
 │       ├── AdminSettingsPage.tsx
 │       └── AdminUsersPage.tsx                     # Gestión de Staff con protección Super Admin
 ```
+

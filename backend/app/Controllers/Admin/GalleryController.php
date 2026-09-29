@@ -44,7 +44,7 @@ class GalleryController extends ResourceController
         }
 
         $title = $input['title'] ?? 'album';
-        $slug = url_title($title, '-', true) . '-' . time();
+        $slug = clean_slug($title) . '-' . time();
 
         $albumData = [
             'title'           => $title,
@@ -105,7 +105,7 @@ class GalleryController extends ResourceController
         ];
 
         if (!empty($input['title']) && $input['title'] !== $existing['title']) {
-            $albumData['slug'] = url_title($input['title'], '-', true) . '-' . $existing['id'];
+            $albumData['slug'] = clean_slug($input['title']) . '-' . $existing['id'];
         }
 
         $albumModel->update($id, $albumData);

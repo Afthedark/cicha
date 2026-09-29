@@ -56,22 +56,34 @@ class DecreesController extends ResourceController
             return $this->fail('El título del decreto es obligatorio.');
         }
 
-        if (empty($input['file_url'])) {
+        $documentType = (!empty($input['document_type']) && in_array($input['document_type'], ['file', 'url', 'text', 'both'])) 
+            ? $input['document_type'] 
+            : 'file';
+
+        if ($documentType === 'text' && empty($input['content'])) {
+            return $this->fail('Debe ingresar el texto del decreto.');
+        }
+
+        if ($documentType === 'file' && empty($input['file_url'])) {
             return $this->fail('Debe adjuntar un archivo PDF o ingresar una URL.');
         }
 
         $data = [
-            'title'         => trim($input['title']),
-            'decree_number' => !empty($input['decree_number']) ? trim($input['decree_number']) : null,
-            'description'   => !empty($input['description']) ? trim($input['description']) : null,
-            'logo_url'      => !empty($input['logo_url']) ? trim($input['logo_url']) : null,
-            'document_type' => (!empty($input['document_type']) && in_array($input['document_type'], ['file', 'url'])) ? $input['document_type'] : 'file',
-            'file_url'      => trim($input['file_url']),
-            'file_name'     => !empty($input['file_name']) ? trim($input['file_name']) : null,
-            'file_size'     => !empty($input['file_size']) ? trim($input['file_size']) : null,
-            'issue_date'    => !empty($input['issue_date']) ? $input['issue_date'] : null,
-            'downloads'     => 0,
-            'is_active'     => isset($input['is_active']) ? (int) $input['is_active'] : 1,
+            'title'             => trim($input['title']),
+            'decree_number'     => !empty($input['decree_number']) ? trim($input['decree_number']) : null,
+            'description'       => !empty($input['description']) ? trim($input['description']) : null,
+            'content'           => !empty($input['content']) ? trim($input['content']) : null,
+            'cover_image_url'   => !empty($input['cover_image_url']) ? trim($input['cover_image_url']) : null,
+            'author'            => !empty($input['author']) ? trim($input['author']) : null,
+            'author_avatar_url' => !empty($input['author_avatar_url']) ? trim($input['author_avatar_url']) : null,
+            'logo_url'          => !empty($input['logo_url']) ? trim($input['logo_url']) : null,
+            'document_type'     => $documentType,
+            'file_url'          => !empty($input['file_url']) ? trim($input['file_url']) : null,
+            'file_name'         => !empty($input['file_name']) ? trim($input['file_name']) : ($documentType === 'text' ? 'Decreto Digital' : null),
+            'file_size'         => !empty($input['file_size']) ? trim($input['file_size']) : ($documentType === 'text' ? 'Texto Oficial' : null),
+            'issue_date'        => !empty($input['issue_date']) ? $input['issue_date'] : null,
+            'downloads'         => 0,
+            'is_active'         => isset($input['is_active']) ? (int) $input['is_active'] : 1,
         ];
 
         $insertedId = $model->insert($data);
@@ -98,16 +110,20 @@ class DecreesController extends ResourceController
         $input = $this->request->getJSON(true) ?? $this->request->getRawInput();
 
         $data = [];
-        if (isset($input['title']))         $data['title']         = trim($input['title']);
-        if (isset($input['decree_number'])) $data['decree_number'] = trim($input['decree_number']) ?: null;
-        if (isset($input['description']))   $data['description']   = trim($input['description']) ?: null;
-        if (isset($input['logo_url']))      $data['logo_url']      = trim($input['logo_url']) ?: null;
-        if (isset($input['document_type'])) $data['document_type'] = $input['document_type'];
-        if (isset($input['file_url']))      $data['file_url']      = trim($input['file_url']);
-        if (isset($input['file_name']))     $data['file_name']     = trim($input['file_name']) ?: null;
-        if (isset($input['file_size']))     $data['file_size']     = trim($input['file_size']) ?: null;
-        if (isset($input['issue_date']))    $data['issue_date']    = $input['issue_date'] ?: null;
-        if (isset($input['is_active']))     $data['is_active']     = (int) $input['is_active'];
+        if (isset($input['title']))             $data['title']             = trim($input['title']);
+        if (isset($input['decree_number']))     $data['decree_number']     = trim($input['decree_number']) ?: null;
+        if (isset($input['description']))       $data['description']       = trim($input['description']) ?: null;
+        if (isset($input['content']))           $data['content']           = trim($input['content']) ?: null;
+        if (isset($input['cover_image_url']))   $data['cover_image_url']   = trim($input['cover_image_url']) ?: null;
+        if (isset($input['author']))            $data['author']            = trim($input['author']) ?: null;
+        if (isset($input['author_avatar_url'])) $data['author_avatar_url'] = trim($input['author_avatar_url']) ?: null;
+        if (isset($input['logo_url']))          $data['logo_url']          = trim($input['logo_url']) ?: null;
+        if (isset($input['document_type']))     $data['document_type']     = $input['document_type'];
+        if (isset($input['file_url']))          $data['file_url']          = trim($input['file_url']) ?: null;
+        if (isset($input['file_name']))         $data['file_name']         = trim($input['file_name']) ?: null;
+        if (isset($input['file_size']))         $data['file_size']         = trim($input['file_size']) ?: null;
+        if (isset($input['issue_date']))        $data['issue_date']        = $input['issue_date'] ?: null;
+        if (isset($input['is_active']))         $data['is_active']         = (int) $input['is_active'];
 
         if (empty($data)) {
             return $this->fail('No hay datos para actualizar.');

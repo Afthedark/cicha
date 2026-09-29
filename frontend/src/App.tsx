@@ -22,6 +22,7 @@ import { SocialFeedPage } from './pages/public/SocialFeedPage';
 import { ContactPage } from './pages/public/ContactPage';
 import { B2BMeetingsPublicPage } from './pages/public/B2BMeetingsPublicPage';
 import { BenefitsPage } from './pages/public/BenefitsPage';
+import { InterestLinksPage } from './pages/public/InterestLinksPage';
 
 // Partner Portal (Socio) Components
 import { PartnerLayout } from './components/layout/PartnerLayout';
@@ -51,7 +52,9 @@ import { AdminBannersPage } from './pages/admin/AdminBannersPage';
 import { AdminAuthoritiesPage } from './pages/admin/AdminAuthoritiesPage';
 import { AdminInstitutionalPage } from './pages/admin/AdminInstitutionalPage';
 import { AdminDecreesPage } from './pages/admin/AdminDecreesPage';
+import { AdminMinutesPage } from './pages/admin/AdminMinutesPage';
 import { AdminAlliancesPage } from './pages/admin/AdminAlliancesPage';
+import { AdminInterestLinksPage } from './pages/admin/AdminInterestLinksPage';
 import { AdminTranslationsPage } from './pages/admin/AdminTranslationsPage';
 import { AdminBenefitsPage } from './pages/admin/AdminBenefitsPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
@@ -232,6 +235,18 @@ export function App() {
             }
           />
           <Route
+            path="/links-de-interes"
+            element={
+              <PublicLayout>
+                <InterestLinksPage />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/enlaces-de-interes"
+            element={<Navigate to="/links-de-interes" replace />}
+          />
+          <Route
             path="/asociarse"
             element={
               <PublicLayout>
@@ -302,7 +317,10 @@ export function App() {
             <Route path="autoridades" element={<AdminAuthoritiesPage />} />
             <Route path="institucional" element={<AdminInstitutionalPage />} />
             <Route path="decretos" element={<AdminDecreesPage />} />
+            <Route path="actas" element={<AdminMinutesPage />} />
             <Route path="alianzas" element={<AdminAlliancesPage />} />
+            <Route path="links" element={<AdminInterestLinksPage />} />
+            <Route path="links-de-interes" element={<Navigate to="/admin/links" replace />} />
             <Route path="traducciones" element={<AdminTranslationsPage />} />
             <Route
               path="configuracion"

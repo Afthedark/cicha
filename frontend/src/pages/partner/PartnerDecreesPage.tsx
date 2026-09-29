@@ -10,17 +10,35 @@ import {
   X,
   ShieldCheck,
   Building2,
+  Eye,
+  BookOpen,
+  Layers,
+  Printer,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { partnerApi, resolveImageUrl } from '../../services/api';
 import type { Decree } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { Modal } from '../../components/common/Modal';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const PartnerDecreesPage: React.FC = () => {
   const [decrees, setDecrees] = useState<Decree[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+
+  // Reading Modal for Text or Both
+  const [readingDecree, setReadingDecree] = useState<Decree | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // PDF Viewer Modal
+  const [pdfModal, setPdfModal] = useState<{ isOpen: boolean; url: string; title: string; fileName?: string; fileSize?: string }>({
+    isOpen: false,
+    url: '',
+    title: '',
+  });
 
   const fetchDecrees = (q?: string) => {
     partnerApi
@@ -49,26 +67,32 @@ export const PartnerDecreesPage: React.FC = () => {
     fetchDecrees('');
   };
 
-  const handleOpenDocument = async (decree: Decree) => {
-    setDownloadingId(decree.id);
-    try {
-      const response = await partnerApi.downloadDecree(decree.id);
-      const urlToOpen =
-        decree.document_type === 'url'
-          ? response.url
-          : resolveImageUrl(response.url || decree.file_url);
-
-      window.open(urlToOpen, '_blank', 'noopener,noreferrer');
-      setDecrees((prev) =>
-        prev.map((d) => (d.id === decree.id ? { ...d, downloads: (d.downloads || 0) + 1 } : d))
-      );
-    } catch (err) {
-      const fallbackUrl =
-        decree.document_type === 'url' ? decree.file_url : resolveImageUrl(decree.file_url);
-      window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
-    } finally {
-      setDownloadingId(null);
+  const handleOpenDocument = (decree: Decree) => {
+    if (decree.document_type === 'text') {
+      setCopied(false);
+      setReadingDecree(decree);
+      return;
     }
+
+    if (decree.document_type === 'url') {
+      window.open(decree.file_url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    setPdfModal({
+      isOpen: true,
+      url: resolveImageUrl(decree.file_url),
+      title: decree.title,
+      fileName: decree.file_name,
+      fileSize: decree.file_size,
+    });
+  };
+
+  const handleCopyContent = () => {
+    if (!readingDecree?.content) return;
+    navigator.clipboard.writeText(readingDecree.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -163,6 +187,8 @@ export const PartnerDecreesPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {decrees.map((decree) => {
             const isPdf = decree.document_type === 'file';
+            const isText = decree.document_type === 'text';
+            const isBoth = decree.document_type === 'both';
 
             return (
               <div
@@ -172,7 +198,7 @@ export const PartnerDecreesPage: React.FC = () => {
                 <div className="space-y-4">
                   {/* Top Logo & Badges */}
                   <div className="flex items-start gap-4">
-                    {/* Official Logo / Emblem Protected Container */}
+                    {/* Official Logo / Emblem Container */}
                     <div className="w-14 h-14 rounded-2xl bg-white/95 border border-white/40 p-2 flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
                       {decree.logo_url ? (
                         <img
@@ -188,7 +214,17 @@ export const PartnerDecreesPage: React.FC = () => {
                     {/* Badges & Meta */}
                     <div className="min-w-0 flex-1 space-y-1.5">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        {isPdf ? (
+                        {isBoth ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-200 border border-purple-400/30 font-bold text-[10px] uppercase">
+                            <Layers className="w-3 h-3 text-purple-300" />
+                            Texto + PDF
+                          </span>
+                        ) : isText ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-200 border border-amber-400/30 font-bold text-[10px] uppercase">
+                            <FileText className="w-3 h-3 text-amber-300" />
+                            Texto Digital
+                          </span>
+                        ) : isPdf ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-200 border border-rose-400/30 font-bold text-[10px] uppercase">
                             <FileText className="w-3 h-3 text-rose-300" />
                             PDF Oficial
@@ -222,50 +258,179 @@ export const PartnerDecreesPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Optional Cover Image */}
+                  {(decree.cover_image_url || decree.image_url) && (
+                    <div className="h-32 rounded-xl overflow-hidden border border-white/10 bg-slate-900">
+                      <img
+                        src={resolveImageUrl(decree.cover_image_url || decree.image_url)}
+                        alt={decree.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+
                   {/* Title & Description */}
                   <div>
                     <h3 className="font-serif font-bold text-base sm:text-lg text-white group-hover:text-amber-300 transition-colors leading-snug break-words">
                       {decree.title}
                     </h3>
-                    {decree.description && (
-                      <p className="text-xs text-slate-300 mt-2 leading-relaxed break-words whitespace-pre-line">
-                        {decree.description}
+                    {(decree.summary || decree.description) && (
+                      <p className="text-xs text-slate-300 mt-2 leading-relaxed break-words whitespace-pre-line line-clamp-3">
+                        {decree.summary || decree.description}
                       </p>
                     )}
                   </div>
                 </div>
 
                 {/* Footer Action Button */}
-                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                  <div className="text-[10px] text-sky-200/70 font-mono">
-                    {decree.file_size || (isPdf ? 'Documento PDF' : 'Enlace Oficial')}
-                  </div>
+                <div className="mt-6 pt-4 border-t border-white/10 space-y-3">
+                  {/* Author / Entity line */}
+                  {(decree.author || decree.author_avatar_url) && (
+                    <div className="flex items-center gap-2 text-[11px] text-sky-200">
+                      {decree.author_avatar_url ? (
+                        <img
+                          src={resolveImageUrl(decree.author_avatar_url)}
+                          alt=""
+                          className="w-5 h-5 rounded-full object-cover border border-white/20"
+                        />
+                      ) : null}
+                      <span className="truncate">{decree.author || 'Poder Ejecutivo / CICHA'}</span>
+                    </div>
+                  )}
 
-                  <button
-                    onClick={() => handleOpenDocument(decree)}
-                    disabled={downloadingId === decree.id}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs font-black py-2.5 px-4 rounded-xl transition-all shadow-md group/btn shrink-0 cursor-pointer"
-                  >
-                    {downloadingId === decree.id ? (
-                      <span>Abriendo...</span>
-                    ) : isPdf ? (
-                      <>
-                        <Download className="w-3.5 h-3.5 text-slate-950 stroke-[2.5] group-hover/btn:translate-y-0.5 transition-transform" />
-                        <span>Ver / Descargar PDF</span>
-                      </>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-[10px] text-sky-200/70 font-mono">
+                      {decree.file_size || (isPdf ? 'Documento PDF' : 'Resolución Oficial')}
+                    </div>
+
+                    {isBoth ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setCopied(false);
+                            setReadingDecree(decree);
+                          }}
+                          className="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 cursor-pointer"
+                        >
+                          Texto
+                        </button>
+                        <button
+                          onClick={() => handleOpenDocument(decree)}
+                          className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs font-black py-2 px-3.5 rounded-xl transition-all shadow-md cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-950" />
+                          <span>Ver PDF</span>
+                        </button>
+                      </div>
                     ) : (
-                      <>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-950 stroke-[2.5] group-hover/btn:translate-x-0.5 transition-transform" />
-                        <span>Abrir Enlace Oficial</span>
-                      </>
+                      <button
+                        onClick={() => handleOpenDocument(decree)}
+                        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs font-black py-2.5 px-4 rounded-xl transition-all shadow-md group/btn shrink-0 cursor-pointer"
+                      >
+                        {isText ? (
+                          <>
+                            <BookOpen className="w-3.5 h-3.5 text-slate-950" />
+                            <span>Leer Decreto</span>
+                          </>
+                        ) : isPdf ? (
+                          <>
+                            <Eye className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
+                            <span>Abrir Visor PDF</span>
+                          </>
+                        ) : (
+                          <>
+                            <ExternalLink className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
+                            <span>Abrir Enlace Oficial</span>
+                          </>
+                        )}
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* Modal Lector de Decreto Digital Completo */}
+      {readingDecree && (
+        <Modal
+          isOpen={Boolean(readingDecree)}
+          onClose={() => setReadingDecree(null)}
+          title="Transcripción Oficial del Decreto / Resolución"
+        >
+          <div className="space-y-5">
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                {readingDecree.decree_number && (
+                  <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-xs font-mono">
+                    {readingDecree.decree_number}
+                  </span>
+                )}
+                {readingDecree.issue_date && (
+                  <span className="text-xs text-blue-900 font-semibold">
+                    Fecha de Emisión: {readingDecree.issue_date}
+                  </span>
+                )}
+              </div>
+              <h2 className="font-serif font-bold text-base sm:text-lg text-cicha-navy leading-snug">
+                {readingDecree.title}
+              </h2>
+              {(readingDecree.summary || readingDecree.description) && (
+                <p className="text-xs text-slate-600 italic border-l-2 border-blue-400 pl-3">
+                  {readingDecree.summary || readingDecree.description}
+                </p>
+              )}
+            </div>
+
+            {/* Texto Completo */}
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 max-h-[55vh] overflow-y-auto space-y-4 font-serif text-slate-800 text-xs sm:text-sm leading-relaxed whitespace-pre-line select-text">
+              {readingDecree.content}
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleCopyContent}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-emerald-700">¡Copiado!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copiar Texto</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setReadingDecree(null)}
+                className="px-5 py-2 rounded-xl bg-cicha-navy hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* PDF Interactive Viewer Modal */}
+      <PdfViewerModal
+        isOpen={pdfModal.isOpen}
+        onClose={() => setPdfModal({ isOpen: false, url: '', title: '' })}
+        url={pdfModal.url}
+        title={pdfModal.title}
+        fileName={pdfModal.fileName}
+        fileSize={pdfModal.fileSize}
+      />
     </div>
   );
 };
+
+export default PartnerDecreesPage;

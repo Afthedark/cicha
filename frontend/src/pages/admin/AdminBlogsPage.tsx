@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   X,
   AlertCircle,
+  FileText,
+  Layers,
 } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import type { Blog, Category } from '../../types';
@@ -21,6 +23,8 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { ImageUploader } from '../../components/common/ImageUploader';
+import { DocumentUploader } from '../../components/common/DocumentUploader';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const AdminBlogsPage: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -29,6 +33,13 @@ export const AdminBlogsPage: React.FC = () => {
   const [loadingCats, setLoadingCats] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // PDF Preview State
+  const [pdfPreview, setPdfPreview] = useState<{ isOpen: boolean; url: string; title: string; fileName?: string; fileSize?: string }>({
+    isOpen: false,
+    url: '',
+    title: '',
+  });
 
   // Category Manager Modal State
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
@@ -44,6 +55,12 @@ export const AdminBlogsPage: React.FC = () => {
     title: '',
     author: 'Comisión Editorial CICHA',
     author_role: 'Especialista en Comercio Bilateral',
+    author_avatar_url: '',
+    logo_url: '',
+    document_type: 'text' as 'text' | 'file' | 'both' | 'url',
+    file_url: '',
+    file_name: '',
+    file_size: '',
     category: 'Economía & Comercio',
     tags: 'Grecia, Argentina, Comercio, Inversiones',
     read_time: '5 min de lectura',
@@ -173,6 +190,12 @@ export const AdminBlogsPage: React.FC = () => {
       title: '',
       author: 'Comisión Editorial CICHA',
       author_role: 'Especialista en Comercio Bilateral',
+      author_avatar_url: '',
+      logo_url: '',
+      document_type: 'text',
+      file_url: '',
+      file_name: '',
+      file_size: '',
       category: categories.length > 0 ? categories[0].name : 'Economía & Comercio',
       tags: 'Grecia, Argentina, Comercio, Inversiones',
       read_time: '5 min de lectura',
@@ -190,13 +213,19 @@ export const AdminBlogsPage: React.FC = () => {
     setEditingBlog(b);
     setBlogForm({
       title: b.title,
-      author: b.author,
+      author: b.author || 'Comisión Editorial CICHA',
       author_role: b.author_role || '',
+      author_avatar_url: b.author_avatar_url || '',
+      logo_url: b.logo_url || '',
+      document_type: (b.document_type as any) || (b.file_url ? 'both' : 'text'),
+      file_url: b.file_url || '',
+      file_name: b.file_name || '',
+      file_size: b.file_size || '',
       category: b.category || (categories.length > 0 ? categories[0].name : 'Economía & Comercio'),
       tags: b.tags || '',
       read_time: b.read_time || '5 min de lectura',
       summary: b.summary || '',
-      content: b.content,
+      content: b.content || '',
       image_url: b.image_url || '',
       published_at: b.published_at ? b.published_at.slice(0, 10) : new Date().toISOString().slice(0, 10),
       is_featured: b.is_featured ? 1 : 0,
@@ -207,6 +236,11 @@ export const AdminBlogsPage: React.FC = () => {
 
   const handleSubmitBlog = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!blogForm.title.trim()) {
+      alert('El título es obligatorio.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (editingBlog) {
@@ -407,6 +441,22 @@ export const AdminBlogsPage: React.FC = () => {
                 </Badge>
 
                 <div className="flex items-center gap-1.5">
+                  {b.file_url && (
+                    <button
+                      type="button"
+                      onClick={() => setPdfPreview({
+                        isOpen: true,
+                        url: b.file_url!,
+                        title: b.title,
+                        fileName: b.file_name,
+                        fileSize: b.file_size,
+                      })}
+                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                      title="Ver PDF adjunto"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  )}
                   <button
                     onClick={() => handleOpenEditBlog(b)}
                     className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
@@ -436,24 +486,94 @@ export const AdminBlogsPage: React.FC = () => {
         maxWidth="2xl"
       >
         <form onSubmit={handleSubmitBlog} className="space-y-4 text-xs">
+          {/* Título */}
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Título del Artículo *</label>
+            <label className="font-bold text-slate-700">Título del Artículo / Blog *</label>
             <input
               type="text"
               required
               value={blogForm.title}
               onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
               placeholder="Ej. Oportunidades comerciales y nuevas tendencias en el comercio heleno-argentino"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
             />
           </div>
 
+          {/* Modalidad de Contenido */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+              <Layers className="w-4 h-4 text-blue-600" />
+              <span>Modalidad de Contenido</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => setBlogForm({ ...blogForm, document_type: 'text' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  blogForm.document_type === 'text'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📝 Solo Texto</span>
+                <span className={`text-[10px] font-normal ${blogForm.document_type === 'text' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Redacción directa
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBlogForm({ ...blogForm, document_type: 'file' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  blogForm.document_type === 'file'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📄 Solo PDF</span>
+                <span className={`text-[10px] font-normal ${blogForm.document_type === 'file' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Documento adjunto
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBlogForm({ ...blogForm, document_type: 'both' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  blogForm.document_type === 'both'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📦 Ambos</span>
+                <span className={`text-[10px] font-normal ${blogForm.document_type === 'both' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Texto + PDF visor
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBlogForm({ ...blogForm, document_type: 'url' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  blogForm.document_type === 'url'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>🔗 Enlace Web</span>
+                <span className={`text-[10px] font-normal ${blogForm.document_type === 'url' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Link externo
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Autores, Foto de Autor y Logo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Autor de la Nota *</label>
+              <label className="font-bold text-slate-700">Autor de la Nota</label>
               <input
                 type="text"
-                required
                 value={blogForm.author}
                 onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
                 placeholder="Nombre o Comisión Editorial"
@@ -462,7 +582,7 @@ export const AdminBlogsPage: React.FC = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Cargo / Afiliación del Autor</label>
+              <label className="font-bold text-slate-700">Cargo / Afiliación del Autor (Opcional)</label>
               <input
                 type="text"
                 value={blogForm.author_role}
@@ -473,10 +593,33 @@ export const AdminBlogsPage: React.FC = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <ImageUploader
+                label="Foto del Autor / Persona (Opcional)"
+                value={blogForm.author_avatar_url}
+                onChange={(url) => setBlogForm({ ...blogForm, author_avatar_url: url })}
+                helperText="Avatar o retrato del autor (JPG, PNG)"
+                previewHeight="h-24"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Logo / Imagen Relacionada (Opcional)"
+                value={blogForm.logo_url}
+                onChange={(url) => setBlogForm({ ...blogForm, logo_url: url })}
+                helperText="Logo institucional o de empresa"
+                previewHeight="h-24"
+              />
+            </div>
+          </div>
+
+          {/* Categoría, Tiempo y Fecha */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="font-bold text-slate-700">Categoría *</label>
+                <label className="font-bold text-slate-700">Categoría</label>
                 <button
                   type="button"
                   onClick={handleOpenCatModal}
@@ -542,11 +685,11 @@ export const AdminBlogsPage: React.FC = () => {
             />
           </div>
 
+          {/* Resumen Breve */}
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Resumen Breve *</label>
+            <label className="font-bold text-slate-700">Pequeña descripción o resumen (Opcional)</label>
             <textarea
               rows={2}
-              required
               value={blogForm.summary}
               onChange={(e) => setBlogForm({ ...blogForm, summary: e.target.value })}
               placeholder="Breve sinopsis que aparecerá en las tarjetas y vista previa..."
@@ -554,26 +697,74 @@ export const AdminBlogsPage: React.FC = () => {
             />
           </div>
 
-          {/* Image Uploader */}
+          {/* Portada del Artículo */}
           <ImageUploader
-            label="Foto de Portada / Banner del Artículo"
+            label="Foto de Portada / Banner del Artículo (Opcional)"
             value={blogForm.image_url}
             onChange={(url) => setBlogForm({ ...blogForm, image_url: url })}
             helperText="Imagen destacada del blog (JPG, PNG, WEBP)"
-            previewHeight="h-44"
+            previewHeight="h-36"
           />
 
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Cuerpo del Artículo *</label>
-            <textarea
-              rows={7}
-              required
-              value={blogForm.content}
-              onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
-              placeholder="Contenido completo del artículo. Soporta formato estructurado..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-          </div>
+          {/* Subida o Enlace de PDF (si modalidad es file o both) */}
+          {(blogForm.document_type === 'file' || blogForm.document_type === 'both' || blogForm.document_type === 'url') && (
+            <div className="p-4 bg-blue-50/50 border border-blue-200/80 rounded-2xl space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-blue-900 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span>Documento PDF / Archivo Adjunto</span>
+                </label>
+                {blogForm.file_url && (
+                  <button
+                    type="button"
+                    onClick={() => setPdfPreview({
+                      isOpen: true,
+                      url: blogForm.file_url,
+                      title: blogForm.title || 'Vista Previa de Documento',
+                      fileName: blogForm.file_name,
+                      fileSize: blogForm.file_size,
+                    })}
+                    className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Probar Visor PDF
+                  </button>
+                )}
+              </div>
+
+              <DocumentUploader
+                label="Subir PDF o pegar enlace directo"
+                fileUrl={blogForm.file_url}
+                fileSize={blogForm.file_size}
+                onChange={({ fileUrl, fileSize }) => {
+                  setBlogForm({
+                    ...blogForm,
+                    file_url: fileUrl,
+                    file_size: fileSize || '',
+                    file_name: fileUrl.split('/').pop() || 'documento.pdf',
+                  });
+                }}
+                helperText="El visor interactivo permitirá leer, rotar, descargar e imprimir este PDF directamente."
+              />
+            </div>
+          )}
+
+          {/* Cuerpo del Artículo (si modalidad es text o both) */}
+          {(blogForm.document_type === 'text' || blogForm.document_type === 'both') && (
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">
+                Texto del Artículo / Contenido Redactado {blogForm.document_type === 'text' ? '*' : '(Opcional)'}
+              </label>
+              <textarea
+                rows={7}
+                required={blogForm.document_type === 'text'}
+                value={blogForm.content}
+                onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                placeholder="Contenido completo del artículo. Soporta formato estructurado..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <div className="flex items-center gap-2">
@@ -621,6 +812,16 @@ export const AdminBlogsPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* PDF Viewer Modal */}
+      <PdfViewerModal
+        isOpen={pdfPreview.isOpen}
+        onClose={() => setPdfPreview({ ...pdfPreview, isOpen: false })}
+        fileUrl={pdfPreview.url}
+        title={pdfPreview.title}
+        fileName={pdfPreview.fileName}
+        fileSize={pdfPreview.fileSize}
+      />
 
       {/* Category Management Modal */}
       <Modal

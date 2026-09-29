@@ -8,7 +8,25 @@ class ArticleModel extends Model
 {
     protected $table = 'articles';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['category_id', 'title', 'slug', 'summary', 'content', 'image_url', 'author', 'published_at', 'is_featured', 'status'];
+    protected $allowedFields = [
+        'category_id',
+        'title',
+        'slug',
+        'summary',
+        'content',
+        'image_url',
+        'logo_url',
+        'author',
+        'author_avatar_url',
+        'document_type',
+        'file_url',
+        'file_name',
+        'file_size',
+        'published_at',
+        'is_featured',
+        'status',
+        'source_links',
+    ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';

@@ -11,8 +11,10 @@ import {
   ShieldCheck,
   Star,
   ChevronRight,
+  FileText,
+  Layers,
 } from 'lucide-react';
-import { partnerApi } from '../../services/api';
+import { partnerApi, resolveImageUrl } from '../../services/api';
 import type { PartnerNewsItem } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
@@ -80,12 +82,12 @@ export const PartnerNewsPage: React.FC = () => {
             Boletín Informativo & Comunicados
           </h1>
           <p className="text-xs sm:text-sm text-sky-200 max-w-2xl leading-relaxed">
-            Actualizaciones corporativas, acuerdos bilaterales, resoluciones de comisión y novedades estratégicas exclusivas para miembros de CICHA.
+            Actualizaciones corporativas, acuerdos bilaterales, resoluciones de comisión y novedades estratégicas exclusivas para miembros de CICHA con soporte multimedia y visor PDF.
           </p>
         </div>
 
         {/* Search Bar in Header */}
-        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80 relative z-10">
+        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80 z-10">
           <input
             type="text"
             placeholder="Buscar comunicados..."
@@ -136,7 +138,7 @@ export const PartnerNewsPage: React.FC = () => {
         <Loader text="Cargando boletín de noticias..." />
       ) : news.length > 0 ? (
         <div className="space-y-8">
-          {/* Featured Article Card (if present and not searching/filtering specific categories) */}
+          {/* Featured Article Card */}
           {featuredItem && !activeCategory && !searchTerm && (
             <div className="bg-[#003866]/90 rounded-3xl border border-blue-400/30 overflow-hidden shadow-2xl hover:border-amber-400/50 transition-all group">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
@@ -148,6 +150,12 @@ export const PartnerNewsPage: React.FC = () => {
                         Destacado de la Semana
                       </span>
                       <span className="text-xs font-bold text-sky-200">{featuredItem.category}</span>
+                      {featuredItem.file_url && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-200 border border-purple-400/30 text-[10px] font-bold">
+                          <FileText className="w-3 h-3 text-purple-300" />
+                          PDF Incluido
+                        </span>
+                      )}
                     </div>
 
                     <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white group-hover:text-amber-300 transition-colors leading-tight">
@@ -165,8 +173,16 @@ export const PartnerNewsPage: React.FC = () => {
                         <Calendar className="w-3.5 h-3.5 text-amber-400" />
                         <span>{featuredItem.published_at ? featuredItem.published_at.slice(0, 10) : 'Reciente'}</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-sky-300" />
+                      <div className="flex items-center gap-2">
+                        {featuredItem.author_avatar_url ? (
+                          <img
+                            src={resolveImageUrl(featuredItem.author_avatar_url)}
+                            alt=""
+                            className="w-5 h-5 rounded-full object-cover border border-white/20"
+                          />
+                        ) : (
+                          <User className="w-3.5 h-3.5 text-sky-300" />
+                        )}
                         <span>{featuredItem.author}</span>
                       </div>
                     </div>
@@ -175,7 +191,7 @@ export const PartnerNewsPage: React.FC = () => {
                       to={`/portal-socios/boletin/${featuredItem.slug}`}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all group-hover:gap-3"
                     >
-                      <span>Leer Comunicado Completo</span>
+                      <span>Leer Comunicado</span>
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
@@ -184,7 +200,7 @@ export const PartnerNewsPage: React.FC = () => {
                 <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full bg-slate-900">
                   {featuredItem.image_url ? (
                     <img
-                      src={featuredItem.image_url}
+                      src={resolveImageUrl(featuredItem.image_url)}
                       alt={featuredItem.title}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                     />
@@ -211,7 +227,7 @@ export const PartnerNewsPage: React.FC = () => {
                   <div className="relative h-48 bg-slate-900 overflow-hidden">
                     {item.image_url ? (
                       <img
-                        src={item.image_url}
+                        src={resolveImageUrl(item.image_url)}
                         alt={item.title}
                         className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                       />
@@ -220,10 +236,15 @@ export const PartnerNewsPage: React.FC = () => {
                         <Newspaper className="w-10 h-10 opacity-40" />
                       </div>
                     )}
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
                       <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-[#002b4d]/90 text-sky-200 backdrop-blur-md border border-white/20">
                         {item.category}
                       </span>
+                      {item.file_url && (
+                        <span className="p-1 rounded-full bg-purple-600 text-white shadow-md" title="PDF Adjunto">
+                          <FileText className="w-3 h-3" />
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -235,8 +256,16 @@ export const PartnerNewsPage: React.FC = () => {
                         <span>{item.published_at ? item.published_at.slice(0, 10) : '—'}</span>
                       </div>
                       <span className="text-white/30">•</span>
-                      <div className="flex items-center gap-1 truncate max-w-[140px]">
-                        <User className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                      <div className="flex items-center gap-1.5 truncate max-w-[140px]">
+                        {item.author_avatar_url ? (
+                          <img
+                            src={resolveImageUrl(item.author_avatar_url)}
+                            alt=""
+                            className="w-4 h-4 rounded-full object-cover border border-white/20"
+                          />
+                        ) : (
+                          <User className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                        )}
                         <span className="truncate">{item.author}</span>
                       </div>
                     </div>

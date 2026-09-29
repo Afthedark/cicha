@@ -10,6 +10,7 @@ import {
   Images,
   Camera,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { publicApi, resolveImageUrl } from '../../services/api';
 import type { EventItem } from '../../types';
@@ -17,11 +18,13 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { EventCalendar } from '../../components/common/EventCalendar';
 import bgHeader from '../../assets/static/8.jpeg';
+import logoSinTexto from '../../assets/images/logo_sin_texto.png';
 
 export const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [filter, setFilter] = useState<'upcoming' | 'past'>('upcoming');
   const [loading, setLoading] = useState(true);
+  const [emptyMessage, setEmptyMessage] = useState('En este momento estamos trabajando para los próximos eventos');
   const [selectedPhotoModal, setSelectedPhotoModal] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,9 +34,12 @@ export const EventsPage: React.FC = () => {
   const fetchEvents = () => {
     setLoading(true);
     publicApi
-      .getEvents(filter)
+      .getEventsWithMeta(filter)
       .then((res) => {
-        setEvents(res || []);
+        setEvents(res.events || []);
+        if (res.empty_message) {
+          setEmptyMessage(res.empty_message);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -125,33 +131,36 @@ export const EventsPage: React.FC = () => {
                   return (
                     <div
                       key={event.id}
-                      className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-5 items-start justify-between group"
+                      className="bg-gradient-to-b from-[#0E2E54] to-[#081C33] text-white rounded-3xl p-6 sm:p-7 border border-blue-800/80 shadow-2xl backdrop-blur-xl hover:border-sky-500/60 transition-all flex flex-col sm:flex-row gap-5 items-start justify-between group relative overflow-hidden"
                     >
-                      <div className="flex flex-col sm:flex-row gap-4 items-start flex-1 w-full">
+                      {/* Glow decorativo sutil en hover */}
+                      <div className="absolute -top-20 -right-20 w-48 h-48 bg-cicha-sky/10 rounded-full blur-2xl pointer-events-none group-hover:bg-cicha-sky/20 transition-all" />
+
+                      <div className="flex flex-col sm:flex-row gap-4 items-start flex-1 w-full relative z-10">
                         {/* Date Block */}
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cicha-navy to-cicha-blue text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-sm">
-                          <span className="font-serif font-extrabold text-xl text-cicha-sky-light leading-none">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#004b87] to-sky-600 text-white flex flex-col items-center justify-center shrink-0 border-2 border-amber-400 shadow-md">
+                          <span className="font-serif font-extrabold text-xl text-white leading-none">
                             {eventDate.getDate()}
                           </span>
-                          <span className="text-[10px] uppercase font-bold text-slate-200 mt-0.5">
+                          <span className="text-[10px] uppercase font-bold text-amber-300 mt-0.5">
                             {eventDate.toLocaleString('es-AR', { month: 'short' })}
                           </span>
-                          <span className="text-[9px] text-blue-200">{eventDate.getFullYear()}</span>
+                          <span className="text-[9px] text-sky-200">{eventDate.getFullYear()}</span>
                         </div>
 
-                        <div className="space-y-2 flex-1 w-full">
+                        <div className="space-y-2.5 flex-1 w-full">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 capitalize">
+                            <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-400/30 capitalize">
                               {event.location_type}
                             </span>
                             {event.organizer && (
-                              <span className="text-[11px] text-slate-500 font-medium">
+                              <span className="text-[11px] text-slate-300 font-medium">
                                 Org: {event.organizer}
                               </span>
                             )}
                           </div>
 
-                          <h3 className="font-serif font-bold text-base sm:text-lg text-cicha-navy group-hover:text-blue-700 transition-colors leading-snug">
+                          <h3 className="font-serif font-bold text-base sm:text-lg text-white group-hover:text-sky-300 transition-colors leading-snug">
                             {event.title}
                           </h3>
 
@@ -163,7 +172,7 @@ export const EventsPage: React.FC = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   <div
                                     onClick={() => setSelectedPhotoModal(resolveImageUrl(event.image_url))}
-                                    className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-900 cursor-pointer group/img relative"
+                                    className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-white/15 shadow-md bg-slate-950 cursor-pointer group/img relative"
                                   >
                                     <img
                                       src={resolveImageUrl(event.image_url)}
@@ -181,7 +190,7 @@ export const EventsPage: React.FC = () => {
 
                                   <div
                                     onClick={() => setSelectedPhotoModal(resolveImageUrl(parsedGallery[0]))}
-                                    className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-900 cursor-pointer group/img relative"
+                                    className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-white/15 shadow-md bg-slate-950 cursor-pointer group/img relative"
                                   >
                                     <img
                                       src={resolveImageUrl(parsedGallery[0])}
@@ -201,7 +210,7 @@ export const EventsPage: React.FC = () => {
                                 /* 1 Photo: Full width card */
                                 <div
                                   onClick={() => setSelectedPhotoModal(resolveImageUrl(event.image_url || parsedGallery[0]))}
-                                  className="w-full h-44 sm:h-56 rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-900 cursor-pointer group/img relative"
+                                  className="w-full h-44 sm:h-56 rounded-2xl overflow-hidden border border-white/15 shadow-md bg-slate-950 cursor-pointer group/img relative"
                                 >
                                   <img
                                     src={resolveImageUrl(event.image_url || parsedGallery[0])}
@@ -217,13 +226,13 @@ export const EventsPage: React.FC = () => {
                             </div>
                           )}
 
-                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                          <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
                             {event.description}
                           </p>
 
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1">
                             <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              <Clock className="w-3.5 h-3.5 text-sky-400" />
                               {eventDate.toLocaleTimeString('es-AR', {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -232,20 +241,20 @@ export const EventsPage: React.FC = () => {
                             </span>
                             {event.location_address && (
                               <span className="flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                <MapPin className="w-3.5 h-3.5 text-sky-400" />
                                 {event.location_address}
                               </span>
                             )}
                           </div>
 
                           {/* Action Buttons: Link Evento & Ver Galería de Fotos */}
-                          <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-100 mt-2">
+                          <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 mt-2">
                             {event.registration_url && (
                               <a
                                 href={event.registration_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-3.5 py-2 rounded-xl bg-[#004b87] hover:bg-[#071E38] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5"
+                                className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
                                 <span>Link Evento</span>
@@ -255,9 +264,9 @@ export const EventsPage: React.FC = () => {
                             {event.album_id && (
                               <Link
                                 to={event.album_slug ? `/galeria/${event.album_slug}` : `/galeria/${event.album_id}`}
-                                className="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-bold text-xs transition-all flex items-center gap-1.5"
+                                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs transition-all flex items-center gap-1.5 backdrop-blur-xs"
                               >
-                                <Images className="w-3.5 h-3.5 text-indigo-600" />
+                                <Images className="w-3.5 h-3.5 text-amber-400" />
                                 <span>Ver Galería de Fotos {event.photos_count ? `(${event.photos_count})` : ''}</span>
                               </Link>
                             )}
@@ -269,10 +278,65 @@ export const EventsPage: React.FC = () => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-2">
-                <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
-                <p className="text-sm font-semibold text-slate-700">No hay eventos en esta sección.</p>
-                <p className="text-xs text-slate-500">Pronto publicaremos nuevas fechas y foros.</p>
+              <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-b from-[#0E2E54] to-[#081C33] text-white border border-blue-800/80 shadow-2xl backdrop-blur-xl text-center space-y-6 relative overflow-hidden group">
+                {/* Glow decorativo de fondo */}
+                <div className="absolute -top-24 -right-24 w-72 h-72 bg-cicha-sky/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/15 rounded-full blur-3xl pointer-events-none animate-pulse" />
+
+                {/* Contenedor Central Animado estilo "Cargando / Procesando" */}
+                <div className="relative z-10 mx-auto w-40 h-40 sm:w-44 sm:h-44 flex items-center justify-center">
+                  {/* Onda de Radar Expansiva */}
+                  <div className="absolute inset-0 rounded-full border border-sky-400/30 animate-radar-wave pointer-events-none" />
+
+                  {/* Anillo Orbital Exterior (Giro Lento) */}
+                  <div className="absolute inset-1 rounded-full border-2 border-dashed border-sky-400/40 animate-spin-slow pointer-events-none" />
+
+                  {/* Anillo de Carga Spinner Vibrante */}
+                  <div className="absolute inset-2.5 rounded-full border-2 border-transparent border-t-cicha-sky border-r-sky-300 animate-spin pointer-events-none" />
+
+                  {/* Anillo Reverso Sutil */}
+                  <div className="absolute inset-4 rounded-full border border-transparent border-b-amber-400/60 border-l-amber-300/40 animate-spin-reverse-slow pointer-events-none" />
+
+                  {/* Disco Central Iluminado para máxima nitidez y visibilidad del Isotipo */}
+                  <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white shadow-[0_0_35px_rgba(0,174,239,0.5)] flex items-center justify-center p-3.5 sm:p-4 border-2 border-white/90">
+                    <img
+                      src={logoSinTexto}
+                      alt="CICHA"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Mensaje Institucional */}
+                <div className="space-y-3 relative z-10 max-w-lg mx-auto">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-cicha-sky-light text-xs font-bold border border-white/15 backdrop-blur-xs shadow-inner">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                    </span>
+                    <span>Agenda en Planificación</span>
+                    <Sparkles className="w-3.5 h-3.5 text-cicha-gold animate-pulse" />
+                  </div>
+
+                  <h3 className="font-serif font-bold text-lg sm:text-xl text-white leading-snug tracking-wide">
+                    {emptyMessage}
+                  </h3>
+
+                  {/* Barra Animada de Progreso / Carga Continua */}
+                  <div className="pt-2 flex flex-col items-center gap-2">
+                    <div className="w-48 sm:w-64 h-1.5 bg-blue-950/90 rounded-full overflow-hidden border border-sky-500/30 relative">
+                      <div className="w-24 h-full bg-gradient-to-r from-transparent via-sky-400 to-transparent animate-loading-bar rounded-full" />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-sky-300/80 font-medium">
+                      <span>Preparando agenda</span>
+                      <span className="inline-flex gap-0.5">
+                        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

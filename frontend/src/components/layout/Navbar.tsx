@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ChevronDown,
   Lock,
+  Unlock,
   Sparkles,
   FileDown,
   Gift,
@@ -21,7 +22,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { GoogleTranslate, ArgentinaFlag, GreeceFlag } from '../common/GoogleTranslate';
 
 export const Navbar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -59,6 +60,7 @@ export const Navbar: React.FC = () => {
     { name: 'Eventos', path: '/eventos' },
     { name: 'Reuniones B2B', path: '/reuniones-b2b' },
     { name: 'Beneficios', path: '/beneficios' },
+    { name: 'Links de Interés', path: '/links-de-interes' },
     { name: 'Socios', path: '/socios' },
     { name: 'Contacto', path: '/contacto' },
   ];
@@ -124,21 +126,23 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Language Selector + Ingreso Socios Button + Asociarse CTA Button + Mobile Menu Button */}
+          {/* Right: Language Selector + Ingreso Socios Button (Solo no autenticados) + Asociarse CTA Button + Mobile Menu Button */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {/* Language Selector */}
             <div className="notranslate">
               <GoogleTranslate variant="celeste" align="right" />
             </div>
 
-            {/* Ingreso Socios Golden Button (Oculto en móvil para evitar redundancia con el menú) */}
-            <Link
-              to="/admin/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs sm:text-[13px] font-extrabold shadow-sm hover:shadow-md transition-all duration-200 border border-amber-300/60"
-            >
-              <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950 shrink-0" />
-              <span>Ingreso Socios</span>
-            </Link>
+            {/* Ingreso Socios Golden Button - Oculto si el usuario ya ha iniciado sesión */}
+            {!isAuthenticated && (
+              <Link
+                to="/admin/login"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs sm:text-[13px] font-extrabold shadow-sm hover:shadow-md transition-all duration-200 border border-amber-300/60"
+              >
+                <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950 shrink-0" />
+                <span>Ingreso Socios</span>
+              </Link>
+            )}
 
             {/* Asociarse CTA Button */}
             <Link
@@ -183,17 +187,21 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          {/* Desktop Right: Portal Socios Dropdown */}
+          {/* Desktop Right: Portal Socios Dropdown (Candado desbloqueado si ya inició sesión) */}
           <div className="hidden lg:block relative py-2" ref={partnerMenuRef}>
             <button
               onClick={() => setIsPartnerMenuOpen(!isPartnerMenuOpen)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs xl:text-[13px] font-semibold transition-all border ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs xl:text-[13px] font-semibold transition-all border cursor-pointer ${
                 location.pathname.startsWith('/portal-socios')
                   ? 'bg-white/20 text-white border-white/40 shadow-inner'
                   : 'bg-white/10 hover:bg-white/15 text-white border-white/25'
               }`}
             >
-              <Lock className="w-3.5 h-3.5 text-amber-300" />
+              {isAuthenticated ? (
+                <Unlock className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-amber-300" />
+              )}
               <span>Portal Socios</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 opacity-80 ${isPartnerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -201,11 +209,18 @@ export const Navbar: React.FC = () => {
             {/* Portal Socios Dropdown Menu */}
             {isPartnerMenuOpen && (
               <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 py-2 border-b border-slate-100">
-                  <span className="text-[10px] uppercase font-bold text-[#004b87] bg-sky-50 border border-sky-100 px-2 py-0.5 rounded-full">
-                    Exclusivo Empresas Socias
-                  </span>
-                  <p className="text-[11px] text-slate-500 mt-1">Servicios e inteligencia comercial reservada</p>
+                <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-[#004b87] bg-sky-50 border border-sky-100 px-2 py-0.5 rounded-full">
+                      Exclusivo Empresas Socias
+                    </span>
+                    <p className="text-[11px] text-slate-500 mt-1">Servicios e inteligencia comercial reservada</p>
+                  </div>
+                  {isAuthenticated && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      <Unlock className="w-2.5 h-2.5 text-emerald-500" /> Activo
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-1 space-y-0.5">
@@ -280,7 +295,17 @@ export const Navbar: React.FC = () => {
             {/* Exclusive Partner Section in Mobile */}
             <div className="pt-3 border-t border-white/10 space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 px-2 flex items-center gap-1.5">
-                <Lock className="w-3 h-3" /> Área Exclusiva de Socios
+                {isAuthenticated ? (
+                  <Unlock className="w-3 h-3 text-emerald-400" />
+                ) : (
+                  <Lock className="w-3 h-3 text-amber-300" />
+                )}
+                <span>Área Exclusiva de Socios</span>
+                {isAuthenticated && (
+                  <span className="ml-auto text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                    Desbloqueado
+                  </span>
+                )}
               </span>
               <div className="space-y-0.5 pt-1">
                 {partnerLinks.map((item) => {
@@ -305,14 +330,16 @@ export const Navbar: React.FC = () => {
 
             {/* CTAs in Mobile */}
             <div className="pt-2 space-y-2">
-              <Link
-                to="/admin/login"
-                onClick={() => setIsOpen(false)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-md transition-all border border-amber-300/70"
-              >
-                <LogIn className="w-4 h-4 text-slate-950" />
-                Ingreso Socios
-              </Link>
+              {!isAuthenticated && (
+                <Link
+                  to="/admin/login"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-md transition-all border border-amber-300/70"
+                >
+                  <LogIn className="w-4 h-4 text-slate-950" />
+                  Ingreso Socios
+                </Link>
+              )}
               <Link
                 to="/asociarse"
                 onClick={() => setIsOpen(false)}

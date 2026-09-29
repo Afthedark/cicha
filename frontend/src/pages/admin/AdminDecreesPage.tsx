@@ -18,11 +18,17 @@ import {
   Check,
   FolderTree,
   Tag,
+  Eye,
+  Layers,
 } from 'lucide-react';
 import { adminApi, resolveImageUrl } from '../../services/api';
 import type { Decree, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { Modal } from '../../components/common/Modal';
+import { ImageUploader } from '../../components/common/ImageUploader';
+import { DocumentUploader } from '../../components/common/DocumentUploader';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const AdminDecreesPage: React.FC = () => {
   const [decrees, setDecrees] = useState<Decree[]>([]);
@@ -34,45 +40,28 @@ export const AdminDecreesPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Minutes Categories Management State
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [minutesCategories, setMinutesCategories] = useState<Category[]>([]);
-  const [loadingCats, setLoadingCats] = useState(false);
-  const [editingCat, setEditingCat] = useState<Category | null>(null);
-  const [catNameInput, setCatNameInput] = useState('');
-  const [catActionLoading, setCatActionLoading] = useState(false);
-  const [catError, setCatError] = useState<string | null>(null);
+  // PDF Preview State
+  const [pdfPreview, setPdfPreview] = useState<{ isOpen: boolean; url: string; title: string; fileName?: string; fileSize?: string }>({
+    isOpen: false,
+    url: '',
+    title: '',
+  });
 
   // Form State
   const [title, setTitle] = useState('');
   const [decreeNumber, setDecreeNumber] = useState('');
   const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
+  const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [author, setAuthor] = useState('');
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
-  const [documentMode, setDocumentMode] = useState<'file' | 'url'>('file');
+  const [documentMode, setDocumentMode] = useState<'text' | 'file' | 'both' | 'url'>('file');
   const [fileUrl, setFileUrl] = useState('');
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState('');
   const [issueDate, setIssueDate] = useState('');
   const [isActive, setIsActive] = useState(true);
-
-  // Upload States
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [uploadingDoc, setUploadingDoc] = useState(false);
-  const [selectedDocFile, setSelectedDocFile] = useState<File | null>(null);
-
-  const fetchCategories = () => {
-    setLoadingCats(true);
-    adminApi
-      .getCategories('minutes')
-      .then((cats) => {
-        setMinutesCategories(cats || []);
-        setLoadingCats(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching minutes categories:', err);
-        setLoadingCats(false);
-      });
-  };
 
   const fetchDecrees = (q?: string) => {
     adminApi
@@ -106,6 +95,10 @@ export const AdminDecreesPage: React.FC = () => {
     setTitle('');
     setDecreeNumber('');
     setDescription('');
+    setContent('');
+    setCoverImageUrl('');
+    setAuthor('Presidencia de la Nación / Cancillería');
+    setAuthorAvatarUrl('');
     setLogoUrl('');
     setDocumentMode('file');
     setFileUrl('');
@@ -113,7 +106,6 @@ export const AdminDecreesPage: React.FC = () => {
     setFileSize('');
     setIssueDate(new Date().toISOString().split('T')[0]);
     setIsActive(true);
-    setSelectedDocFile(null);
     setErrorMessage(null);
     setIsModalOpen(true);
   };
@@ -123,49 +115,19 @@ export const AdminDecreesPage: React.FC = () => {
     setTitle(decree.title);
     setDecreeNumber(decree.decree_number || '');
     setDescription(decree.description || '');
+    setContent(decree.content || '');
+    setCoverImageUrl(decree.cover_image_url || '');
+    setAuthor(decree.author || '');
+    setAuthorAvatarUrl(decree.author_avatar_url || '');
     setLogoUrl(decree.logo_url || '');
-    setDocumentMode(decree.document_type || 'file');
+    setDocumentMode((decree.document_type as any) || (decree.content && decree.file_url ? 'both' : decree.content ? 'text' : 'file'));
     setFileUrl(decree.file_url || '');
     setFileName(decree.file_name || '');
     setFileSize(decree.file_size || '');
     setIssueDate(decree.issue_date || '');
     setIsActive(Boolean(decree.is_active));
-    setSelectedDocFile(null);
     setErrorMessage(null);
     setIsModalOpen(true);
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingLogo(true);
-    try {
-      const res = await adminApi.uploadFile(file);
-      setLogoUrl(res.url);
-    } catch (err: any) {
-      setErrorMessage('Error al subir el logo/emblema del decreto.');
-    } finally {
-      setUploadingLogo(false);
-    }
-  };
-
-  const handleDocFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        setErrorMessage('Por favor seleccione un archivo en formato PDF.');
-        setSelectedDocFile(null);
-        return;
-      }
-      if (file.size > 30 * 1024 * 1024) {
-        setErrorMessage('El archivo PDF no debe superar los 30 MB.');
-        setSelectedDocFile(null);
-        return;
-      }
-      setErrorMessage(null);
-      setSelectedDocFile(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -177,41 +139,32 @@ export const AdminDecreesPage: React.FC = () => {
       return;
     }
 
-    if (documentMode === 'file' && !selectedDocFile && !fileUrl) {
-      setErrorMessage('Debe adjuntar un archivo PDF para el decreto.');
+    if (documentMode === 'text' && !content.trim()) {
+      setErrorMessage('Debe ingresar el texto redactado del decreto.');
       return;
     }
 
-    if (documentMode === 'url' && !fileUrl.trim()) {
-      setErrorMessage('Debe ingresar un enlace URL válido para el decreto.');
+    if (documentMode === 'file' && !fileUrl.trim()) {
+      setErrorMessage('Debe adjuntar un archivo PDF para el decreto.');
       return;
     }
 
     setActionLoading(true);
 
     try {
-      let finalFileUrl = fileUrl.trim();
-      let finalFileName = fileName;
-      let finalFileSize = fileSize;
-
-      if (documentMode === 'file' && selectedDocFile) {
-        setUploadingDoc(true);
-        const uploadRes = await adminApi.uploadFile(selectedDocFile);
-        finalFileUrl = uploadRes.url;
-        finalFileName = uploadRes.filename || selectedDocFile.name;
-        finalFileSize = uploadRes.file_size || `${(selectedDocFile.size / (1024 * 1024)).toFixed(1)} MB`;
-        setUploadingDoc(false);
-      }
-
       const payload: Partial<Decree> = {
         title: title.trim(),
         decree_number: decreeNumber.trim() || undefined,
         description: description.trim() || undefined,
+        content: (documentMode === 'text' || documentMode === 'both') ? content.trim() : undefined,
+        cover_image_url: coverImageUrl.trim() || undefined,
+        author: author.trim() || undefined,
+        author_avatar_url: authorAvatarUrl.trim() || undefined,
         logo_url: logoUrl.trim() || undefined,
         document_type: documentMode,
-        file_url: finalFileUrl,
-        file_name: finalFileName || (documentMode === 'url' ? 'Documento Enlace' : undefined),
-        file_size: finalFileSize || undefined,
+        file_url: (documentMode !== 'text') ? fileUrl.trim() || undefined : undefined,
+        file_name: fileName || (documentMode === 'text' ? 'Decreto Digital' : (documentMode === 'url' ? 'Documento Enlace' : undefined)),
+        file_size: fileSize || (documentMode === 'text' ? `${content.trim().split(/\s+/).filter(Boolean).length} palabras` : undefined),
         issue_date: issueDate || undefined,
         is_active: isActive ? 1 : 0,
       };
@@ -236,7 +189,6 @@ export const AdminDecreesPage: React.FC = () => {
       );
     } finally {
       setActionLoading(false);
-      setUploadingDoc(false);
     }
   };
 
@@ -271,30 +223,13 @@ export const AdminDecreesPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              fetchCategories();
-              setEditingCat(null);
-              setCatNameInput('');
-              setCatError(null);
-              setIsCategoryModalOpen(true);
-            }}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-300/80 shadow-2xs transition-all hover:scale-102 shrink-0 cursor-pointer"
-          >
-            <FolderTree className="w-4 h-4 text-blue-700" />
-            <span>Categorías de Actas</span>
-          </button>
-
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 bg-cicha-navy hover:bg-[#003866] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all hover:scale-102 shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 text-amber-400" />
-            <span>Nuevo Decreto</span>
-          </button>
-        </div>
+        <button
+          onClick={openCreateModal}
+          className="inline-flex items-center gap-2 bg-cicha-navy hover:bg-[#003866] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all hover:scale-102 shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 text-amber-400" />
+          <span>Nuevo Decreto</span>
+        </button>
       </div>
 
       {/* Notifications */}
@@ -425,12 +360,28 @@ export const AdminDecreesPage: React.FC = () => {
                             </span>
                           )}
 
+                          {decree.file_url && (
+                            <button
+                              type="button"
+                              onClick={() => setPdfPreview({
+                                isOpen: true,
+                                url: decree.file_url!,
+                                title: decree.title,
+                                fileName: decree.file_name,
+                                fileSize: decree.file_size,
+                              })}
+                              className="text-cicha-navy hover:text-blue-700 p-1 hover:bg-blue-50 rounded cursor-pointer"
+                              title="Ver documento PDF"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                           <a
                             href={isPdf ? resolveImageUrl(decree.file_url) : decree.file_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-cicha-navy hover:text-blue-700 p-1 hover:bg-blue-50 rounded"
-                            title="Abrir documento"
+                            title="Abrir en pestaña nueva"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
@@ -459,16 +410,32 @@ export const AdminDecreesPage: React.FC = () => {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1">
+                          {decree.file_url && (
+                            <button
+                              type="button"
+                              onClick={() => setPdfPreview({
+                                isOpen: true,
+                                url: decree.file_url!,
+                                title: decree.title,
+                                fileName: decree.file_name,
+                                fileSize: decree.file_size,
+                              })}
+                              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer"
+                              title="Ver documento PDF"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          )}
                           <button
                             onClick={() => openEditModal(decree)}
-                            className="p-1.5 text-slate-400 hover:text-cicha-navy hover:bg-slate-100 rounded-lg transition-all"
+                            className="p-1.5 text-slate-400 hover:text-cicha-navy hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
                             title="Editar decreto"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(decree)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
                             title="Eliminar decreto"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -485,470 +452,295 @@ export const AdminDecreesPage: React.FC = () => {
       )}
 
       {/* Modal: Crear / Editar Decreto */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-cicha-navy text-amber-400 flex items-center justify-center shadow-xs">
-                  <Scroll className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-base text-slate-900">
-                    {editingDecree ? 'Editar Decreto Oficial' : 'Nuevo Decreto Oficial'}
-                  </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Visible en el Portal de Socios para consulta y descarga.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingDecree ? 'Editar Decreto Oficial' : 'Nuevo Decreto Oficial'}
+        maxWidth="2xl"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {errorMessage && (
+            <div className="flex items-start gap-2.5 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-semibold">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* Title & Decree Number */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2 space-y-1">
+              <label className="font-bold text-slate-700">
+                Título del Decreto / Resolución *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Ej: Reconocimiento Oficial Gobierno Argentino"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium"
+              />
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4 flex-1 text-xs">
-              {errorMessage && (
-                <div className="flex items-start gap-2.5 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
-              {/* Title & Decree Number */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="font-bold text-slate-700">
-                    Título del Decreto <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej: Reconocimiento Oficial Gobierno Argentino"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">N° / Expediente</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Dec. 204/1989"
-                    value={decreeNumber}
-                    onChange={(e) => setDecreeNumber(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Descripción / Alcance Institucional</label>
-                <textarea
-                  rows={2}
-                  placeholder="Detalle o resumen legal del decreto..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all resize-none"
-                />
-              </div>
-
-              {/* Logo / Emblem Upload */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                <label className="font-bold text-slate-700 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-cicha-navy" />
-                    Logo / Escudo Oficial
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-normal">
-                    (PNG, JPG o WEBP)
-                  </span>
-                </label>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
-                    {logoUrl ? (
-                      <img
-                        src={resolveImageUrl(logoUrl)}
-                        alt="Preview"
-                        className="w-full h-full object-contain p-1"
-                      />
-                    ) : (
-                      <ImageIcon className="w-6 h-6 text-slate-300" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 space-y-1.5">
-                    <input
-                      type="file"
-                      id="decree-logo-upload"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                    />
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor="decree-logo-upload"
-                        className="cursor-pointer px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-[11px] transition-all inline-flex items-center gap-1.5"
-                      >
-                        <UploadCloud className="w-3.5 h-3.5" />
-                        {uploadingLogo ? 'Subiendo...' : 'Seleccionar Imagen'}
-                      </label>
-                      {logoUrl && (
-                        <button
-                          type="button"
-                          onClick={() => setLogoUrl('')}
-                          className="text-rose-500 hover:text-rose-700 font-semibold text-[11px]"
-                        >
-                          Quitar logo
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="O pegue una URL directa de la imagen del logo..."
-                      value={logoUrl}
-                      onChange={(e) => setLogoUrl(e.target.value)}
-                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-mono focus:bg-white focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Issue Date & Active Switch */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    Fecha de Emisión / Promulgación
-                  </label>
-                  <input
-                    type="date"
-                    value={issueDate}
-                    onChange={(e) => setIssueDate(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-cicha-navy/20 focus:border-cicha-navy transition-all"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pt-6">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={(e) => setIsActive(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cicha-navy"></div>
-                    <span className="ml-2.5 font-bold text-slate-700 text-xs">
-                      Publicado para Socios
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Mode Toggle (PDF vs URL) */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="font-bold text-slate-700 flex items-center justify-between">
-                  <span>Documento del Decreto <span className="text-rose-500">*</span></span>
-                  <span className="text-[10px] text-slate-400 font-normal">
-                    Elija subir archivo PDF o pegar link
-                  </span>
-                </label>
-
-                <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDocumentMode('file');
-                      setErrorMessage(null);
-                    }}
-                    className={`flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg font-bold text-xs transition-all ${
-                      documentMode === 'file'
-                        ? 'bg-white text-cicha-navy shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <UploadCloud className="w-3.5 h-3.5 text-rose-500" />
-                    <span>Subir Archivo PDF</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDocumentMode('url');
-                      setErrorMessage(null);
-                    }}
-                    className={`flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg font-bold text-xs transition-all ${
-                      documentMode === 'url'
-                        ? 'bg-white text-cicha-navy shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Link2 className="w-3.5 h-3.5 text-cyan-600" />
-                    <span>Pegar Enlace URL</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Option 1: File Upload */}
-              {documentMode === 'file' && (
-                <div className="space-y-2">
-                  <div className="border-2 border-dashed border-slate-200 hover:border-cicha-navy/40 rounded-xl p-4 text-center transition-colors bg-slate-50/50">
-                    <input
-                      type="file"
-                      id="decree-doc-upload"
-                      accept="application/pdf,.pdf"
-                      onChange={handleDocFileChange}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="decree-doc-upload"
-                      className="cursor-pointer flex flex-col items-center justify-center space-y-1"
-                    >
-                      <div className="w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shadow-xs">
-                        <UploadCloud className="w-5 h-5" />
-                      </div>
-                      <p className="font-bold text-slate-800 text-xs">
-                        {selectedDocFile
-                          ? selectedDocFile.name
-                          : fileUrl
-                          ? `Archivo actual: ${fileName || 'Documento PDF'}`
-                          : 'Haga clic para seleccionar archivo PDF'}
-                      </p>
-                      <p className="text-[10px] text-slate-400">PDF hasta 30MB</p>
-                      {selectedDocFile && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          Nuevo archivo seleccionado
-                        </span>
-                      )}
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Option 2: External URL */}
-              {documentMode === 'url' && (
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 flex items-center gap-1">
-                    <Link2 className="w-3.5 h-3.5 text-cyan-600" />
-                    Enlace / URL del Decreto
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://boletinoficial.gob.ar/... o https://drive.google.com/..."
-                    value={fileUrl}
-                    onChange={(e) => setFileUrl(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden font-mono"
-                  />
-                </div>
-              )}
-
-              {/* Modal Actions */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading || uploadingDoc || uploadingLogo}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white font-bold transition-all shadow-xs disabled:opacity-50"
-                >
-                  {actionLoading ? (
-                    <span>Guardando...</span>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 text-amber-400" />
-                      <span>{editingDecree ? 'Actualizar Decreto' : 'Crear Decreto'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">N° / Expediente</label>
+              <input
+                type="text"
+                placeholder="Ej: Dec. 204/1989"
+                value={decreeNumber}
+                onChange={(e) => setDecreeNumber(e.target.value)}
+                className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-mono"
+              />
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Categories of Minutes Management Modal */}
-      {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
-            {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shadow-xs">
-                  <FolderTree className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="font-serif font-bold text-lg text-slate-900">
-                    Categorías para Actas de Socios
-                  </h2>
-                  <p className="text-xs text-slate-500">
-                    Define las opciones disponibles para clasificar las actas que suben los socios.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsCategoryModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
-              {/* Add / Edit Category Form */}
-              <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
-                <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
-                  <Tag className="w-3.5 h-3.5 text-blue-600" />
-                  <span>{editingCat ? `Editar Categoría: "${editingCat.name}"` : 'Nueva Categoría de Acta'}</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ej: Asamblea General, Comité Ejecutivo, Acuerdos..."
-                    value={catNameInput}
-                    onChange={(e) => setCatNameInput(e.target.value)}
-                    className="flex-1 p-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
-                  />
-                  <button
-                    type="button"
-                    disabled={catActionLoading || !catNameInput.trim()}
-                    onClick={async () => {
-                      if (!catNameInput.trim()) return;
-                      setCatActionLoading(true);
-                      setCatError(null);
-                      try {
-                        if (editingCat) {
-                          await adminApi.updateCategory(editingCat.id, {
-                            name: catNameInput.trim(),
-                            type: 'minutes',
-                          });
-                        } else {
-                          await adminApi.createCategory({
-                            name: catNameInput.trim(),
-                            type: 'minutes',
-                          });
-                        }
-                        setCatNameInput('');
-                        setEditingCat(null);
-                        fetchCategories();
-                      } catch (err: any) {
-                        setCatError(err?.response?.data?.message || 'Error al guardar categoría.');
-                      } finally {
-                        setCatActionLoading(false);
-                      }
-                    }}
-                    className="px-4 py-2.5 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white font-bold transition-all disabled:opacity-50 shrink-0 cursor-pointer shadow-xs"
-                  >
-                    {catActionLoading ? 'Guardando...' : editingCat ? 'Actualizar' : 'Agregar'}
-                  </button>
-                  {editingCat && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingCat(null);
-                        setCatNameInput('');
-                      }}
-                      className="px-3 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold"
-                    >
-                      Cancelar
-                    </button>
-                  )}
-                </div>
-                {catError && <p className="text-[11px] text-rose-600 font-medium">{catError}</p>}
-              </div>
-
-              {/* List of categories */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-500 font-bold text-[11px] px-1">
-                  <span>Categorías Activas ({minutesCategories.length})</span>
-                  <span>Acciones</span>
-                </div>
-
-                {loadingCats ? (
-                  <div className="py-8 flex justify-center">
-                    <Loader text="Cargando categorías..." />
-                  </div>
-                ) : minutesCategories.length === 0 ? (
-                  <div className="p-6 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    No hay categorías registradas. Agrega la primera arriba.
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {minutesCategories.map((cat) => (
-                      <div
-                        key={cat.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-600" />
-                          <span className="font-bold text-slate-800">{cat.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">({cat.slug})</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingCat(cat);
-                              setCatNameInput(cat.name);
-                              setCatError(null);
-                            }}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-all"
-                            title="Editar categoría"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              if (!window.confirm(`¿Desea eliminar la categoría "${cat.name}"?`)) return;
-                              try {
-                                await adminApi.deleteCategory(cat.id);
-                                fetchCategories();
-                              } catch (err: any) {
-                                alert('Error al eliminar categoría.');
-                              }
-                            }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
-                            title="Eliminar categoría"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+          {/* Modalidad de Contenido */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+              <Layers className="w-4 h-4 text-blue-600" />
+              <span>Modalidad de Contenido</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
-                onClick={() => setIsCategoryModalOpen(false)}
-                className="px-5 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-900 transition-all shadow-xs cursor-pointer"
+                onClick={() => setDocumentMode('file')}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  documentMode === 'file'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
               >
-                Cerrar
+                <span>📄 Solo PDF</span>
+                <span className={`text-[10px] font-normal ${documentMode === 'file' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Documento adjunto
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDocumentMode('text')}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  documentMode === 'text'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📝 Solo Texto</span>
+                <span className={`text-[10px] font-normal ${documentMode === 'text' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Transcripción directa
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDocumentMode('both')}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  documentMode === 'both'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📦 Ambos</span>
+                <span className={`text-[10px] font-normal ${documentMode === 'both' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Texto + PDF visor
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDocumentMode('url')}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  documentMode === 'url'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>🔗 Enlace Web</span>
+                <span className={`text-[10px] font-normal ${documentMode === 'url' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Boletín oficial / Link
+                </span>
               </button>
             </div>
           </div>
-        </div>
-      )}
+
+          {/* Autores, Foto de Autor y Logo */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Entidad / Autor / Firmante</label>
+              <input
+                type="text"
+                placeholder="Ej. Cancillería / Presidencia"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Foto del Firmante / Autor (Opcional)"
+                value={authorAvatarUrl}
+                onChange={(url) => setAuthorAvatarUrl(url)}
+                helperText="Retrato o avatar (JPG, PNG)"
+                previewHeight="h-24"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Logo / Escudo Oficial (Opcional)"
+                value={logoUrl}
+                onChange={(url) => setLogoUrl(url)}
+                helperText="Logo o emblema oficial"
+                previewHeight="h-24"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1">
+            <label className="font-bold text-slate-700">Pequeña descripción / Resumen o Alcance (Opcional)</label>
+            <textarea
+              rows={2}
+              placeholder="Detalle o resumen legal del decreto..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          {/* Cover Image */}
+          <ImageUploader
+            label="Imagen de Portada / Tapa del Decreto (Opcional)"
+            value={coverImageUrl}
+            onChange={(url) => setCoverImageUrl(url)}
+            helperText="Tapa del documento o gacetilla (JPG, PNG, WEBP)"
+            previewHeight="h-32"
+          />
+
+          {/* Date & Active Switch */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                Fecha de Emisión / Promulgación
+              </label>
+              <input
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-6">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <span>Publicado para Socios (Activo)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Subida o Enlace de PDF (si modalidad es file o both o url) */}
+          {(documentMode === 'file' || documentMode === 'both' || documentMode === 'url') && (
+            <div className="p-4 bg-blue-50/50 border border-blue-200/80 rounded-2xl space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-blue-900 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span>Documento PDF / Archivo Oficial</span>
+                </label>
+                {fileUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setPdfPreview({
+                      isOpen: true,
+                      url: fileUrl,
+                      title: title || 'Vista Previa del Decreto',
+                      fileName: fileName,
+                      fileSize: fileSize,
+                    })}
+                    className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Probar Visor PDF
+                  </button>
+                )}
+              </div>
+
+              <DocumentUploader
+                label="Subir PDF o pegar enlace directo"
+                fileUrl={fileUrl}
+                fileSize={fileSize}
+                onChange={({ fileUrl: newUrl, fileSize: newSize }) => {
+                  setFileUrl(newUrl);
+                  setFileSize(newSize || '');
+                  setFileName(newUrl.split('/').pop() || 'decreto.pdf');
+                }}
+                helperText="El visor interactivo permitirá a los socios leer, rotar, descargar e imprimir este PDF directamente."
+              />
+            </div>
+          )}
+
+          {/* Cuerpo / Texto del Decreto (si modalidad es text o both) */}
+          {(documentMode === 'text' || documentMode === 'both') && (
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">
+                Texto Completo del Decreto {documentMode === 'text' ? '*' : '(Opcional)'}
+              </label>
+              <textarea
+                rows={8}
+                required={documentMode === 'text'}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Escriba o pegue el texto completo, articulado y considerandos del decreto..."
+                className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-mono"
+              />
+            </div>
+          )}
+
+          {/* Modal Actions */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              disabled={actionLoading}
+              className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+            >
+              {actionLoading ? (
+                <span>Guardando...</span>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 text-amber-400" />
+                  <span>{editingDecree ? 'Actualizar Decreto' : 'Crear Decreto'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* PDF Viewer Modal */}
+      <PdfViewerModal
+        isOpen={pdfPreview.isOpen}
+        onClose={() => setPdfPreview({ ...pdfPreview, isOpen: false })}
+        url={pdfPreview.url}
+        title={pdfPreview.title}
+        fileName={pdfPreview.fileName}
+        fileSize={pdfPreview.fileSize}
+      />
     </div>
   );
 };
+

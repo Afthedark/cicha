@@ -39,7 +39,7 @@ class OpportunitiesController extends ResourceController
         }
 
         $title = $input['title'] ?? $this->request->getVar('title');
-        $slug = url_title($title, '-', true) . '-' . time();
+        $slug = clean_slug($title) . '-' . time();
 
         $data = [
             'title'          => $title,
@@ -75,7 +75,7 @@ class OpportunitiesController extends ResourceController
         $data = [];
         if (isset($input['title'])) {
             $data['title'] = $input['title'];
-            $data['slug'] = url_title($input['title'], '-', true) . '-' . $id;
+            $data['slug'] = clean_slug($input['title']) . '-' . $id;
         }
         if (isset($input['type'])) $data['type'] = $input['type'];
         if (isset($input['origin_country'])) $data['origin_country'] = $input['origin_country'];

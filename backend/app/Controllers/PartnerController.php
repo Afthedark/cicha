@@ -198,7 +198,11 @@ class PartnerController extends ResourceController
             ->where('pm.is_active', 1);
 
         if (!empty($category) && $category !== 'all') {
-            $builder->where('pm.category', $category);
+            $builder->groupStart()
+                ->where('pm.category', $category)
+                ->orLike('pm.categories', '"' . $category . '"')
+                ->orLike('pm.category', $category)
+                ->groupEnd();
         }
 
         if (!empty($search)) {

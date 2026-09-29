@@ -9,13 +9,20 @@ import {
   CheckCircle2,
   X,
   AlertCircle,
+  Link2,
+  ExternalLink,
+  FileText,
+  Eye,
+  Layers,
 } from 'lucide-react';
 import { adminApi } from '../../services/api';
-import type { Article, Category } from '../../types';
+import type { Article, Category, ArticleSourceLink } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { ImageUploader } from '../../components/common/ImageUploader';
+import { DocumentUploader } from '../../components/common/DocumentUploader';
+import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
 export const AdminArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -34,6 +41,13 @@ export const AdminArticlesPage: React.FC = () => {
   const [catActionLoading, setCatActionLoading] = useState(false);
   const [catError, setCatError] = useState<string | null>(null);
 
+  // PDF Preview State
+  const [pdfPreview, setPdfPreview] = useState<{ isOpen: boolean; url: string; title: string; fileName?: string; fileSize?: string }>({
+    isOpen: false,
+    url: '',
+    title: '',
+  });
+
   // Article Modal State
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
@@ -44,9 +58,16 @@ export const AdminArticlesPage: React.FC = () => {
     content: '',
     image_url: '',
     author: 'Comisión de Prensa CICHA',
+    author_avatar_url: '',
+    logo_url: '',
+    document_type: 'text' as 'text' | 'file' | 'both' | 'url',
+    file_url: '',
+    file_name: '',
+    file_size: '',
     published_at: new Date().toISOString().slice(0, 10),
     is_featured: 0,
     status: 'published' as 'published' | 'draft',
+    source_links: [] as ArticleSourceLink[],
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -158,6 +179,20 @@ export const AdminArticlesPage: React.FC = () => {
   };
 
   // Article Handlers
+  const parseSourceLinks = (raw: any): ArticleSourceLink[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const handleOpenCreateArticle = () => {
     setEditingArticle(null);
     setArticleForm({
@@ -167,9 +202,16 @@ export const AdminArticlesPage: React.FC = () => {
       content: '',
       image_url: '',
       author: 'Comisión de Prensa CICHA',
+      author_avatar_url: '',
+      logo_url: '',
+      document_type: 'text',
+      file_url: '',
+      file_name: '',
+      file_size: '',
       published_at: new Date().toISOString().slice(0, 10),
       is_featured: 0,
       status: 'published',
+      source_links: [],
     });
     setIsArticleModalOpen(true);
   };
@@ -180,23 +222,59 @@ export const AdminArticlesPage: React.FC = () => {
       title: art.title,
       category_id: art.category_id || '',
       summary: art.summary || '',
-      content: art.content,
+      content: art.content || '',
       image_url: art.image_url || '',
       author: art.author || 'CICHA',
+      author_avatar_url: art.author_avatar_url || '',
+      logo_url: art.logo_url || '',
+      document_type: (art.document_type as any) || (art.file_url ? 'both' : 'text'),
+      file_url: art.file_url || '',
+      file_name: art.file_name || '',
+      file_size: art.file_size || '',
       published_at: art.published_at || new Date().toISOString().slice(0, 10),
       is_featured: art.is_featured ? 1 : 0,
       status: art.status || 'published',
+      source_links: parseSourceLinks(art.source_links),
     });
     setIsArticleModalOpen(true);
   };
 
+  const handleAddSourceLink = () => {
+    setArticleForm({
+      ...articleForm,
+      source_links: [...articleForm.source_links, { title: '', url: '' }],
+    });
+  };
+
+  const handleUpdateSourceLink = (index: number, field: 'title' | 'url', value: string) => {
+    const updated = [...articleForm.source_links];
+    updated[index] = { ...updated[index], [field]: value };
+    setArticleForm({ ...articleForm, source_links: updated });
+  };
+
+  const handleRemoveSourceLink = (index: number) => {
+    const updated = articleForm.source_links.filter((_, idx) => idx !== index);
+    setArticleForm({ ...articleForm, source_links: updated });
+  };
+
   const handleSubmitArticle = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!articleForm.title.trim()) {
+      alert('El título es obligatorio.');
+      return;
+    }
+
     setSubmitting(true);
     try {
+      // Filtrar fuentes vacías
+      const cleanSourceLinks = articleForm.source_links.filter(
+        (link) => link.title.trim() !== '' || link.url.trim() !== ''
+      );
+
       const payload = {
         ...articleForm,
         category_id: articleForm.category_id ? Number(articleForm.category_id) : null,
+        source_links: cleanSourceLinks,
       };
 
       if (editingArticle) {
@@ -384,7 +462,23 @@ export const AdminArticlesPage: React.FC = () => {
                           </Badge>
                         </td>
                         <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {art.file_url && (
+                              <button
+                                type="button"
+                                onClick={() => setPdfPreview({
+                                  isOpen: true,
+                                  url: art.file_url!,
+                                  title: art.title,
+                                  fileName: art.file_name,
+                                  fileSize: art.file_size,
+                                })}
+                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                                title="Ver documento PDF"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            )}
                             <button
                               onClick={() => handleOpenEditArticle(art)}
                               className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
@@ -415,22 +509,94 @@ export const AdminArticlesPage: React.FC = () => {
       <Modal
         isOpen={isArticleModalOpen}
         onClose={() => setIsArticleModalOpen(false)}
-        title={editingArticle ? 'Editar Noticia' : 'Nueva Noticia'}
-        maxWidth="xl"
+        title={editingArticle ? 'Editar Noticia / Comunicado' : 'Nueva Noticia / Comunicado'}
+        maxWidth="2xl"
       >
         <form onSubmit={handleSubmitArticle} className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2 space-y-1.5">
-              <label className="font-bold text-slate-700">Título de la Noticia *</label>
-              <input
-                type="text"
-                required
-                value={articleForm.title}
-                onChange={(e) => setArticleForm({ ...articleForm, title: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
+          {/* Título */}
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700">Título de la Noticia / Comunicado *</label>
+            <input
+              type="text"
+              required
+              placeholder="Ej. Delegación comercial visita Atenas para foros de inversión"
+              value={articleForm.title}
+              onChange={(e) => setArticleForm({ ...articleForm, title: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+            />
+          </div>
 
+          {/* Modalidad de Contenido */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+              <Layers className="w-4 h-4 text-blue-600" />
+              <span>Modalidad de Contenido</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => setArticleForm({ ...articleForm, document_type: 'text' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  articleForm.document_type === 'text'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📝 Solo Texto</span>
+                <span className={`text-[10px] font-normal ${articleForm.document_type === 'text' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Redacción directa
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setArticleForm({ ...articleForm, document_type: 'file' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  articleForm.document_type === 'file'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📄 Solo PDF</span>
+                <span className={`text-[10px] font-normal ${articleForm.document_type === 'file' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Documento adjunto
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setArticleForm({ ...articleForm, document_type: 'both' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  articleForm.document_type === 'both'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>📦 Ambos</span>
+                <span className={`text-[10px] font-normal ${articleForm.document_type === 'both' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Texto + PDF visor
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setArticleForm({ ...articleForm, document_type: 'url' })}
+                className={`py-2 px-3 rounded-xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                  articleForm.document_type === 'url'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <span>🔗 Enlace Web</span>
+                <span className={`text-[10px] font-normal ${articleForm.document_type === 'url' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Link externo
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Categoría y Fecha */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="font-bold text-slate-700">Categoría</label>
@@ -439,7 +605,7 @@ export const AdminArticlesPage: React.FC = () => {
                   onClick={handleOpenCatModal}
                   className="text-[10px] text-blue-600 hover:underline font-semibold"
                 >
-                  + Nueva
+                  + Nueva Categoría
                 </button>
               </div>
               <select
@@ -455,18 +621,6 @@ export const AdminArticlesPage: React.FC = () => {
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="font-bold text-slate-700">Autor</label>
-              <input
-                type="text"
-                value={articleForm.author}
-                onChange={(e) => setArticleForm({ ...articleForm, author: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
 
             <div className="space-y-1.5">
               <label className="font-bold text-slate-700">Fecha de Publicación</label>
@@ -479,34 +633,218 @@ export const AdminArticlesPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Autores, Foto de Autor y Logo */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Autor / Entidad</label>
+              <input
+                type="text"
+                placeholder="Ej. Comisión de Prensa CICHA"
+                value={articleForm.author}
+                onChange={(e) => setArticleForm({ ...articleForm, author: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Foto del Autor / Persona (Opcional)"
+                value={articleForm.author_avatar_url}
+                onChange={(url) => setArticleForm({ ...articleForm, author_avatar_url: url })}
+                helperText="Avatar o retrato (JPG, PNG)"
+                previewHeight="h-24"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Logo / Imagen Relacionada (Opcional)"
+                value={articleForm.logo_url}
+                onChange={(url) => setArticleForm({ ...articleForm, logo_url: url })}
+                helperText="Logo institucional o de empresa"
+                previewHeight="h-24"
+              />
+            </div>
+          </div>
+
+          {/* Resumen Breve */}
           <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Resumen Breve</label>
+            <label className="font-bold text-slate-700">Pequeña descripción o resumen (Opcional)</label>
             <textarea
               rows={2}
+              placeholder="Breve introducción para la tarjeta y vistas previas..."
               value={articleForm.summary}
               onChange={(e) => setArticleForm({ ...articleForm, summary: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
-          {/* Article Cover Image Uploader */}
+          {/* Imagen de Portada / Tapa */}
           <ImageUploader
-            label="Foto de Portada de la Noticia"
+            label="Imagen de Portada / Tapa del Documento (Opcional)"
             value={articleForm.image_url}
             onChange={(url) => setArticleForm({ ...articleForm, image_url: url })}
-            helperText="Se guardará en /backend/public/uploads/ (JPG, PNG, WEBP)"
-            previewHeight="h-44"
+            helperText="Se mostrará en la cabecera y listado (JPG, PNG, WEBP)"
+            previewHeight="h-36"
           />
 
-          <div className="space-y-1.5">
-            <label className="font-bold text-slate-700">Cuerpo del Artículo *</label>
-            <textarea
-              rows={6}
-              required
-              value={articleForm.content}
-              onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
+          {/* Subida o Enlace de PDF (si modalidad es file o both) */}
+          {(articleForm.document_type === 'file' || articleForm.document_type === 'both' || articleForm.document_type === 'url') && (
+            <div className="p-4 bg-blue-50/50 border border-blue-200/80 rounded-2xl space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-blue-900 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span>Documento PDF / Archivo Adjunto</span>
+                </label>
+                {articleForm.file_url && (
+                  <button
+                    type="button"
+                    onClick={() => setPdfPreview({
+                      isOpen: true,
+                      url: articleForm.file_url,
+                      title: articleForm.title || 'Vista Previa de Documento',
+                      fileName: articleForm.file_name,
+                      fileSize: articleForm.file_size,
+                    })}
+                    className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Probar Visor PDF
+                  </button>
+                )}
+              </div>
+
+              <DocumentUploader
+                label="Subir PDF o pegar enlace directo"
+                fileUrl={articleForm.file_url}
+                fileSize={articleForm.file_size}
+                onChange={({ fileUrl, fileSize }) => {
+                  setArticleForm({
+                    ...articleForm,
+                    file_url: fileUrl,
+                    file_size: fileSize || '',
+                    file_name: fileUrl.split('/').pop() || 'documento.pdf',
+                  });
+                }}
+                helperText="El visor interactivo permitirá leer, rotar, descargar e imprimir este PDF directamente."
+              />
+            </div>
+          )}
+
+          {/* Cuerpo del Artículo (si modalidad es text o both) */}
+          {(articleForm.document_type === 'text' || articleForm.document_type === 'both') && (
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">
+                Texto del Artículo / Contenido Redactado {articleForm.document_type === 'text' ? '*' : '(Opcional)'}
+              </label>
+              <textarea
+                rows={6}
+                required={articleForm.document_type === 'text'}
+                placeholder="Escriba o pegue el contenido completo de la noticia aquí..."
+                value={articleForm.content}
+                onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-sans"
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Estado de Publicación</label>
+              <select
+                value={articleForm.status}
+                onChange={(e) => setArticleForm({ ...articleForm, status: e.target.value as 'published' | 'draft' })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-bold"
+              >
+                <option value="published">🟢 Publicado (Visible en la Web Pública)</option>
+                <option value="draft">🟡 Borrador (Oculto)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-6">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={articleForm.is_featured === 1}
+                  onChange={(e) => setArticleForm({ ...articleForm, is_featured: e.target.checked ? 1 : 0 })}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+                />
+                <span>Destacar en Portada / Inicio</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Sources and Reference Links Section */}
+          <div className="space-y-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+                  <Link2 className="w-4 h-4 text-blue-600" />
+                  <span>Fuentes & Enlaces de Referencia</span>
+                </label>
+                <p className="text-[11px] text-slate-500">
+                  Agregue medios de prensa, comunicados oficiales o links externos consultados.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddSourceLink}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg text-xs transition-colors cursor-pointer border border-blue-200"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Agregar Fuente</span>
+              </button>
+            </div>
+
+            {articleForm.source_links.length === 0 ? (
+              <div className="py-3 px-4 bg-white border border-dashed border-slate-200 rounded-xl text-center text-slate-400 text-xs">
+                Sin fuentes agregadas. Puede hacer clic en "+ Agregar Fuente" para incluir referencias externas.
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {articleForm.source_links.map((src, idx) => (
+                  <div key={idx} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2.5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+                    <div className="w-full sm:w-1/3">
+                      <input
+                        type="text"
+                        placeholder="Nombre / Medio (ej. Infobae, Embajada)"
+                        value={src.title}
+                        onChange={(e) => handleUpdateSourceLink(idx, 'title', e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      />
+                    </div>
+                    <div className="flex-1 flex items-center gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://ejemplo.com/noticia-completa"
+                        value={src.url}
+                        onChange={(e) => handleUpdateSourceLink(idx, 'url', e.target.value)}
+                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      />
+                      {src.url && (
+                        <a
+                          href={src.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0"
+                          title="Probar enlace"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSourceLink(idx)}
+                        className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors shrink-0 cursor-pointer"
+                        title="Eliminar fuente"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
@@ -527,6 +865,16 @@ export const AdminArticlesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* PDF Viewer Modal */}
+      <PdfViewerModal
+        isOpen={pdfPreview.isOpen}
+        onClose={() => setPdfPreview({ ...pdfPreview, isOpen: false })}
+        fileUrl={pdfPreview.url}
+        title={pdfPreview.title}
+        fileName={pdfPreview.fileName}
+        fileSize={pdfPreview.fileSize}
+      />
 
       {/* Category Management Modal */}
       <Modal
