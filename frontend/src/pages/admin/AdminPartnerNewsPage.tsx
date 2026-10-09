@@ -9,15 +9,18 @@ import {
   Filter,
   Eye,
   Star,
-  ExternalLink,
   Tag,
   User,
-  Sparkles,
   FileText,
   Layers,
+  FolderCog,
+  RotateCcw,
+  AlertTriangle,
+  X,
+  Check,
 } from 'lucide-react';
 import { adminApi } from '../../services/api';
-import type { PartnerNewsItem } from '../../types';
+import type { PartnerNewsItem, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -25,21 +28,26 @@ import { ImageUploader } from '../../components/common/ImageUploader';
 import { DocumentUploader } from '../../components/common/DocumentUploader';
 import { PdfViewerModal } from '../../components/common/PdfViewerModal';
 
-const CATEGORY_OPTIONS = [
-  'Comunicado Oficial',
-  'Comercio Bilateral',
-  'Acuerdos & Alianzas',
-  'Reunión de Directorio',
-  'Análisis & Normativas',
-  'Eventos & Encuentros',
-];
-
 export const AdminPartnerNewsPage: React.FC = () => {
   const [news, setNews] = useState<PartnerNewsItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCats, setLoadingCats] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+
+  // Trash state
+  const [showTrash, setShowTrash] = useState(false);
+  const [trashNews, setTrashNews] = useState<PartnerNewsItem[]>([]);
+  const [loadingTrash, setLoadingTrash] = useState(false);
+
+  // Category Manager Modal state
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [catNameInput, setCatNameInput] = useState('');
+  const [editingCat, setEditingCat] = useState<Category | null>(null);
+  const [catActionLoading, setCatActionLoading] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
 
   // PDF Preview Modal
   const [pdfPreview, setPdfPreview] = useState<{ isOpen: boolean; url: string; title: string; fileName?: string; fileSize?: string }>({
@@ -53,7 +61,7 @@ export const AdminPartnerNewsPage: React.FC = () => {
   const [editingItem, setEditingItem] = useState<PartnerNewsItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Comunicado Oficial',
+    categories: [] as string[],
     summary: '',
     content: '',
     image_url: '',
@@ -72,13 +80,33 @@ export const AdminPartnerNewsPage: React.FC = () => {
 
   useEffect(() => {
     fetchNews();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = () => {
+    setLoadingCats(true);
+    adminApi
+      .getCategories('partner_news')
+      .then((data) => {
+        setCategories(data || []);
+      })
+      .catch((err) => {
+        console.error('Error cargando categorías de boletín', err);
+      })
+      .finally(() => {
+        setLoadingCats(false);
+      });
+  };
 
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const data = await adminApi.getPartnerNews();
+      const [data, trashList] = await Promise.all([
+        adminApi.getPartnerNews(),
+        adminApi.getPartnerNews({ trash: true }),
+      ]);
       setNews(data || []);
+      setTrashNews(trashList || []);
     } catch (err) {
       console.error('Error loading partner news:', err);
     } finally {
@@ -86,11 +114,24 @@ export const AdminPartnerNewsPage: React.FC = () => {
     }
   };
 
+  const fetchTrashNews = async () => {
+    setLoadingTrash(true);
+    try {
+      const data = await adminApi.getPartnerNews({ trash: true });
+      setTrashNews(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingTrash(false);
+    }
+  };
+
   const handleOpenCreate = () => {
     setEditingItem(null);
+    const defaultCat = categories.length > 0 ? [categories[0].name] : ['Comunicado Oficial'];
     setFormData({
       title: '',
-      category: 'Comunicado Oficial',
+      categories: defaultCat,
       summary: '',
       content: '',
       image_url: '',
@@ -110,9 +151,18 @@ export const AdminPartnerNewsPage: React.FC = () => {
 
   const handleOpenEdit = (item: PartnerNewsItem) => {
     setEditingItem(item);
+    let cats: string[] = [];
+    if (Array.isArray(item.categories) && item.categories.length > 0) {
+      cats = item.categories;
+    } else if (item.category) {
+      cats = [item.category];
+    } else if (categories.length > 0) {
+      cats = [categories[0].name];
+    }
+
     setFormData({
       title: item.title,
-      category: item.category || 'Comunicado Oficial',
+      categories: cats,
       summary: item.summary || '',
       content: item.content || '',
       image_url: item.image_url || '',
@@ -130,8 +180,20 @@ export const AdminPartnerNewsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const toggleCategory = (catName: string) => {
+    setFormData((prev) => {
+      const exists = prev.categories.includes(catName);
+      if (exists) {
+        if (prev.categories.length === 1) return prev; // Keep at least one
+        return { ...prev, categories: prev.categories.filter((c) => c !== catName) };
+      } else {
+        return { ...prev, categories: [...prev.categories, catName] };
+      }
+    });
+  };
+
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Desea eliminar esta noticia del boletín de socios? Esta acción no se puede deshacer.')) return;
+    if (!window.confirm('¿Desea enviar esta noticia a la papelera (Soft Delete)? Podrá restaurarla si lo desea.')) return;
     try {
       await adminApi.deletePartnerNews(id);
       fetchNews();
@@ -140,10 +202,36 @@ export const AdminPartnerNewsPage: React.FC = () => {
     }
   };
 
+  const handleRestore = async (id: number) => {
+    try {
+      await adminApi.restorePartnerNews(id);
+      fetchNews();
+      fetchTrashNews();
+    } catch (err) {
+      alert('Error al restaurar noticia.');
+    }
+  };
+
+  const handleForceDelete = async (id: number) => {
+    if (!window.confirm('⚠️ ¿Eliminar permanentemente esta noticia? Esta acción no se puede deshacer.')) return;
+    try {
+      await adminApi.forceDeletePartnerNews(id);
+      fetchNews();
+      fetchTrashNews();
+    } catch (err) {
+      alert('Error al eliminar permanentemente.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       alert('El título es obligatorio.');
+      return;
+    }
+
+    if (formData.categories.length === 0) {
+      alert('Debe seleccionar al menos una categoría para la noticia.');
       return;
     }
 
@@ -170,13 +258,19 @@ export const AdminPartnerNewsPage: React.FC = () => {
     }
   };
 
-  const filteredNews = news.filter((item) => {
+  const activeList = showTrash ? trashNews : news;
+
+  const filteredNews = activeList.filter((item) => {
     const matchesSearch =
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.summary && item.summary.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.author && item.author.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    const itemCats = Array.isArray(item.categories) && item.categories.length > 0 
+      ? item.categories 
+      : (item.category ? [item.category] : []);
+
+    const matchesCategory = selectedCategory === 'all' || itemCats.includes(selectedCategory) || item.category === selectedCategory;
     const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
 
     return matchesSearch && matchesCategory && matchesStatus;
@@ -194,18 +288,78 @@ export const AdminPartnerNewsPage: React.FC = () => {
             <h1 className="font-serif font-bold text-xl text-cicha-navy">Boletín Exclusivo para Socios</h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Publicación de comunicados oficiales, circulares, avisos corporativos y novedades privadas para asociados con soporte multimedia y visor PDF.
+            Comunicados oficiales, circulares y notas privadas para asociados con soporte multicategoría, papelera y visor PDF.
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Nuevo Comunicado / Noticia</span>
-        </button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => {
+              setCatError(null);
+              setCatNameInput('');
+              setEditingCat(null);
+              setIsCatModalOpen(true);
+            }}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <Tag className="w-4 h-4 text-cicha-navy" />
+            Categorías ({categories.length})
+          </button>
+
+          <button
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nuevo Comunicado / Noticia</span>
+          </button>
+        </div>
       </div>
+
+      {/* Tabs & View Switch */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowTrash(false)}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              !showTrash
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Noticias Activas ({news.length})
+          </button>
+          <button
+            onClick={() => {
+              setShowTrash(true);
+              fetchTrashNews();
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              showTrash
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600'
+            }`}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Papelera ({trashNews.length})
+          </button>
+        </div>
+      </div>
+
+      {showTrash && (
+        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between text-xs text-rose-800">
+          <div className="flex items-center gap-2 font-medium">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>Mostrando noticias en la <strong>Papelera</strong> (Soft Delete). Puede restaurarlas con 1 clic.</span>
+          </div>
+          <button
+            onClick={() => setShowTrash(false)}
+            className="font-bold underline text-rose-900 hover:text-rose-700 cursor-pointer"
+          >
+            Volver a Activas
+          </button>
+        </div>
+      )}
 
       {/* Filters & Search */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -231,22 +385,24 @@ export const AdminPartnerNewsPage: React.FC = () => {
             className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
           >
             <option value="all">Todas las categorías</option>
-            {CATEGORY_OPTIONS.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
               </option>
             ))}
           </select>
 
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="published">Publicados</option>
-            <option value="draft">Borradores</option>
-          </select>
+          {!showTrash && (
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="published">Publicados</option>
+              <option value="draft">Borradores</option>
+            </select>
+          )}
         </div>
       </div>
 
@@ -261,103 +417,51 @@ export const AdminPartnerNewsPage: React.FC = () => {
                 <tr>
                   <th className="px-6 py-4">Artículo / Título</th>
                   <th className="px-6 py-4">Formato</th>
-                  <th className="px-6 py-4">Categoría</th>
+                  <th className="px-6 py-4">Categorías</th>
                   <th className="px-6 py-4">Fecha</th>
                   <th className="px-6 py-4">Autor & Entidad</th>
-                  <th className="px-6 py-4">Estado</th>
+                  {!showTrash && <th className="px-6 py-4">Estado</th>}
                   <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredNews.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {item.image_url ? (
-                          <img
-                            src={item.image_url}
-                            alt=""
-                            className="w-12 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
-                          />
-                        ) : (
-                          <div className="w-12 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-100">
-                            <Newspaper className="w-4 h-4" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="font-bold text-slate-900 truncate max-w-md flex items-center gap-1.5">
-                            {item.title}
-                            {Number(item.is_featured) === 1 && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800 shrink-0">
-                                <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                                Destacado
-                              </span>
-                            )}
-                          </p>
-                          {item.summary && (
-                            <p className="text-[11px] text-slate-400 truncate max-w-sm">{item.summary}</p>
+                {filteredNews.map((item) => {
+                  const itemCats = Array.isArray(item.categories) && item.categories.length > 0
+                    ? item.categories
+                    : (item.category ? [item.category] : []);
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt=""
+                              className="w-12 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-100">
+                              <Newspaper className="w-4 h-4" />
+                            </div>
                           )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {item.file_url ? (
-                        <button
-                          onClick={() =>
-                            setPdfPreview({
-                              isOpen: true,
-                              url: item.file_url!,
-                              title: item.title,
-                              fileName: item.file_name,
-                              fileSize: item.file_size,
-                            })
-                          }
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors cursor-pointer"
-                        >
-                          <FileText className="w-3 h-3 text-purple-600" />
-                          <span>{item.document_type === 'both' ? 'Texto + PDF' : 'PDF Adjunto'}</span>
-                        </button>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-600">
-                          <Layers className="w-3 h-3 text-slate-400" />
-                          <span>Solo Texto</span>
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                        {item.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{item.published_at ? item.published_at.slice(0, 10) : '—'}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {item.author_avatar_url ? (
-                          <img src={item.author_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover border border-slate-200" />
-                        ) : (
-                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-[10px]">
-                            <User className="w-3 h-3" />
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 truncate max-w-md flex items-center gap-1.5">
+                              {item.title}
+                              {Number(item.is_featured) === 1 && (
+                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800 shrink-0">
+                                  <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                                  Destacado
+                                </span>
+                              )}
+                            </p>
+                            {item.summary && (
+                              <p className="text-[11px] text-slate-400 truncate max-w-sm">{item.summary}</p>
+                            )}
                           </div>
-                        )}
-                        <span className="truncate max-w-[120px] font-medium text-slate-800">{item.author || 'CICHA'}</span>
-                        {item.logo_url && (
-                          <img src={item.logo_url} alt="" className="w-5 h-5 rounded object-contain border border-slate-200 bg-white" title="Logo asociado" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={item.status === 'published' ? 'success' : 'secondary'}>
-                        {item.status === 'published' ? 'Publicado' : 'Borrador'}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
-                        {item.file_url && (
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {item.file_url ? (
                           <button
                             onClick={() =>
                               setPdfPreview({
@@ -368,30 +472,115 @@ export const AdminPartnerNewsPage: React.FC = () => {
                                 fileSize: item.file_size,
                               })
                             }
-                            className="p-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                            title="Ver PDF"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors cursor-pointer"
                           >
-                            <Eye className="w-4 h-4" />
+                            <FileText className="w-3 h-3 text-purple-600" />
+                            <span>{item.document_type === 'both' ? 'Texto + PDF' : 'PDF Adjunto'}</span>
                           </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-600">
+                            <Layers className="w-3 h-3 text-slate-400" />
+                            <span>Solo Texto</span>
+                          </span>
                         )}
-                        <button
-                          onClick={() => handleOpenEdit(item)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors"
-                          title="Editar"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {itemCats.map((c, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{item.published_at ? item.published_at.slice(0, 10) : '—'}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          {item.author_avatar_url ? (
+                            <img src={item.author_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover border border-slate-200" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-[10px]">
+                              <User className="w-3 h-3" />
+                            </div>
+                          )}
+                          <span className="truncate max-w-[120px] font-medium text-slate-800">{item.author || 'CICHA'}</span>
+                          {item.logo_url && (
+                            <img src={item.logo_url} alt="" className="w-5 h-5 rounded object-contain border border-slate-200 bg-white" title="Logo asociado" />
+                          )}
+                        </div>
+                      </td>
+                      {!showTrash && (
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant={item.status === 'published' ? 'success' : 'secondary'}>
+                            {item.status === 'published' ? 'Publicado' : 'Borrador'}
+                          </Badge>
+                        </td>
+                      )}
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        {showTrash ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleRestore(item.id)}
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
+                              title="Restaurar a Activos"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" /> Restaurar
+                            </button>
+                            <button
+                              onClick={() => handleForceDelete(item.id)}
+                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Eliminar Definitivamente"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-end gap-2">
+                            {item.file_url && (
+                              <button
+                                onClick={() =>
+                                  setPdfPreview({
+                                    isOpen: true,
+                                    url: item.file_url!,
+                                    title: item.title,
+                                    fileName: item.file_name,
+                                    fileSize: item.file_size,
+                                  })
+                                }
+                                className="p-1.5 rounded-lg text-slate-600 hover:bg-purple-50 hover:text-purple-600 transition-colors cursor-pointer"
+                                title="Ver PDF"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleOpenEdit(item)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors cursor-pointer"
+                              title="Editar"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                              title="Enviar a Papelera"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -399,9 +588,13 @@ export const AdminPartnerNewsPage: React.FC = () => {
       ) : (
         <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
           <Newspaper className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="font-serif font-bold text-slate-800">No se encontraron noticias en el boletín</h3>
+          <h3 className="font-serif font-bold text-slate-800">
+            {showTrash ? 'La papelera está vacía' : 'No se encontraron noticias en el boletín'}
+          </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            {searchTerm || selectedCategory !== 'all'
+            {showTrash
+              ? 'No hay comunicados borrados recientemente.'
+              : searchTerm || selectedCategory !== 'all'
               ? 'Prueba modificando los filtros de búsqueda.'
               : 'Comienza creando la primera noticia o comunicado privado para socios.'}
           </p>
@@ -430,6 +623,55 @@ export const AdminPartnerNewsPage: React.FC = () => {
                 placeholder="Ej: Nuevas Oportunidades Comerciales Bilaterales 2026..."
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 font-medium"
               />
+            </div>
+
+            {/* Multi-Category Selector */}
+            <div className="space-y-2 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
+                  <Tag className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Categorías Temáticas (Seleccione una o varias) *</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatError(null);
+                    setCatNameInput('');
+                    setEditingCat(null);
+                    setIsCatModalOpen(true);
+                  }}
+                  className="text-[11px] text-blue-600 hover:text-blue-800 font-bold underline cursor-pointer"
+                >
+                  + Administrar categorías
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {categories.map((cat) => {
+                  const isSelected = formData.categories.includes(cat.name);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => toggleCategory(cat.name)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100/60'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                      {cat.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {formData.categories.length === 0 && (
+                <p className="text-[11px] text-amber-600 font-medium pt-1">
+                  ⚠️ Seleccione al menos una categoría.
+                </p>
+              )}
             </div>
 
             {/* Content Modality Selector */}
@@ -498,31 +740,14 @@ export const AdminPartnerNewsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700">Categoría *</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
-                >
-                  {CATEGORY_OPTIONS.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700">Fecha de Publicación</label>
-                <input
-                  type="date"
-                  value={formData.published_at}
-                  onChange={(e) => setFormData({ ...formData, published_at: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700">Fecha de Publicación</label>
+              <input
+                type="date"
+                value={formData.published_at}
+                onChange={(e) => setFormData({ ...formData, published_at: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
+              />
             </div>
 
             {/* Author, Author Avatar, Logo */}
@@ -600,7 +825,7 @@ export const AdminPartnerNewsPage: React.FC = () => {
                           fileSize: formData.file_size,
                         })
                       }
-                      className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline"
+                      className="inline-flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-bold underline cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       Probar Visor PDF
@@ -649,7 +874,7 @@ export const AdminPartnerNewsPage: React.FC = () => {
                   id="is_featured_news"
                   checked={formData.is_featured === 1}
                   onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked ? 1 : 0 })}
-                  className="w-4 h-4 text-blue-600 rounded-sm border-slate-300"
+                  className="w-4 h-4 text-blue-600 rounded-sm border-slate-300 cursor-pointer"
                 />
                 <label htmlFor="is_featured_news" className="text-xs font-bold text-slate-700 cursor-pointer">
                   Marcar como Noticia Destacada del Boletín
@@ -676,20 +901,192 @@ export const AdminPartnerNewsPage: React.FC = () => {
                   setIsModalOpen(false);
                   setEditingItem(null);
                 }}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs"
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs cursor-pointer disabled:opacity-50"
               >
                 {submitting ? 'Guardando...' : editingItem ? 'Actualizar Noticia' : 'Publicar en Boletín'}
               </button>
             </div>
           </form>
         </Modal>
+      )}
+
+      {/* Category Manager Modal */}
+      {isCatModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center shadow-xs">
+                  <FolderCog className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-base text-cicha-navy">
+                    Gestión de Categorías del Boletín
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Cree y administre las categorías temáticas para las noticias de socios.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCatModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+              {/* Add / Edit Category Form */}
+              <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
+                <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+                  <Tag className="w-3.5 h-3.5 text-blue-600" />
+                  <span>{editingCat ? `Editar Categoría: "${editingCat.name}"` : 'Nueva Categoría de Boletín'}</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Ej: Comunicado Oficial, Comercio Bilateral..."
+                    value={catNameInput}
+                    onChange={(e) => setCatNameInput(e.target.value)}
+                    className="flex-1 p-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={catActionLoading || !catNameInput.trim()}
+                    onClick={async () => {
+                      if (!catNameInput.trim()) return;
+                      setCatActionLoading(true);
+                      setCatError(null);
+                      try {
+                        if (editingCat) {
+                          await adminApi.updateCategory(editingCat.id, {
+                            name: catNameInput.trim(),
+                            type: 'partner_news',
+                          });
+                        } else {
+                          await adminApi.createCategory({
+                            name: catNameInput.trim(),
+                            type: 'partner_news',
+                          });
+                        }
+                        setCatNameInput('');
+                        setEditingCat(null);
+                        fetchCategories();
+                      } catch (err: any) {
+                        setCatError(err?.response?.data?.message || 'Error al guardar categoría.');
+                      } finally {
+                        setCatActionLoading(false);
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white font-bold transition-all disabled:opacity-50 shrink-0 cursor-pointer shadow-xs"
+                  >
+                    {catActionLoading ? 'Guardando...' : editingCat ? 'Actualizar' : 'Agregar'}
+                  </button>
+                  {editingCat && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCat(null);
+                        setCatNameInput('');
+                      }}
+                      className="px-3 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </div>
+                {catError && <p className="text-[11px] text-rose-600 font-medium">{catError}</p>}
+              </div>
+
+              {/* List of categories */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-slate-500 font-bold text-[11px] px-1">
+                  <span>Categorías Activas ({categories.length})</span>
+                  <span>Acciones</span>
+                </div>
+
+                {loadingCats ? (
+                  <div className="py-8 flex justify-center">
+                    <Loader text="Cargando categorías..." />
+                  </div>
+                ) : categories.length === 0 ? (
+                  <div className="p-6 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    No hay categorías registradas. Agrega la primera arriba.
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {categories.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-blue-600" />
+                          <span className="font-bold text-slate-800">{cat.name}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">({cat.slug})</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCat(cat);
+                              setCatNameInput(cat.name);
+                              setCatError(null);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-all cursor-pointer"
+                            title="Editar categoría"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!window.confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
+                              setCatActionLoading(true);
+                              try {
+                                await adminApi.deleteCategory(cat.id);
+                                fetchCategories();
+                              } catch (err: any) {
+                                alert(err?.response?.data?.message || 'Error al eliminar categoría');
+                              } finally {
+                                setCatActionLoading(false);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
+                            title="Eliminar categoría"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsCatModalOpen(false)}
+                className="px-5 py-2 rounded-xl bg-cicha-navy hover:bg-[#003866] text-white font-bold text-xs transition-all cursor-pointer shadow-xs"
+              >
+                Listo / Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* PDF Interactive Viewer Modal */}

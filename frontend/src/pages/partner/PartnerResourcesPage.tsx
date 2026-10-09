@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Download, FileText } from 'lucide-react';
-import { partnerApi, adminApi, resolveImageUrl } from '../../services/api';
+import { partnerApi, resolveImageUrl } from '../../services/api';
 import type { PartnerResource, Category } from '../../types';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
@@ -13,10 +13,20 @@ export const PartnerResourcesPage: React.FC = () => {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     partnerApi
       .getResources(category)
-      .then((res) => {
-        setResources(res || []);
+      .then((res: any) => {
+        if (res && typeof res === 'object' && 'resources' in res) {
+          setResources(res.resources || []);
+          if (res.categories && res.categories.length > 0) {
+            setCategories(res.categories);
+          }
+        } else if (Array.isArray(res)) {
+          setResources(res);
+        } else {
+          setResources([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -27,7 +37,7 @@ export const PartnerResourcesPage: React.FC = () => {
 
   useEffect(() => {
     partnerApi
-      .getCategories('members')
+      .getCategories('resources')
       .then((cats) => {
         if (cats && cats.length > 0) {
           setCategories(cats);
@@ -74,7 +84,7 @@ export const PartnerResourcesPage: React.FC = () => {
       <div className="flex flex-wrap items-center gap-2 bg-[#003866]/85 p-3 rounded-2xl border border-blue-400/20 shadow-lg">
         <button
           onClick={() => setCategory('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             category === 'all'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
               : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white'
@@ -86,7 +96,7 @@ export const PartnerResourcesPage: React.FC = () => {
           <button
             key={cat.id}
             onClick={() => setCategory(cat.name)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               category === cat.name
                 ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
                 : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white'
@@ -102,39 +112,51 @@ export const PartnerResourcesPage: React.FC = () => {
         <Loader text="Cargando biblioteca de socios..." />
       ) : resources.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {resources.map((res) => (
-            <div
-              key={res.id}
-              className="bg-[#003866]/85 rounded-3xl p-6 border border-blue-400/20 hover:border-cicha-sky/40 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between space-y-4 group"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-cicha-sky/20 text-sky-200 border border-cicha-sky/30">
-                    {res.category.replace('_', ' ')}
-                  </span>
-                  <span className="text-xs text-sky-200/70 font-medium">{res.file_size}</span>
+          {resources.map((res) => {
+            const itemCats = Array.isArray(res.categories) && res.categories.length > 0
+              ? res.categories
+              : (res.category ? [res.category] : []);
+            return (
+              <div
+                key={res.id}
+                className="bg-[#003866]/85 rounded-3xl p-6 border border-blue-400/20 hover:border-cicha-sky/40 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between space-y-4 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {itemCats.map((c, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-cicha-sky/20 text-sky-200 border border-cicha-sky/30"
+                        >
+                          {c.replace('_', ' ')}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-xs text-sky-200/70 font-medium">{res.file_size}</span>
+                  </div>
+
+                  <h3 className="font-serif font-bold text-base text-white group-hover:text-amber-300 transition-colors break-words">
+                    {res.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 leading-relaxed break-words whitespace-pre-line">{res.description}</p>
                 </div>
 
-                <h3 className="font-serif font-bold text-base text-white group-hover:text-amber-300 transition-colors break-words">
-                  {res.title}
-                </h3>
-
-                <p className="text-xs text-slate-300 leading-relaxed break-words whitespace-pre-line">{res.description}</p>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+                  <span className="text-sky-200/70 font-medium">{res.downloads} descargas registradas</span>
+                  <button
+                    onClick={() => handleDownload(res)}
+                    disabled={downloadingId === res.id}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold inline-flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 text-slate-950" />
+                    {downloadingId === res.id ? 'Descargando...' : 'Descargar Archivo'}
+                  </button>
+                </div>
               </div>
-
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                <span className="text-sky-200/70 font-medium">{res.downloads} descargas registradas</span>
-                <button
-                  onClick={() => handleDownload(res)}
-                  disabled={downloadingId === res.id}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold inline-flex items-center gap-1.5 shadow-md transition-all"
-                >
-                  <Download className="w-4 h-4 text-slate-950" />
-                  {downloadingId === res.id ? 'Descargando...' : 'Descargar Archivo'}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16 bg-[#003866]/85 rounded-3xl border border-blue-400/20 shadow-xl space-y-2">

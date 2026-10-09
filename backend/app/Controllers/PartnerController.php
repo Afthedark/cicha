@@ -68,14 +68,34 @@ class PartnerController extends ResourceController
 
         $builder = $resourceModel->where('is_active', 1);
         if ($category && $category !== 'all') {
-            $builder->where('category', $category);
+            $builder->groupStart()
+                ->where('category', $category)
+                ->orLike('categories', '"' . $category . '"')
+                ->groupEnd();
         }
 
         $resources = $builder->orderBy('created_at', 'DESC')->findAll();
 
+        foreach ($resources as &$item) {
+            if (!empty($item['categories']) && is_string($item['categories'])) {
+                $decoded = json_decode($item['categories'], true);
+                $item['categories'] = is_array($decoded) ? $decoded : [$item['category']];
+            } elseif (empty($item['categories']) && !empty($item['category'])) {
+                $item['categories'] = [$item['category']];
+            } else {
+                $item['categories'] = [];
+            }
+        }
+
+        $categoryModel = new CategoryModel();
+        $dbCategories = $categoryModel->where('type', 'resources')->orderBy('name', 'ASC')->findAll();
+
         return $this->respond([
             'status' => 200,
-            'data'   => $resources
+            'data'   => [
+                'resources'  => $resources,
+                'categories' => $dbCategories,
+            ]
         ]);
     }
 
@@ -110,15 +130,36 @@ class PartnerController extends ResourceController
             $builder->where('type', $type);
         }
         if ($sector && $sector !== 'all') {
-            $builder->like('sector', $sector);
+            $builder->groupStart()
+                ->where('sector', $sector)
+                ->orLike('categories', '"' . $sector . '"')
+                ->orLike('sector', $sector)
+                ->groupEnd();
         }
 
         // Returns full opportunities with direct contact data for socios
         $opportunities = $builder->orderBy('created_at', 'DESC')->findAll();
 
+        foreach ($opportunities as &$item) {
+            if (!empty($item['categories']) && is_string($item['categories'])) {
+                $decoded = json_decode($item['categories'], true);
+                $item['categories'] = is_array($decoded) ? $decoded : [$item['sector']];
+            } elseif (empty($item['categories']) && !empty($item['sector'])) {
+                $item['categories'] = [$item['sector']];
+            } else {
+                $item['categories'] = [];
+            }
+        }
+
+        $categoryModel = new CategoryModel();
+        $dbCategories = $categoryModel->where('type', 'opportunities')->orderBy('name', 'ASC')->findAll();
+
         return $this->respond([
             'status' => 200,
-            'data'   => $opportunities
+            'data'   => [
+                'opportunities' => $opportunities,
+                'categories'    => $dbCategories,
+            ]
         ]);
     }
 
@@ -378,8 +419,11 @@ class PartnerController extends ResourceController
 
         $builder = $model->where('status', 'published');
 
-        if (!empty($category)) {
-            $builder->where('category', $category);
+        if (!empty($category) && $category !== 'all') {
+            $builder->groupStart()
+                ->where('category', $category)
+                ->orLike('categories', '"' . $category . '"')
+                ->groupEnd();
         }
 
         if (!empty($q)) {
@@ -395,7 +439,21 @@ class PartnerController extends ResourceController
                         ->orderBy('created_at', 'DESC')
                         ->findAll();
 
-        // Distinct categories for quick filtering
+        foreach ($news as &$item) {
+            if (!empty($item['categories']) && is_string($item['categories'])) {
+                $decoded = json_decode($item['categories'], true);
+                $item['categories'] = is_array($decoded) ? $decoded : [$item['category']];
+            } elseif (empty($item['categories']) && !empty($item['category'])) {
+                $item['categories'] = [$item['category']];
+            } else {
+                $item['categories'] = [];
+            }
+        }
+
+        // Fetch categories from categories table
+        $categoryModel = new CategoryModel();
+        $dbCategories = $categoryModel->where('type', 'partner_news')->orderBy('name', 'ASC')->findAll();
+
         $allCategories = $model->where('status', 'published')
             ->select('category')
             ->distinct()
@@ -405,8 +463,9 @@ class PartnerController extends ResourceController
         return $this->respond([
             'status' => 200,
             'data'   => [
-                'news'       => $news,
-                'categories' => $categoriesList,
+                'news'          => $news,
+                'categories'    => $categoriesList,
+                'db_categories' => $dbCategories,
             ]
         ]);
     }
@@ -420,11 +479,31 @@ class PartnerController extends ResourceController
             return $this->failNotFound('Comunicado o noticia del boletín no encontrada.');
         }
 
+        if (!empty($item['categories']) && is_string($item['categories'])) {
+            $decoded = json_decode($item['categories'], true);
+            $item['categories'] = is_array($decoded) ? $decoded : [$item['category']];
+        } elseif (empty($item['categories']) && !empty($item['category'])) {
+            $item['categories'] = [$item['category']];
+        } else {
+            $item['categories'] = [];
+        }
+
         // Related news
         $related = $model->where('status', 'published')
             ->where('id !=', $item['id'])
             ->orderBy('published_at', 'DESC')
             ->findAll(3);
+
+        foreach ($related as &$rel) {
+            if (!empty($rel['categories']) && is_string($rel['categories'])) {
+                $decoded = json_decode($rel['categories'], true);
+                $rel['categories'] = is_array($decoded) ? $decoded : [$rel['category']];
+            } elseif (empty($rel['categories']) && !empty($rel['category'])) {
+                $rel['categories'] = [$rel['category']];
+            } else {
+                $rel['categories'] = [];
+            }
+        }
 
         return $this->respond([
             'status' => 200,

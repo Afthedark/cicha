@@ -221,7 +221,7 @@ La URL base de la API es: `http://127.0.0.1:8080/index.php/api/` (o `https://api
 | :--- | :--- | :--- | :--- |
 | `GET`/`POST` | `/admin/settings` | Ajustes institucionales, redes sociales y plantillas de correo | `admin`, `secretario` |
 | `CRUD` | `/admin/users` | **Gestión de usuarios y accesos (con aislamiento estricto de Super Admin)** | `admin` (Staff), `secretario` (Socios) |
-| `POST` | `/admin/upload` | Subida de archivos e imágenes (soporta documentos hasta 30MB) | `admin`, `secretario` |
+| `POST` | `/admin/upload` | Subida de archivos e imágenes (soporta documentos y PDFs hasta 100MB) | `admin`, `secretario` |
 
 ---
 

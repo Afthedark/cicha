@@ -201,7 +201,17 @@ export const TradeBilateralPage: React.FC = () => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">{opp.sector}</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {Array.isArray(opp.categories) && opp.categories.length > 0 ? (
+                      opp.categories.map((c, i) => (
+                        <span key={i} className="text-slate-600 bg-slate-100 px-2 py-0.5 rounded text-[11px] font-medium">
+                          {c}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-500 font-medium">{opp.sector || 'General'}</span>
+                    )}
+                  </div>
                   <Link
                     to={`/contacto?asunto=${encodeURIComponent('Consulta: ' + opp.title)}`}
                     className="inline-flex items-center gap-1 font-bold text-blue-700 hover:text-amber-600 transition-colors"

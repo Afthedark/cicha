@@ -87,6 +87,8 @@ $routes->group('api', static function ($routes) {
 
         // Boletín de Noticias para Socios (Exclusivo)
         $routes->resource('partner-news', ['controller' => 'Admin\PartnerNewsController']);
+        $routes->post('partner-news/(:num)/restore', 'Admin\PartnerNewsController::restore/$1');
+        $routes->delete('partner-news/(:num)/force', 'Admin\PartnerNewsController::forceDelete/$1');
 
         // B2B Meetings & Results (Reuniones B2B)
         $routes->resource('b2b-meetings', ['controller' => 'Admin\B2BMeetingsController']);
@@ -111,6 +113,8 @@ $routes->group('api', static function ($routes) {
 
         // Commercial Opportunities
         $routes->resource('opportunities', ['controller' => 'Admin\OpportunitiesController']);
+        $routes->post('opportunities/(:num)/restore', 'Admin\OpportunitiesController::restore/$1');
+        $routes->delete('opportunities/(:num)/force', 'Admin\OpportunitiesController::forceDelete/$1');
 
         // Decrees & Actas Institucionales (Admin CMS)
         $routes->resource('decrees', ['controller' => 'Admin\DecreesController']);
@@ -118,6 +122,8 @@ $routes->group('api', static function ($routes) {
 
         // Exclusive Partner Resources & Benefits Management
         $routes->resource('partner-resources', ['controller' => 'Admin\PartnerResourcesController']);
+        $routes->post('partner-resources/(:num)/restore', 'Admin\PartnerResourcesController::restore/$1');
+        $routes->delete('partner-resources/(:num)/force', 'Admin\PartnerResourcesController::forceDelete/$1');
         $routes->resource('partner-benefits', ['controller' => 'Admin\PartnerBenefitsController']);
 
         // Applications

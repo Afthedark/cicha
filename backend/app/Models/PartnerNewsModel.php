@@ -10,9 +10,11 @@ class PartnerNewsModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
+    protected $deletedField     = 'deleted_at';
     protected $allowedFields    = [
         'category',
+        'categories',
         'title',
         'slug',
         'summary',
@@ -28,6 +30,7 @@ class PartnerNewsModel extends Model
         'published_at',
         'is_featured',
         'status',
+        'deleted_at',
     ];
 
     protected $useTimestamps = true;

@@ -135,6 +135,7 @@ export interface Article {
 export interface PartnerNewsItem {
   id: number;
   category: string;
+  categories?: string[];
   title: string;
   slug: string;
   summary?: string;
@@ -150,6 +151,7 @@ export interface PartnerNewsItem {
   published_at: string;
   is_featured: number | boolean;
   status: 'published' | 'draft' | 'archived';
+  deleted_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -259,12 +261,14 @@ export interface CommercialOpportunity {
   origin_country: string;
   target_country: string;
   sector: string;
+  categories?: string[];
   description: string;
   requirements?: string;
   contact_person?: string;
   contact_email?: string;
   status: 'open' | 'in_negotiation' | 'closed';
   deadline?: string;
+  deleted_at?: string | null;
   created_at?: string;
 }
 
@@ -325,12 +329,14 @@ export interface PartnerResource {
   id: number;
   title: string;
   category: string;
+  categories?: string[];
   description?: string;
   file_url: string;
   file_type: string;
   file_size: string;
   downloads: number;
   is_active: number | boolean;
+  deleted_at?: string | null;
   created_at: string;
 }
 

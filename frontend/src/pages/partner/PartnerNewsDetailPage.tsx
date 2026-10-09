@@ -100,9 +100,17 @@ export const PartnerNewsDetailPage: React.FC = () => {
         <div className="p-6 sm:p-10 space-y-5 border-b border-white/10 bg-gradient-to-b from-[#004b87]/60 to-transparent">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
-                {item.category}
-              </span>
+              {Array.isArray(item.categories) && item.categories.length > 0 ? (
+                item.categories.map((cat, idx) => (
+                  <span key={idx} className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
+                    {cat}
+                  </span>
+                ))
+              ) : (
+                <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
+                  {item.category || 'Boletín'}
+                </span>
+              )}
               <span className="text-xs text-sky-200 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-amber-400" />
                 {item.published_at ? item.published_at.slice(0, 10) : 'Fecha reciente'}

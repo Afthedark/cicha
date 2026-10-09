@@ -286,18 +286,44 @@ class PublicController extends ResourceController
     {
         $opportunityModel = new CommercialOpportunityModel();
         $type = $this->request->getGet('type');
+        $sector = $this->request->getGet('sector') ?: $this->request->getGet('category');
 
         $builder = $opportunityModel->where('status', 'open');
 
-        if ($type) {
+        if ($type && $type !== 'all') {
             $builder->where('type', $type);
+        }
+
+        if ($sector && $sector !== 'all') {
+            $builder->groupStart()
+                ->where('sector', $sector)
+                ->orLike('categories', '"' . $sector . '"')
+                ->orLike('sector', $sector)
+                ->groupEnd();
         }
 
         $opportunities = $builder->orderBy('created_at', 'DESC')->findAll();
 
+        foreach ($opportunities as &$item) {
+            if (!empty($item['categories']) && is_string($item['categories'])) {
+                $decoded = json_decode($item['categories'], true);
+                $item['categories'] = is_array($decoded) ? $decoded : [$item['sector']];
+            } elseif (empty($item['categories']) && !empty($item['sector'])) {
+                $item['categories'] = [$item['sector']];
+            } else {
+                $item['categories'] = [];
+            }
+        }
+
+        $categoryModel = new CategoryModel();
+        $dbCategories = $categoryModel->where('type', 'opportunities')->orderBy('name', 'ASC')->findAll();
+
         return $this->respond([
             'status' => 200,
-            'data'   => $opportunities
+            'data'   => [
+                'opportunities' => $opportunities,
+                'categories'    => $dbCategories,
+            ]
         ]);
     }
 

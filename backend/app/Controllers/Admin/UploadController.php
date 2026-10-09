@@ -34,8 +34,8 @@ class UploadController extends ResourceController
             return $this->fail('Tipo de archivo no permitido. Se aceptan imágenes (JPG, PNG, WEBP) y documentos (PDF, Word, Excel, PowerPoint, ZIP, CSV).');
         }
 
-        if ($file->getSizeByUnit('mb') > 30) {
-            return $this->fail('El archivo supera el tamaño máximo permitido (30MB).');
+        if ($file->getSizeByUnit('mb') > 100) {
+            return $this->fail('El archivo supera el tamaño máximo permitido (100MB).');
         }
 
         $uploadPath = FCPATH . 'uploads/';

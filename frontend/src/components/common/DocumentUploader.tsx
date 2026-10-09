@@ -17,7 +17,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   fileType,
   fileSize,
   onChange,
-  helperText = 'Formatos admitidos: PDF, Word (DOC/DOCX), Excel (XLS/XLSX), PowerPoint (PPTX), ZIP (Máx. 30MB)',
+  helperText = 'Formatos admitidos: PDF, Word (DOC/DOCX), Excel (XLS/XLSX), PowerPoint (PPTX), ZIP (Máx. 100MB)',
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +26,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
-    if (file.size > 30 * 1024 * 1024) {
-      setError('El archivo supera el tamaño máximo permitido de 30MB.');
+    if (file.size > 100 * 1024 * 1024) {
+      setError('El archivo supera el tamaño máximo permitido de 100MB.');
       return;
     }
 

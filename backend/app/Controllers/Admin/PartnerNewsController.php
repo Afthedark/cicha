@@ -12,16 +12,25 @@ class PartnerNewsController extends ResourceController
     public function index()
     {
         $model = new PartnerNewsModel();
+        $trash = $this->request->getGet('trash');
         $status = $this->request->getGet('status');
         $category = $this->request->getGet('category');
         $q = $this->request->getGet('q');
 
         $builder = $model;
-        if (!empty($status)) {
+
+        if ($trash === 'true' || $trash === '1') {
+            $builder = $builder->onlyDeleted();
+        }
+
+        if (!empty($status) && $status !== 'all') {
             $builder = $builder->where('status', $status);
         }
-        if (!empty($category)) {
-            $builder = $builder->where('category', $category);
+        if (!empty($category) && $category !== 'all') {
+            $builder = $builder->groupStart()
+                ->where('category', $category)
+                ->orLike('categories', '"' . $category . '"')
+                ->groupEnd();
         }
         if (!empty($q)) {
             $builder = $builder->groupStart()
@@ -36,6 +45,17 @@ class PartnerNewsController extends ResourceController
                         ->orderBy('created_at', 'DESC')
                         ->findAll();
 
+        foreach ($news as &$item) {
+            if (!empty($item['categories']) && is_string($item['categories'])) {
+                $decoded = json_decode($item['categories'], true);
+                $item['categories'] = is_array($decoded) ? $decoded : [$item['category']];
+            } elseif (empty($item['categories']) && !empty($item['category'])) {
+                $item['categories'] = [$item['category']];
+            } else {
+                $item['categories'] = [];
+            }
+        }
+
         return $this->respond([
             'status' => 200,
             'data'   => $news,
@@ -45,10 +65,19 @@ class PartnerNewsController extends ResourceController
     public function show($id = null)
     {
         $model = new PartnerNewsModel();
-        $item = is_numeric($id) ? $model->find($id) : $model->where('slug', $id)->first();
+        $item = is_numeric($id) ? $model->withDeleted()->find($id) : $model->withDeleted()->where('slug', $id)->first();
 
         if (!$item) {
             return $this->failNotFound('Noticia del boletín no encontrada');
+        }
+
+        if (!empty($item['categories']) && is_string($item['categories'])) {
+            $decoded = json_decode($item['categories'], true);
+            $item['categories'] = is_array($decoded) ? $decoded : [$item['category']];
+        } elseif (empty($item['categories']) && !empty($item['category'])) {
+            $item['categories'] = [$item['category']];
+        } else {
+            $item['categories'] = [];
         }
 
         return $this->respond([
@@ -74,8 +103,21 @@ class PartnerNewsController extends ResourceController
             ? $input['document_type']
             : (!empty($input['file_url']) ? 'both' : 'text');
 
+        $categoriesArr = [];
+        if (!empty($input['categories'])) {
+            $categoriesArr = is_array($input['categories']) 
+                ? array_values(array_filter(array_map('trim', $input['categories'])))
+                : array_values(array_filter(array_map('trim', explode(',', $input['categories']))));
+        }
+
+        $primaryCategory = !empty($categoriesArr) ? $categoriesArr[0] : (!empty($input['category']) ? trim($input['category']) : 'Comunicado Oficial');
+        if (empty($categoriesArr) && !empty($primaryCategory)) {
+            $categoriesArr = [$primaryCategory];
+        }
+
         $data = [
-            'category'          => !empty($input['category']) ? trim($input['category']) : 'Comunicado Oficial',
+            'category'          => $primaryCategory,
+            'categories'        => json_encode($categoriesArr, JSON_UNESCAPED_UNICODE),
             'title'             => $title,
             'slug'              => $slug,
             'summary'           => $input['summary'] ?? null,
@@ -99,6 +141,10 @@ class PartnerNewsController extends ResourceController
         }
 
         $created = $model->find($id);
+        if (!empty($created['categories']) && is_string($created['categories'])) {
+            $created['categories'] = json_decode($created['categories'], true);
+        }
+
         return $this->respondCreated([
             'status'  => 201,
             'message' => 'Noticia de boletín creada con éxito',
@@ -109,7 +155,7 @@ class PartnerNewsController extends ResourceController
     public function update($id = null)
     {
         $model = new PartnerNewsModel();
-        $existing = $model->find($id);
+        $existing = $model->withDeleted()->find($id);
         if (!$existing) {
             return $this->failNotFound('Noticia del boletín no encontrada.');
         }
@@ -127,7 +173,20 @@ class PartnerNewsController extends ResourceController
         if (isset($input['slug']) && !empty($input['slug']) && $input['slug'] !== $existing['slug']) {
             $data['slug'] = $model->generateSlug($input['slug'], $id);
         }
-        if (isset($input['category']))          $data['category']          = trim($input['category']);
+
+        if (isset($input['categories'])) {
+            $categoriesArr = is_array($input['categories'])
+                ? array_values(array_filter(array_map('trim', $input['categories'])))
+                : array_values(array_filter(array_map('trim', explode(',', $input['categories']))));
+            $data['categories'] = json_encode($categoriesArr, JSON_UNESCAPED_UNICODE);
+            if (!empty($categoriesArr)) {
+                $data['category'] = $categoriesArr[0];
+            }
+        } elseif (isset($input['category'])) {
+            $data['category'] = trim($input['category']);
+            $data['categories'] = json_encode([trim($input['category'])], JSON_UNESCAPED_UNICODE);
+        }
+
         if (isset($input['summary']))           $data['summary']           = $input['summary'];
         if (isset($input['content']))           $data['content']           = $input['content'];
         if (isset($input['image_url']))         $data['image_url']         = $input['image_url'];
@@ -146,7 +205,11 @@ class PartnerNewsController extends ResourceController
             $model->update($id, $data);
         }
 
-        $updated = $model->find($id);
+        $updated = $model->withDeleted()->find($id);
+        if (!empty($updated['categories']) && is_string($updated['categories'])) {
+            $updated['categories'] = json_decode($updated['categories'], true);
+        }
+
         return $this->respond([
             'status'  => 200,
             'message' => 'Noticia de boletín actualizada con éxito',
@@ -165,7 +228,27 @@ class PartnerNewsController extends ResourceController
         $model->delete($id);
         return $this->respondDeleted([
             'status'  => 200,
-            'message' => 'Noticia eliminada con éxito',
+            'message' => 'Noticia eliminada con éxito (Soft Delete)',
         ]);
+    }
+
+    public function restore($id = null)
+    {
+        $model = new PartnerNewsModel();
+        $item = $model->onlyDeleted()->find($id);
+        if (!$item) return $this->failNotFound('Noticia en papelera no encontrada');
+
+        $model->update($id, ['deleted_at' => null]);
+        return $this->respond(['status' => 200, 'message' => 'Noticia del boletín restaurada con éxito']);
+    }
+
+    public function forceDelete($id = null)
+    {
+        $model = new PartnerNewsModel();
+        $item = $model->withDeleted()->find($id);
+        if (!$item) return $this->failNotFound('Noticia no encontrada');
+
+        $model->delete($id, true);
+        return $this->respondDeleted(['status' => 200, 'message' => 'Noticia eliminada permanentemente']);
     }
 }

@@ -21,10 +21,17 @@ Esta guía explica paso a paso cómo desplegar la API Backend de **CICHA (CodeIg
    - ✅ `mysqli` o `pdo_mysql` (Conexión a Base de Datos)
    - ✅ `intl` (Internacionalización)
    - ✅ `mbstring` (Cadenas UTF-8)
-   - ✅ `fileinfo` (Validación de subida de imágenes)
+   - ✅ `fileinfo` (Validación de subida de archivos y PDFs)
    - ✅ `gd` o `imagick` (Procesamiento de imágenes)
    - ✅ `json` y `curl`
    - ✅ `openssl` (Autenticación JWT)
+
+4. En **Editor INI de MultiPHP (MultiPHP INI Editor)** para `api.cicha.com.ar`, configurar los límites para subida de PDFs pesados (100MB):
+   - `upload_max_filesize = 100M`
+   - `post_max_size = 110M`
+   - `memory_limit = 256M`
+   - `max_execution_time = 300`
+   - `max_input_time = 300`
 
 ---
 

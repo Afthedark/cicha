@@ -387,7 +387,7 @@ export const adminApi = {
   deleteArticle: (id: number) => apiClient.delete(`/admin/articles/${id}`).then((res) => res.data),
 
   // Partner News / Boletín de Socios (Admin & Secretario)
-  getPartnerNews: (params?: { category?: string; status?: string; q?: string }) =>
+  getPartnerNews: (params?: { category?: string; status?: string; q?: string; trash?: boolean }) =>
     apiClient.get<{ status: number; data: PartnerNewsItem[] }>('/admin/partner-news', { params }).then((res) => res.data.data),
   getPartnerNewsItem: (id: number | string) =>
     apiClient.get<{ status: number; data: PartnerNewsItem }>(`/admin/partner-news/${id}`).then((res) => res.data.data),
@@ -397,6 +397,10 @@ export const adminApi = {
     apiClient.put<{ status: number; message: string; data: PartnerNewsItem }>(`/admin/partner-news/${id}`, data).then((res) => res.data),
   deletePartnerNews: (id: number) =>
     apiClient.delete<{ status: number; message: string }>(`/admin/partner-news/${id}`).then((res) => res.data),
+  restorePartnerNews: (id: number) =>
+    apiClient.post<{ status: number; message: string }>(`/admin/partner-news/${id}/restore`).then((res) => res.data),
+  forceDeletePartnerNews: (id: number) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/partner-news/${id}/force`).then((res) => res.data),
 
   // B2B Meetings & Results (Admin & Secretario)
   getB2BMeetings: () =>
@@ -459,14 +463,18 @@ export const adminApi = {
   deleteMember: (id: number) => apiClient.delete(`/admin/members/${id}`).then((res) => res.data),
 
   // Opportunities (Admin & Secretario)
-  getOpportunities: () =>
-    apiClient.get<{ status: number; data: CommercialOpportunity[] }>('/admin/opportunities').then((res) => res.data.data),
+  getOpportunities: (params?: { trash?: boolean; type?: string; sector?: string; status?: string; q?: string }) =>
+    apiClient.get<{ status: number; data: CommercialOpportunity[] }>('/admin/opportunities', { params }).then((res) => res.data.data),
   getOpportunity: (id: number) =>
     apiClient.get<{ status: number; data: CommercialOpportunity }>(`/admin/opportunities/${id}`).then((res) => res.data.data),
   createOpportunity: (data: Partial<CommercialOpportunity>) => apiClient.post('/admin/opportunities', data).then((res) => res.data),
   updateOpportunity: (id: number, data: Partial<CommercialOpportunity>) =>
     apiClient.put(`/admin/opportunities/${id}`, data).then((res) => res.data),
   deleteOpportunity: (id: number) => apiClient.delete(`/admin/opportunities/${id}`).then((res) => res.data),
+  restoreOpportunity: (id: number) =>
+    apiClient.post<{ status: number; message: string }>(`/admin/opportunities/${id}/restore`).then((res) => res.data),
+  forceDeleteOpportunity: (id: number) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/opportunities/${id}/force`).then((res) => res.data),
 
   // Decrees (Admin & Secretario)
   getDecrees: (search?: string) =>
@@ -491,14 +499,18 @@ export const adminApi = {
   deleteMinute: (id: number | string) => apiClient.delete(`/admin/partner-minutes/${id}`).then((res) => res.data),
 
   // Partner Resources (Admin & Secretario)
-  getPartnerResources: () =>
-    apiClient.get<{ status: number; data: PartnerResource[] }>('/admin/partner-resources').then((res) => res.data.data),
+  getPartnerResources: (params?: { trash?: boolean; q?: string; category?: string }) =>
+    apiClient.get<{ status: number; data: PartnerResource[] }>('/admin/partner-resources', { params }).then((res) => res.data.data),
   createPartnerResource: (data: Partial<PartnerResource>) =>
     apiClient.post('/admin/partner-resources', data).then((res) => res.data),
   updatePartnerResource: (id: number, data: Partial<PartnerResource>) =>
     apiClient.put(`/admin/partner-resources/${id}`, data).then((res) => res.data),
   deletePartnerResource: (id: number) =>
     apiClient.delete(`/admin/partner-resources/${id}`).then((res) => res.data),
+  restorePartnerResource: (id: number) =>
+    apiClient.post<{ status: number; message: string }>(`/admin/partner-resources/${id}/restore`).then((res) => res.data),
+  forceDeletePartnerResource: (id: number) =>
+    apiClient.delete<{ status: number; message: string }>(`/admin/partner-resources/${id}/force`).then((res) => res.data),
 
   // Partner Benefits (Admin & Secretario)
   getPartnerBenefits: (params?: { q?: string; category?: string }) =>

@@ -8,6 +8,13 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authorization, x-authorization, X-API-KEY, Access-Control-Request-Method');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE');
 
+// Set PHP limits for heavy file uploads (up to 100MB PDFs/documents)
+@ini_set('upload_max_filesize', '100M');
+@ini_set('post_max_size', '110M');
+@ini_set('memory_limit', '256M');
+@ini_set('max_execution_time', '300');
+@ini_set('max_input_time', '300');
+
 if (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'OPTIONS') {
     http_response_code(200);
     exit(0);

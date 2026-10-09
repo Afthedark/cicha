@@ -14,7 +14,7 @@ export const PartnerOpportunitiesPage: React.FC = () => {
 
   useEffect(() => {
     partnerApi
-      .getCategories('members')
+      .getCategories('opportunities')
       .then((cats) => {
         if (cats && cats.length > 0) {
           setCategories(cats);
@@ -33,8 +33,17 @@ export const PartnerOpportunitiesPage: React.FC = () => {
     setLoading(true);
     partnerApi
       .getOpportunities(type, sector)
-      .then((res) => {
-        setOpportunities(res || []);
+      .then((res: any) => {
+        if (res && typeof res === 'object' && 'opportunities' in res) {
+          setOpportunities(res.opportunities || []);
+          if (res.categories && res.categories.length > 0) {
+            setCategories(res.categories);
+          }
+        } else if (Array.isArray(res)) {
+          setOpportunities(res);
+        } else {
+          setOpportunities([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -58,11 +67,11 @@ export const PartnerOpportunitiesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Category / Sector Tabs (Dinámico desde Sectores & Categorías) */}
+      {/* Category / Sector Tabs */}
       <div className="flex flex-wrap items-center gap-2 bg-[#003866]/85 p-3 rounded-2xl border border-blue-400/20 shadow-lg">
         <button
           onClick={() => setSector('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             sector === 'all'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
               : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white'
@@ -74,7 +83,7 @@ export const PartnerOpportunitiesPage: React.FC = () => {
           <button
             key={c.id}
             onClick={() => setSector(c.name)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               sector === c.name
                 ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
                 : 'bg-white/5 text-sky-200 hover:bg-white/10 hover:text-white'
@@ -90,64 +99,75 @@ export const PartnerOpportunitiesPage: React.FC = () => {
         <Loader text="Cargando oportunidades VIP..." />
       ) : opportunities.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {opportunities.map((opp) => (
-            <div
-              key={opp.id}
-              className="bg-[#003866]/85 rounded-3xl p-6 border border-blue-400/20 hover:border-amber-400/40 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between space-y-4 group"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold uppercase px-2.5 py-0.5 rounded-full bg-cicha-sky/20 text-sky-200 border border-cicha-sky/30 capitalize">
-                    {opp.type}
-                  </span>
-                  <span className="text-amber-300 font-bold bg-amber-400/20 px-2 py-0.5 rounded border border-amber-400/30">
-                    {opp.origin_country} ➔ {opp.target_country}
-                  </span>
-                </div>
+          {opportunities.map((opp) => {
+            const itemCats = Array.isArray(opp.categories) && opp.categories.length > 0
+              ? opp.categories
+              : (opp.sector ? [opp.sector] : []);
+            return (
+              <div
+                key={opp.id}
+                className="bg-[#003866]/85 rounded-3xl p-6 border border-blue-400/20 hover:border-amber-400/40 shadow-xl hover:shadow-2xl transition-all flex flex-col justify-between space-y-4 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold uppercase px-2.5 py-0.5 rounded-full bg-cicha-sky/20 text-sky-200 border border-cicha-sky/30 capitalize">
+                      {opp.type}
+                    </span>
+                    <span className="text-amber-300 font-bold bg-amber-400/20 px-2 py-0.5 rounded border border-amber-400/30">
+                      {opp.origin_country} ➔ {opp.target_country}
+                    </span>
+                  </div>
 
-                <h3 className="font-serif font-bold text-base text-white group-hover:text-amber-300 transition-colors break-words">
-                  {opp.title}
-                </h3>
+                  <h3 className="font-serif font-bold text-base text-white group-hover:text-amber-300 transition-colors break-words">
+                    {opp.title}
+                  </h3>
 
-                <p className="text-xs text-slate-300 leading-relaxed break-words whitespace-pre-line">
-                  {opp.description}
-                </p>
-
-                {/* VIP Unmasked Direct Contact Card */}
-                <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-cicha-sky/30 text-xs space-y-1.5 shadow-inner">
-                  <p className="text-[10px] uppercase font-bold text-amber-300 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                    Contacto Directo (Exclusivo Socio)
+                  <p className="text-xs text-slate-300 leading-relaxed break-words whitespace-pre-line">
+                    {opp.description}
                   </p>
-                  {opp.contact_person && (
-                    <p className="font-bold text-white flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-sky-300" />
-                      {opp.contact_person}
+
+                  {/* VIP Unmasked Direct Contact Card */}
+                  <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-cicha-sky/30 text-xs space-y-1.5 shadow-inner">
+                    <p className="text-[10px] uppercase font-bold text-amber-300 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      Contacto Directo (Exclusivo Socio)
                     </p>
-                  )}
-                  {opp.contact_email && (
-                    <a
-                      href={`mailto:${opp.contact_email}?subject=Interés Socio CICHA: ${encodeURIComponent(opp.title)}`}
-                      className="text-sky-300 hover:text-amber-300 hover:underline font-semibold flex items-center gap-1.5 transition-colors"
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      {opp.contact_email}
-                    </a>
-                  )}
+                    {opp.contact_person && (
+                      <p className="font-bold text-white flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-sky-300" />
+                        {opp.contact_person}
+                      </p>
+                    )}
+                    {opp.contact_email && (
+                      <a
+                        href={`mailto:${opp.contact_email}?subject=Interés Socio CICHA: ${encodeURIComponent(opp.title)}`}
+                        className="text-sky-300 hover:text-amber-300 hover:underline font-semibold flex items-center gap-1.5 transition-colors"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        {opp.contact_email}
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+                  <div className="flex flex-wrap gap-1 max-w-[65%]">
+                    {itemCats.map((c, idx) => (
+                      <span key={idx} className="text-sky-200/80 font-medium text-[11px]">
+                        {c}{idx < itemCats.length - 1 ? ',' : ''}
+                      </span>
+                    ))}
+                  </div>
+                  <a
+                    href={`mailto:${opp.contact_email || 'comercio@cicha.com.ar'}?subject=Interés Socio: ${encodeURIComponent(opp.title)}`}
+                    className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black flex items-center gap-1 shadow-md transition-all cursor-pointer shrink-0"
+                  >
+                    Contactar <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
-
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                <span className="text-sky-200/80 font-medium">{opp.sector}</span>
-                <a
-                  href={`mailto:${opp.contact_email || 'comercio@cicha.com.ar'}?subject=Interés Socio: ${encodeURIComponent(opp.title)}`}
-                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black flex items-center gap-1 shadow-md transition-all cursor-pointer"
-                >
-                  Contactar <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16 bg-[#003866]/85 rounded-3xl border border-blue-400/20 shadow-xl space-y-2">
